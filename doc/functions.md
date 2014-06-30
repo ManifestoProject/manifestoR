@@ -38,6 +38,8 @@ Simple Manifesto Corpus Processing
 
     * ?
     
+* manifestor.documentfromcsv(file)
+    
 * ... ?
 
 
