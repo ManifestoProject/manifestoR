@@ -6,35 +6,51 @@ Notizen
     * ManifestoDocument S3 class definieren, die ...
       * ... erbt von PlainTextDocument, TextDocument --> content(), meta() implementieren
       * ... eine struct ist aus [data.frame mit text= code= vorhaelt], meta=[meta object aus tm]
+      * siehe devel/manifestoRformatPlayground.R
     
-    * zu Copurs konvertieren:
-      * ManifestoSource: funktioniert aehnlich wie VectorSource, aber mit $reader, der die Elemente nicht nach PlainTextDocument coerced
-      * zwei reader providen:
-	* readManifesto.csv: macht aus Dateinamen/filehandles die ManifestoDocument-Objekte
-	* readManifesto.df: Standard, laesst Document-Objekte unveraendert
+    * zu Corpus konvertieren:
+      * a tm corpus source that creates from the two JSON objects, meta and text, (and a filtering list of ids?) a tm Corpus
+
     
-    * Fuer Corpus convenience-Funktionen schreiben
-      * factor.bycode
     
 2 Wie sieht das DB Schema aus?
 
-    * noch offen, haengt von 1 ab
-    * vermutlich: pro Dokument: textstring; dann Annotationen: QS von characterpos characterpos + Code
+    * 1 Meta-Datenbank mit
+        * partyid
+        * electiondate
+        * language
+        * isprimarydoc flag
+        * maycontradictcoredataset flag?
+        * manifestoid
+        * md5sum of text json object
+        * link to original
+        * md5sum of original
+    
+    * 1 Text-Datenbank mit
+        * manifestoid
+        * quasi sentence number
+        * quasi sentence text
+        * code
     
 3 Wie wird die Textdatenbank mit dem Core Dataset verknuepft?
 
     * PartyCode+electiondate bilden ID fuer document (collection?)
-    * Flag fuer primary falls mehrere Dokumente
-    * cooles Konzept: sources in tm. eigene schreiben fuer Manifesto-Datensatz? + wrapper-Methode?
+    * isprimarydoc flag falls mehrere Dokumente
+    * manifestos, deren Text wir nich haben/bereitstellen tauch nicht auf --> R package kuemmert sich drum und meldet das
     
-3 Wie sieht der Server aus, der auf die DB zugreifen laesst?
+4 API, die dem R package Zugriff auf die Text Datenbank gibt:
 
-    * API keys werden erzeugt mit Anmeldung und bei jedem Zugriff mitgeschickt
-    * Unklar: gibt es im R package eine Funktion um den API key fuer registrierte Nutzer_innen zu holen?
-    * wird ueber ein get request aufgerufen -> drei Aktionen moeglich: getCoreDataset und getOriginalDocument und getCodedDocument
-    * Unklar: Wie wird hier damit umgegangen, dass es potenziell mehrere Dokumente pro Case gibt?
+    * API keys werden erzeugt mit Anmeldung und bei jedem Zugriff mitgeschickt; muessen aber einmal aus dem User Profil im Browser kopiert werden
     
-4 Wie kommen die Dokumente in die DB?
+    * Funktionen:
+        * get metadata(list of partyid-electiondate pairs) --> gzipped json des entsprechenden Datenbank subsets; wenn partyid-electiondate unavailable still include id in in JSON-return with unavailability flag!
+        * get texts(list of manifestoids) --> gzipped json des entsprechenden Datenbank subsets
+        * get coredataset(versionid)
+        * get list of coredataset versions
+        
+        * get originals(list of manifestoids) --> gzipped files; stores in a folder on the server, named by manifestoid?
+    
+5 Wie kommen die Dokumente in die DB?
 
     * quasi-manuell, python Script bauen, dass einzelne .csv Dateien eincheckt
     * Wird die DB versioniert?
