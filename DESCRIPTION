@@ -1,0 +1,14 @@
+Package: manifestoR
+Title: Access and process data and documents of the Manifesto Project
+Date: 2004-07-28
+Version: 0.1
+Authors@R: c(person("Jirka", "Lewandowski", role = c("aut", "cre"),
+    email = "jirka.lewandowski@wzb.eu"))
+Author: Jirka Lewandowski <jirka.lewandowski@wzb.eu>
+Maintainer: Jirka Lewandowski <jirka.lewandowski@wzb.eu>
+Description: Access and process data and documents of the Manifesto Project
+Depends:
+    R (>= 3.1.0)
+License: GPL (>= 3)
+URL: http://manifesto-project.wzb.eu/
+LazyData: true
