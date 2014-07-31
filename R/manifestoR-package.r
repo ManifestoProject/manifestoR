@@ -1,4 +1,4 @@
-#' manifestoR.
+#' manifestoR R package
 #' 
 #' Access and process data and documents of the Manifesto Project
 #' \tabular{ll}{
@@ -13,6 +13,6 @@
 #' @name manifestoR
 #' @docType package
 #' @title  Access and process data and documents of the Manifesto Project
-#' @author Jirka Lewandowski \email{jirka.lewandowski@wzb.eu}
+#' @author Jirka Lewandowski \email{jirka.lewandowski@@wzb.eu}
 #' @references \url{http://manifesto-project.wzb.eu/}
 NULL

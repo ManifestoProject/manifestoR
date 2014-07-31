@@ -26,11 +26,17 @@ Metadaten-Objekt enthaelt auch unavailables
 Getting and Handling of Files/DB subsets
 ========================================
 
-* manifestodb.get(type=["meta", "text", "original", "core", "versions"], parameters=c(), apikey=NULL, file=NULL)
+* manifestodb.get(type=["meta", "text", "original", "core", "versions"], parameters=c(), apikey=NULL, savelocation=NULL)
 
     * treat parameters differently, depending on type --> URL
-    * If file==NULL type gives standard name for cache [**add** to this file, but return only newly got structure]
+    * If folder==NULL type gives standard name for cache [**add** to this file, but return only newly got structure]
     * If apikey==NULL use variable from workspace
+    * meta: return data.frame
+    * text: return list of data.frames
+    * original: return list of paths to .pdfs/.docs
+    * core: return data.frame
+    * versions: return data.frame
+
 
 * manifesto.texts([list of partyid-electiondate, subset of coredataset data.frame], cache=TRUE)
 
@@ -46,7 +52,7 @@ Getting and Handling of Files/DB subsets
     * return data.frame with request ids and filehandles
 
 
-* manifestodb.availability(...)
+* manifesto.availability(...)
 
     * same parameters as manifestotexts (also convenience version working with data.frame subset of core dataset)
     * gets the metadata and returns a dataframe for which observations a document was found and could be downloaded
@@ -54,9 +60,9 @@ Getting and Handling of Files/DB subsets
     * summary statistic: availability percentage
     
 
-* manifestodb.getcore(version="newest")
+* manifesto.maindataset(version="current")
 
-* manifestodb.listcoreversions()
+* manifesto.listversions()
 
 
 Helper functions not needed by end user:
