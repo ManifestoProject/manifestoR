@@ -1,12 +1,3 @@
-klocation <- "location"
-kversions <- "versions"
-kdefaultcachename <- "manifestofiles"
-ktexts <- "texts"
-koriginals <- "originals"
-kdatasetname <- "MPDataset_"
-
-manifesto.cacheenv <- new.env()
-assign(klocation, NULL, envir = manifesto.cacheenv)
 
 #' Set location of the cache for downloaded Manifesto Project data
 #' 
@@ -18,11 +9,12 @@ assign(klocation, NULL, envir = manifesto.cacheenv)
 #' ## manifesto.setcachelocation(file.path(getwd(), "manifestofiles"))
 #' 
 manifesto.setcachelocation <- function(path) {
-  assign(klocation, path, envir = manifesto.cacheenv)
-  if (!is.null(get(klocation, envir = manifesto.cacheenv))) {
+  assign(kcachelocation, path, envir = manifesto.globalenv)
+  if (!is.null(get(kcachelocation, envir = manifesto.globalenv))) {
     ensurecacheexists(path)
   }
 }
+manifesto.setcachelocation(NULL)
 
 #' Get location of the cache for downloaded Manifesto Project data
 #' 
@@ -35,10 +27,10 @@ manifesto.setcachelocation <- function(path) {
 #' ## manifesto.getcachelocation()
 #' 
 manifesto.getcachelocation <- function() {
-  if (is.null(get(klocation, envir = manifesto.cacheenv))) {
+  if (is.null(get(kcachelocation, envir = manifesto.globalenv))) {
     manifesto.setcachelocation(file.path(getwd(), kdefaultcachename))
   }
-  return(get(klocation, envir = manifesto.cacheenv))
+  return(get(kcachelocation, envir = manifesto.globalenv))
 }
 
 

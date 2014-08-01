@@ -7,7 +7,7 @@ all: pack check
 
 
 doc:
-	R -e "library(devtools); library(roxygen2); document(clean = TRUE)"
+	R -e "library(devtools); library(roxygen2); document(clean = TRUE, roclets = c('namespace', 'rd'))"
 # TODO run roxygen2
 
 pack: doc

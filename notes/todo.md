@@ -4,6 +4,5 @@
 
 
 konkret:
-* apikey in global environment
 * cache refactorn in eine Funktion
 * emptycache, copy etc.

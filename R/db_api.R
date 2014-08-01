@@ -1,18 +1,10 @@
 library(RCurl)
 library(jsonlite)
 
-manifestodb.apikey <<- NA
-
 kmerror.keymissing <- 
     paste("No API key specified. Specify apikey via manifestodb.setapikey()",
           "or go to http://manifesto-project.wzb.eu to create key and/or",
           "account.")
-
-kmtype.meta <- "meta"
-kmtype.text <- "text"
-kmtype.original <- "original"
-kmtype.main <- "main"
-kmtype.versions <- "versions"
 
 kmurl.apiroot <- "https://manifesto-project.wzb.eu/tools/"
 
@@ -27,8 +19,9 @@ kmurl.apiroot <- "https://manifesto-project.wzb.eu/tools/"
 #' @export
 manifestodb.setapikey <- function(key) {
   # TODO check key?
-  manifestodb.apikey <<- key
+  assign(kapikey, key, envir = manifesto.globalenv)
 }
+manifestodb.setapikey(NA)
 
 toamplist <- function(params) {
   reducand <- function(left, right) {
@@ -49,15 +42,15 @@ toamplist <- function(params) {
 #'             to indicate type of content to get
 #' @param parameters content filter parameters specific to type
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the workspace variable
-#'               \code{manifestodb.apikey} is used.
+#'               currently stored in the variable \code{apikey} of the
+#'               environment \code{manifesto.globalenv} is used.
 #' @param saveto folder in which to put downloaded documents, usually the cache 
 #' 
 manifestodb.get <- function(type, parameters=c(), apikey=NULL, saveto=NULL) {
   
   # check api key
   if (is.null(apikey)) {
-    apikey <- manifestodb.apikey
+    apikey <- get(kapikey, envir = manifesto.globalenv)
   }
   if (is.na(apikey)) {
     stop(kmerror.keymissing)

@@ -8,8 +8,8 @@
 #'                \code{\link{manifesto.listversion()}} for a list of available
 #'                versions.
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the workspace variable
-#'               \code{manifestodb.apikey} is used.
+#'               currently stored in the variable \code{apikey} of the
+#'               environment \code{manifesto.globalenv} is used.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
 #' @export
@@ -50,8 +50,11 @@ manifesto.maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
 #' List the available versions of the Manifesto Project's Main Dataset available
 #' 
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the workspace variable
-#'               \code{manifestodb.apikey} is used.#' @export
+#'               currently stored in the variable \code{apikey} of the
+#'               environment \code{manifesto.globalenv} is used.
+#' @param cache Boolean flag indicating whether to use locally cached data if
+#'              available.
+#' @export
 #' @examples
 #' ## manifesto.listversions()
 manifesto.listversions <- function(apikey=NULL, cache=TRUE) {
