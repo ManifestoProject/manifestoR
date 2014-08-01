@@ -52,10 +52,10 @@ cachefilename <- function(type, parameters=c()) {
   
   if (type == kmtype.main) {
     return(file.path(manifesto.getcachelocation(), paste(kdatasetname, parameters$key, ".csv", sep="")))
-  }
-  
-  if (type == kmtype.versions) {
+  } else if (type == kmtype.versions) {
     return(file.path(manifesto.getcachelocation(), paste(kversions, ".csv", sep="")))    
+  } else if (type == kmtype.meta) {
+    return(file.path(manifesto.getcachelocation(), paste(kmetadata, ".csv", sep="")))
   }
   
 }
@@ -67,7 +67,7 @@ cachefilename <- function(type, parameters=c()) {
 #' returned.
 #' Otherwise \code{call} is executed "via the cache", which means, if there
 #' is a file name \code{filename} in the cache, this is read and the content
-#' returned, otherwise \codel{call} is executed and its result is written to
+#' returned, otherwise \code{call} is executed and its result is written to
 #' \code{filename} in the cache as well as returned.
 #' 
 #' @details
@@ -95,6 +95,60 @@ viacache <- function(call, filename, usecache=TRUE) {
   
   return(content)
   
+}
+
+
+# a functional programming solution for a simple data.frame filter with combined ids
+filterids <- function(data, filter, ids=NULL, setminus=TRUE) {
+  
+  if (is.null(ids)) {
+    ids <- names(filter)
+  }
+  
+  reducanddata <- function(left, right) { paste(left, data[,right]) }
+  reducandfilter <- function(left, right) { paste(left, filter[,right]) }
+  
+  dataids <- Reduce(reducanddata, ids, "")
+  filterids <- Reduce(reducandfilter, ids, "")
+  
+  filtered <- which(dataids %in% filterids)
+  if (setminus) {
+    return(data[-filtered,])
+  } else {
+    return(data[filtered,])
+  }
+}
+
+## TODO document (and export?)
+mergeintocache <- function(call, filename, ids, usecache=TRUE) {
+  
+  if (usecache) {
+    if (file.exists(filename)) {
+      # read from cache
+      oldcontent <- read.csv(filename)
+      
+      # filter all ids which are in oldcontent
+      filteredids <- unique(filterids(ids, oldcontent, ids=names(ids)))
+      
+      # download new ids
+      newcontent <- call(filteredids)
+      
+      # write to cache and prepare return value
+      content <- rbind(oldcontent, newcontent)
+      write.csv(content, file=filename, row.names=FALSE)
+      newcontent <- filterids(content, ids, setminus=FALSE)
+      
+    } else {
+      # download and write to cache
+      newcontent <- call(ids)
+      write.csv(newcontent, file=filename, row.names=FALSE)
+    }
+    
+  } else {
+    newcontent <- call(ids)
+  }
+  
+  return(newcontent)
 }
 
 #' Empty the current cache

@@ -1,32 +1,15 @@
-## db_api
 
-set variable in manifestodb.apikey upfront to NULL
-
-* manifestodb.get
-* manifestodb.setAPIkey
-
-json here or in manifesto_corpus?
 
 ## manifesto
 
-(cache handling in here)
+* export: manifesto.getcore
+* export: manifesto.listcoreversions
+
+
 
 * export: manifesto.texts
 * export: manifesto.originals
 * export: manifesto.availability
-* export: manifesto.getcore
-* export: manifesto.listcoreversions
-
-## cache
-
-(export all)
-
-* manifesto.setcachelocation
-
-
-* manifesto.emptycache
-* manifesto.savecache
-
 
 
 ## corpus
@@ -44,3 +27,4 @@ define tm class ManifestoDocument, ManifestoSource
 * code frequencies to percentage-row
 * filters (tm format)
 * visitwebpage() ?
+* download texts to folder; download originals to folder

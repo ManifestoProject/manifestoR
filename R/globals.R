@@ -7,6 +7,7 @@ kapikey <- "apikey"
 kversions <- "versions"
 kdefaultcachename <- "manifestofiles"
 ktexts <- "texts"
+kmetadata <- "docmetadata"
 koriginals <- "originals"
 kdatasetname <- "MPDataset_"
 

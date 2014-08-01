@@ -24,10 +24,8 @@ manifestodb.setapikey <- function(key) {
 manifestodb.setapikey(NA)
 
 toamplist <- function(params) {
-  reducand <- function(left, right) {
-    paste(left, "&", right, "=", params[right], sep="")
-  }
-  return(Reduce(reducand, names(params), ""))
+  pairs <- paste(names(params), params, sep="=")
+  return(Reduce(function(x, y){ paste(x, y, sep="&") }, pairs))
 }
 
 #' Download content from the Manifesto Database
@@ -61,12 +59,14 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL, saveto=NULL) {
     requestfile <- "api_list_core_versions.json"
   } else if (type == kmtype.main) {
     requestfile <- "api_get_core.json"    
+  } else if (type == kmtype.meta) {
+    requestfile <- "api_metadata"
   }
   
   # get content from web
   requesturl <- paste(kmurl.apiroot, requestfile, "?",
                       "api_key=", apikey,
-                      toamplist(parameters), sep="")
+                      "&", toamplist(parameters), sep="")
   jsonstr <- getURL(requesturl)
   
   # convert to desired format
@@ -78,5 +78,11 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL, saveto=NULL) {
     mpds <- mpds[-1,]
     row.names(mpds) <- NULL # or: paste(mpds$party, mpds$date, sep="-")
     return(mpds)
+  } else if (type == kmtype.meta) {
+    metadata <- data.frame(fromJSON(jsonstr))
+    names(metadata) <- gsub("items\\.", "", names(metadata))
+    names(metadata)[which(names(metadata)=="party_id")] <- "party"
+    names(metadata)[which(names(metadata)=="election_date")] <- "date"
+    return(metadata)
   }
 }
