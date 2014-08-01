@@ -79,7 +79,6 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL, saveto=NULL) {
   # convert to desired format
   if (type == kmtype.versions) {
     return(data.frame(fromJSON(jsonstr)))
-    
   } else if (type == kmtype.main) {
     mpds <- data.frame(fromJSON(jsonstr))
     names(mpds) <- make.names(as.vector(as.matrix(mpds[1,]))) # names are in first row

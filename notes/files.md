@@ -22,9 +22,10 @@ json here or in manifesto_corpus?
 (export all)
 
 * manifesto.setcachelocation
+
+
 * manifesto.emptycache
 * manifesto.iscacheuptodate
-
 * manifesto.updatefolder
 * manifesto.updatecache
 

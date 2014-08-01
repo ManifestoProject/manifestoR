@@ -19,17 +19,32 @@
 #' 
 manifesto.maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
   
-  if (version=="current") {
-    versions <- manifesto.listversions(apikey=apikey)
-    version <- versions[nrow(versions), "datasets.id"] # TODO date in dataset
+  if (version == "current") {
+    versions <- manifesto.listversions(apikey=apikey, cache=cache)
+    version <- as.character(versions[nrow(versions), "datasets.id"]) # TODO date in dataset
   }
   
-  # TODO caching
-  return(manifestodb.get(kmtype.main, parameters=list(key=version),
-                         apikey=apikey))
+  parameters <- list(key=version)
+
+  if (cache == TRUE) {
+    cachefile <- cachefilename(kmtype.main, parameters)
+    if (file.exists(cachefile)) {
+      # read from cache
+      mpds <- read.csv(cachefile)
+    } else {
+      # download and write to cache
+      mpds <- manifestodb.get(kmtype.main, parameters=parameters,
+                              apikey=apikey)
+      write.csv(mpds, file=cachefile, row.names=FALSE)
+    }
+  } else {
+    mpds <- manifestodb.get(kmtype.main, parameters=parameters,
+                            apikey=apikey)
+  }
+  
+  return(mpds)
   
 }
-
 
 
 #' List the available versions of the Manifesto Project's Main Dataset available
@@ -39,6 +54,21 @@ manifesto.maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
 #'               \code{manifestodb.apikey} is used.#' @export
 #' @examples
 #' ## manifesto.listversions()
-manifesto.listversions <- function(apikey=NULL) {
-  return(manifestodb.get(kmtype.versions, apikey=apikey))
+manifesto.listversions <- function(apikey=NULL, cache=TRUE) {
+  
+  if (cache == TRUE) {
+    cachefile <- cachefilename(kmtype.versions)
+    if (file.exists(cachefile)) {
+      # read from cache
+      versions <- read.csv(cachefile)
+    } else {
+      # download and write to cache
+      versions <- manifestodb.get(kmtype.versions, apikey=apikey)
+      write.csv(versions, file=cachefile, row.names=FALSE)
+    }
+  } else {
+    versions <- manifestodb.get(kmtype.versions, apikey=apikey)
+  }
+  
+  return(versions)
 }
