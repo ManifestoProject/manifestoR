@@ -25,12 +25,8 @@ json here or in manifesto_corpus?
 
 
 * manifesto.emptycache
-* manifesto.iscacheuptodate
-* manifesto.updatefolder
-* manifesto.updatecache
-
 * manifesto.savecache
-* manifesto.loadfolder
+
 
 
 ## corpus

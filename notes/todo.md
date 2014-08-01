@@ -4,5 +4,4 @@
 
 
 konkret:
-* cache refactorn in eine Funktion
 * emptycache, copy etc.

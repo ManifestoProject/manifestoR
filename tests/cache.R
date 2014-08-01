@@ -24,6 +24,19 @@ mpds <- manifesto.maindataset() # again long
 
 lscache()
 
+manifesto.copycache("storedcache")
+
+manifesto.emptycache()
+
+mpds <- manifesto.maindataset() # again long
+
 removecache()
+
+manifesto.setcachelocation("storedcache")
+
+mpds <- manifesto.maindataset() # should be fast and use cache
+
+removecache() ## cleanup
+
 
 NULL

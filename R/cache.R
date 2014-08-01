@@ -77,8 +77,6 @@ cachefilename <- function(type, parameters=c()) {
 #' @param filename name of file in cache where results are found/stored
 #' @param usecache can be set to \code{FALSE} to bypass cache functionality.
 #' 
-#' @examples
-#' ## manifesto.getcachelocation()
 #' 
 viacache <- function(call, filename, usecache=TRUE) {
   
@@ -97,4 +95,30 @@ viacache <- function(call, filename, usecache=TRUE) {
   
   return(content)
   
+}
+
+#' Empty the current cache
+#' 
+#' Empty the current cache
+#' 
+#' @export
+#' @examples
+#' ## manifesto.emptycache()
+#' 
+manifesto.emptycache <- function() {
+  system(paste("rm -rf ", manifesto.getcachelocation())) ## remove cache
+  ensurecacheexists(manifesto.getcachelocation())
+}
+
+#' Copy the current cache
+#' 
+#' Copy the current cache to a specified location, e.g. for permanently
+#' storing the data snapshot used for an analysis
+#' 
+#' @export
+#' @examples
+#' ## manifesto.copycache("myproject/manifestofiles")
+#' 
+manifesto.copycache <- function(destination) {
+  system(paste("cp -r", manifesto.getcachelocation(), destination)) ## remove cache
 }
