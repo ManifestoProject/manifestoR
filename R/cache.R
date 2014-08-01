@@ -59,3 +59,42 @@ cachefilename <- function(type, parameters=c()) {
   }
   
 }
+
+
+#' Function call via cache 
+#' 
+#' If \code{usecache==FALE}, \code{call} is executed and its return value is
+#' returned.
+#' Otherwise \code{call} is executed "via the cache", which means, if there
+#' is a file name \code{filename} in the cache, this is read and the content
+#' returned, otherwise \codel{call} is executed and its result is written to
+#' \code{filename} in the cache as well as returned.
+#' 
+#' @details
+#' Return values are data.frames, file formats in the cache are .csv.
+#' 
+#' @param call call to be executed
+#' @param filename name of file in cache where results are found/stored
+#' @param usecache can be set to \code{FALSE} to bypass cache functionality.
+#' 
+#' @examples
+#' ## manifesto.getcachelocation()
+#' 
+viacache <- function(call, filename, usecache=TRUE) {
+  
+  if (usecache) {
+    if (file.exists(filename)) {
+      # read from cache
+      content <- read.csv(filename)
+    } else {
+      # download and write to cache
+      content <- call
+      write.csv(content, file=filename, row.names=FALSE)
+    }
+  } else {
+    content <- call
+  }
+  
+  return(content)
+  
+}

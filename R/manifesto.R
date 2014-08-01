@@ -26,22 +26,10 @@ manifesto.maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
   
   parameters <- list(key=version)
 
-  if (cache == TRUE) {
-    cachefile <- cachefilename(kmtype.main, parameters)
-    if (file.exists(cachefile)) {
-      # read from cache
-      mpds <- read.csv(cachefile)
-    } else {
-      # download and write to cache
-      mpds <- manifestodb.get(kmtype.main, parameters=parameters,
-                              apikey=apikey)
-      write.csv(mpds, file=cachefile, row.names=FALSE)
-    }
-  } else {
-    mpds <- manifestodb.get(kmtype.main, parameters=parameters,
-                            apikey=apikey)
-  }
-  
+  mpds <- viacache(manifestodb.get(kmtype.main, parameters=parameters,
+                                   apikey=apikey),
+                   filename=cachefilename(kmtype.main, parameters),
+                   usecache=cache)  
   return(mpds)
   
 }
@@ -59,19 +47,9 @@ manifesto.maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
 #' ## manifesto.listversions()
 manifesto.listversions <- function(apikey=NULL, cache=TRUE) {
   
-  if (cache == TRUE) {
-    cachefile <- cachefilename(kmtype.versions)
-    if (file.exists(cachefile)) {
-      # read from cache
-      versions <- read.csv(cachefile)
-    } else {
-      # download and write to cache
-      versions <- manifestodb.get(kmtype.versions, apikey=apikey)
-      write.csv(versions, file=cachefile, row.names=FALSE)
-    }
-  } else {
-    versions <- manifestodb.get(kmtype.versions, apikey=apikey)
-  }
+  versions <- viacache(manifestodb.get(kmtype.versions, apikey=apikey),
+                       filename=cachefilename(kmtype.versions),
+                       usecache=cache)
   
   return(versions)
 }
