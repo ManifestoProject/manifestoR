@@ -29,7 +29,38 @@ manifesto.maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
   mpds <- viacache(manifestodb.get(kmtype.main, parameters=parameters,
                                    apikey=apikey),
                    filename=cachefilename(kmtype.main, parameters),
-                   usecache=cache)  
+                   usecache=cache)
+  
+  ## format for accesibility
+  mpds <- formatmpds(mpds)
+  
+  return(mpds)
+  
+}
+
+#' Format the main data set
+#' 
+#' Creates the format that is visible to the R user
+#' from the internal .csv files (in cache or from the API)
+#'
+#' @param mpds A data.frame with a main data set version to be formatted
+
+formatmpds <- function(mpds) {
+  
+  names(mpds) <- tolower(names(mpds))
+  
+  for (name in names(mpds)) {
+    
+    if (!name %in% c("edate", "countryname", "partyname")) {
+      mpds[,name] <- as.numeric(as.character(mpds[,name]))
+    }
+    
+    if (name == "edate") {
+      mpds[,name] <- as.Date(as.character(mpds[,name]), format="%m/%d/%Y")
+    }
+    
+  }
+  
   return(mpds)
   
 }
@@ -61,7 +92,10 @@ manifesto.listversions <- function(apikey=NULL, cache=TRUE) {
 #' and election date. This information comprises, language, checksums and links
 #' to the text as well as original documents if available.
 #' 
-#' @param ids list of partys (as ids) and dates (of elections), paired
+#' @param ids list of partys (as ids) and dates of elections, paired. Dates must
+#'            be given either in the \code{date} or the \code{edate} variable,
+#'            formatted in the way they are in the main data set in this package
+#'            (date: as.numeric, YYYYMM, edate: as.Date())
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
 #'               environment \code{manifesto.globalenv} is used.
@@ -73,9 +107,13 @@ manifesto.listversions <- function(apikey=NULL, cache=TRUE) {
 #' ## manifesto.meta(wanted)
 manifesto.meta <- function(ids, apikey=NULL, cache=TRUE) {
   
-  ids <- ids[,c("party", "date")]
-
   # convert ids to parameter list for the api call
+  names(ids) <- tolower(names(ids))
+  ids <- ids[,intersect(c("party", "date", "edate"), names(ids))]
+  
+  if (is.null(ids$date)) {
+    ids$date <- as.numeric(format(ids$edate, format="%Y%m"))
+  }
   
   # for mergeintocache() the call has a data.frame with ids as argument
   call <- function(ids) {

@@ -69,20 +69,29 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL, saveto=NULL) {
                       "&", toamplist(parameters), sep="")
   jsonstr <- getURL(requesturl)
   
-  # convert to desired format
+  # convert to desired format for caching
   if (type == kmtype.versions) {
+  
     return(data.frame(fromJSON(jsonstr)))
+    
   } else if (type == kmtype.main) {
     mpds <- data.frame(fromJSON(jsonstr))
+    
+    # fix names
     names(mpds) <- make.names(as.vector(as.matrix(mpds[1,]))) # names are in first row
     mpds <- mpds[-1,]
     row.names(mpds) <- NULL # or: paste(mpds$party, mpds$date, sep="-")
+  
     return(mpds)
+    
   } else if (type == kmtype.meta) {
+    
     metadata <- data.frame(fromJSON(jsonstr))
-    names(metadata) <- gsub("items\\.", "", names(metadata))
+    names(metadata) <- gsub("items\\.", "", names(metadata)) # TODO this will probably change; also: here is the place to insert missing/unavailable items
     names(metadata)[which(names(metadata)=="party_id")] <- "party"
     names(metadata)[which(names(metadata)=="election_date")] <- "date"
+    
     return(metadata)
+    
   }
 }
