@@ -5,11 +5,11 @@
 * export: manifesto.getcore
 * export: manifesto.listcoreversions
 
+* export: manifesto.availability
 
 
 * export: manifesto.texts
 * export: manifesto.originals
-* export: manifesto.availability
 
 
 ## corpus

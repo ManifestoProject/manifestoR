@@ -43,6 +43,9 @@ metadata4 <- manifesto.meta(wanted4)
 print(metadata4)
 
 
-## TODO now try with a non-existant id
+## now try with a non-existant id
+wantedfail <- data.frame(party=c(41320, 41320), date=c(200909, 200409))
+metadatafail <- manifesto.meta(wantedfail) ## you should be warned
+print(metadatafail)
 
 

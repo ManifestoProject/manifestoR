@@ -102,7 +102,7 @@ viacache <- function(call, filename, usecache=TRUE) {
 filterids <- function(data, filter, ids=NULL, setminus=TRUE) {
   
   if (is.null(ids)) {
-    ids <- names(filter)
+    ids <- intersect(names(filter), names(data))
   }
   
   reducanddata <- function(left, right) { paste(left, data[,right]) }
@@ -110,10 +110,14 @@ filterids <- function(data, filter, ids=NULL, setminus=TRUE) {
   
   dataids <- Reduce(reducanddata, ids, "")
   filterids <- Reduce(reducandfilter, ids, "")
-  
+    
   filtered <- which(dataids %in% filterids)
   if (setminus) {
-    return(data[-filtered,])
+    if (length(filtered)==0) {  # [-] op seems to not work for empty vector
+      return(data)
+    } else {
+      return(data[-filtered,])      
+    }
   } else {
     return(data[filtered,])
   }
@@ -131,10 +135,14 @@ mergeintocache <- function(call, filename, ids, usecache=TRUE) {
       filteredids <- unique(filterids(ids, oldcontent, ids=names(ids)))
       
       # download new ids
-      newcontent <- call(filteredids)
+      if (nrow(filteredids) > 0) {
+        newcontent <- call(filteredids)
+        content <- rbind(oldcontent, newcontent)
+      } else {
+        content <- oldcontent
+      }
       
       # write to cache and prepare return value
-      content <- rbind(oldcontent, newcontent)
       write.csv(content, file=filename, row.names=FALSE)
       newcontent <- filterids(content, ids, setminus=FALSE)
       

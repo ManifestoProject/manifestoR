@@ -85,11 +85,25 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL, saveto=NULL) {
     return(mpds)
     
   } else if (type == kmtype.meta) {
-    
-    metadata <- data.frame(fromJSON(jsonstr))
-    names(metadata) <- gsub("items\\.", "", names(metadata)) # TODO this will probably change; also: here is the place to insert missing/unavailable items
+      
+    robj <- fromJSON(jsonstr)
+    metadata <- data.frame(robj$items)
     names(metadata)[which(names(metadata)=="party_id")] <- "party"
     names(metadata)[which(names(metadata)=="election_date")] <- "date"
+    
+    missings <- robj$missing_items$key
+    for (misskey in missings) {
+      
+      split <- strsplit(misskey, "_")
+      party_id <- split[[1]][1]
+      election_date <- split[[1]][2]
+      
+      warning(paste("No information for party ", party_id,
+                 " at election date ", election_date,
+                 " in the Manifesto Project database! ",
+                 "Please verify correctness of you query.",
+                 sep=""))
+    }
     
     return(metadata)
     
