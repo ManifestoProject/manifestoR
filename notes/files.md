@@ -4,7 +4,6 @@
 
 * export: manifesto.getcore
 * export: manifesto.listcoreversions
-
 * export: manifesto.availability
 
 

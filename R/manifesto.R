@@ -135,6 +135,93 @@ manifesto.meta <- function(ids, apikey=NULL, cache=TRUE) {
   
 }
 
+is.naorstringna <- function(v) {
+  return(is.na(v) | v=="NA")
+}
+
+#' Get availability information for election programmes
+#' 
+#' @details
+#' This calls manifest.meta() on the respective ids and hence might add to the
+#' cache!
+#' 
+#' @param ids list of partys (as ids) and dates of elections, paired. Dates must
+#'            be given either in the \code{date} or the \code{edate} variable,
+#'            formatted in the way they are in the main data set in this package
+#'            (date: as.numeric, YYYYMM, edate: as.Date())
+#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
+#'               currently stored in the variable \code{apikey} of the
+#'               environment \code{manifesto.globalenv} is used.
+#' @param cache Boolean flag indicating whether to use locally cached data if
+#'              available.
+#' @return an object of class \code{\link{ManifestoAvailability}}
+#'         containing availability information
+#' @export
+#' @examples
+#' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+#' ## avl <- manifesto.availability(wanted)
+#' ## summary(avl)
+manifesto.availability <- function(ids, apikey=NULL, cache=TRUE) {
+  
+  metadata <- manifesto.meta(ids, apikey=apikey, cache=cache)
+  
+  availability <- metadata[,c("party", "date", "language", "is_primary_doc",
+                              "may_contradict_core_dataset")]
+  
+  availability$manifestos <- !is.naorstringna(metadata$manifesto_id)
+  availability$originals <- !is.naorstringna(metadata$url_original)
+  
+  availability <- list(query=ids, date=date(), availability=availability)
+  class(availability) <- c("ManifestoAvailability", class(availability))
+  return(availability)
+}
+
+
+#' Manifesto Availability Information class
+#' 
+#' Objects returned by \code{\link{manifesto.availability}}. Use
+#' \code{summary} to display information.
+#' 
+#' @details
+#' ManifestoAvailability objects are lists with a key \code{query}, containing
+#' the original id set which was queried, and a key \code{availability},
+#' containing information derived from the Manifesto Project's document metadata 
+#' database about which types of documents are available for the query.
+#' 
+#' @name ManifestoAvailability
+#' @docType class
+#' @examples
+#' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+#' ## avl <- manifesto.availability(wanted)
+#' ## summary(avl)
+NULL
+
+#' Summarize availability information of a manifesto document query
+#' 
+#' @export
+summary.ManifestoAvailability <- function(avl) {
+  
+  nqueried <- nrow(unique(avl$query)[,c("party", "date")])
+  ncovereddocs <- length(which(unique(avl$availability[which(
+                             avl$availability$manifestos),])$manifestos))
+  ncoveredorigs <- length(which(unique(avl$availability[which(
+                             avl$availability$originals),])$originals))
+  languages <- unique(avl$availability$language)
+  
+  summary <- list('Queried for'=nqueried,
+                  'Documents found'=paste(length(which(avl$availability$manifestos)),
+                                       " (", 100*ncovereddocs/nqueried, "%)",
+                                       sep=""),
+                  'Originals found'=paste(length(which(avl$availability$originals)),
+                                        " (", 100*ncoveredorigs/nqueried, "%)",
+                                        sep=""),
+                  Languages=paste(length(languages),
+                                  " (", Reduce(paste, languages), ")", sep=""))
+  
+  class(summary) <- c("summaryDefault", "table")
+  return(summary)
+  
+}
 
 ## TODO build, document and export
 manifesto.texts <- function(ids, apikey=NULL, cache=TRUE) {

@@ -49,3 +49,6 @@ metadatafail <- manifesto.meta(wantedfail) ## you should be warned
 print(metadatafail)
 
 
+## test the summary function
+avl <- manifesto.availability(wanted)
+summary(avl)
