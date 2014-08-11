@@ -60,8 +60,8 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL, saveto=NULL) {
   } else if (type == kmtype.main) {
     requestfile <- "api_get_core.json"    
   } else if (type == kmtype.meta) {
-    requestfile <- "api_metadata"
-  }
+    requestfile <- "api_metadata.json"
+  } 
   
   # get content from web
   requesturl <- paste(kmurl.apiroot, requestfile, "?",
@@ -91,7 +91,7 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL, saveto=NULL) {
     names(metadata)[which(names(metadata)=="party_id")] <- "party"
     names(metadata)[which(names(metadata)=="election_date")] <- "date"
     
-    missings <- robj$missing_items$key
+    missings <- robj$missing_items
     for (misskey in missings) {
       
       split <- strsplit(misskey, "_")

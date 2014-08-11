@@ -6,8 +6,9 @@
 * export: manifesto.listcoreversions
 * export: manifesto.availability
 
-
 * export: manifesto.texts
+
+
 * export: manifesto.originals
 
 

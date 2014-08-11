@@ -131,6 +131,8 @@ manifesto.meta <- function(ids, apikey=NULL, cache=TRUE) {
                              ids=ids,
                              usecache=cache)
   
+  class(metadata) <- c("ManifestoMetadata", class(metadata))
+  
   return(metadata)
   
 }
@@ -145,10 +147,10 @@ is.naorstringna <- function(v) {
 #' This calls manifest.meta() on the respective ids and hence might add to the
 #' cache!
 #' 
-#' @param ids list of partys (as ids) and dates of elections, paired. Dates must
-#'            be given either in the \code{date} or the \code{edate} variable,
-#'            formatted in the way they are in the main data set in this package
-#'            (date: as.numeric, YYYYMM, edate: as.Date())
+#' @param ids Information on which documents to get. This can either be a
+#'            list of partys (as ids) and dates of elections as given to
+#'            \code{\link{manifesto.meta}} or a \code{ManifestoMetadata} object
+#'            (\code{data.frame}) as returned by \code{\link{manifesto.meta}}.
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
 #'               environment \code{manifesto.globalenv} is used.
@@ -163,7 +165,11 @@ is.naorstringna <- function(v) {
 #' ## summary(avl)
 manifesto.availability <- function(ids, apikey=NULL, cache=TRUE) {
   
-  metadata <- manifesto.meta(ids, apikey=apikey, cache=cache)
+  if ("ManifestoMetadata" %in% class(ids)) {
+    metadata <- ids    
+  } else {
+    metadata <- manifesto.meta(ids, apikey=apikey, cache=cache)
+  }
   
   availability <- metadata[,c("party", "date", "language", "is_primary_doc",
                               "may_contradict_core_dataset")]
@@ -223,15 +229,39 @@ summary.ManifestoAvailability <- function(avl) {
   
 }
 
-## TODO build, document and export
+#' Download annotated documents
+#' 
+#' Download annotated documents from the Manifesto Project Corpus Database
+#'
+#' @param ids Information on which documents to get. This can either be a
+#'            list of partys (as ids) and dates of elections as given to
+#'            \code{\link{manifesto.meta}} or a \code{ManifestoMetadata} object
+#'            (\code{data.frame}) as returned by \code{\link{manifesto.meta}}.
+#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
+#'               currently stored in the variable \code{apikey} of the
+#'               environment \code{manifesto.globalenv} is used.
+#' @param cache Boolean flag indicating whether to use locally cached data if
+#'              available.
+#' @return an object of \code{tm Corpus}'s subclass \code{ManifestoCorpus}
+#' @export
+#' @examples
+#' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+#' ## corpus <- manifesto.texts(wanted)
+#' ## summary(corpus)
 manifesto.texts <- function(ids, apikey=NULL, cache=TRUE) {
   
-  # if meta-data complete for the required cases (possibly marked as unavailable) use this;
-  # otherwise get missing metadata via manifestodb.get("meta", ...), attach and save to cache
   
+  if ("ManifestoMetadata" %in% class(ids)) {
+    metadata <- ids    
+  } else {
+    metadata <- manifesto.meta(ids, apikey=apikey, cache=cache)
+  }
   
-  # check for all cases in meta-data whether text is available (only if not marked as unavailable) in cache;
-  # get missing texts via manifestodb.get("text", ...), attach to cache
+  availability <- manifesto.availability(metadata, apikey=apikey, cache=cache) # do you need this?
+  
+  ## TODO get the documents via the mergeintocache mechanism
+  
+  ## TODO Format the documents into a ManifestoCorpus
   
   
 }
