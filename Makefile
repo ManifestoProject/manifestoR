@@ -22,10 +22,13 @@ checktest:
 install: all
 	R -e "install.packages('../$(pkgname)_$(pkgversion).tar.gz')"
 	
-test: install cachetest metadatatest
+test: install cachetest metadatatest textstest
 
 cachetest: 
 	(cd tests; R -f cache.R)
 	
 metadatatest: 
 	(cd tests; R -f metadata.R)
+	
+textstest:
+	(cd tests; R -f texts.R)

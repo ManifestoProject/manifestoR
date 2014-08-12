@@ -28,6 +28,31 @@ toamplist <- function(params) {
   return(Reduce(function(x, y){ paste(x, y, sep="&") }, pairs))
 }
 
+separate_missings <- function(robj, request="") {
+  
+  missings <- robj$missing_items
+  
+  for (misskey in missings) {
+    
+    split <- strsplit(misskey, "_")
+    party_id <- split[[1]][1]
+    election_date <- split[[1]][2]
+    
+    warning(paste("No ", request, " information for party ", party_id,
+                  " at election date ", election_date,
+                  " in the Manifesto Project database! ",
+                  "Please verify correctness of you query.",
+                  sep=""))
+  }
+  
+  robj <- robj$items
+  return(robj)
+}
+
+extract_text <- function(robj) {
+  
+}
+
 #' Download content from the Manifesto Database
 #' 
 #' Internal implementation. For more convenient access and caching use one of 
@@ -42,9 +67,8 @@ toamplist <- function(params) {
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
 #'               environment \code{manifesto.globalenv} is used.
-#' @param saveto folder in which to put downloaded documents, usually the cache 
 #' 
-manifestodb.get <- function(type, parameters=c(), apikey=NULL, saveto=NULL) {
+manifestodb.get <- function(type, parameters=c(), apikey=NULL) {
   
   # check api key
   if (is.null(apikey)) {
@@ -61,7 +85,9 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL, saveto=NULL) {
     requestfile <- "api_get_core.json"    
   } else if (type == kmtype.meta) {
     requestfile <- "api_metadata.json"
-  } 
+  } else if (type == kmtype.text) {
+    requestfile <- "api_texts_and_annotations.json"
+  }
   
   # get content from web
   requesturl <- paste(kmurl.apiroot, requestfile, "?",
@@ -86,26 +112,22 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL, saveto=NULL) {
     
   } else if (type == kmtype.meta) {
       
-    robj <- fromJSON(jsonstr)
-    metadata <- data.frame(robj$items)
+    metadata <- data.frame(separate_missings(fromJSON(jsonstr), request="metadata"))
     names(metadata)[which(names(metadata)=="party_id")] <- "party"
     names(metadata)[which(names(metadata)=="election_date")] <- "date"
     
-    missings <- robj$missing_items
-    for (misskey in missings) {
-      
-      split <- strsplit(misskey, "_")
-      party_id <- split[[1]][1]
-      election_date <- split[[1]][2]
-      
-      warning(paste("No information for party ", party_id,
-                 " at election date ", election_date,
-                 " in the Manifesto Project database! ",
-                 "Please verify correctness of you query.",
-                 sep=""))
-    }
-    
     return(metadata)
+  
+  } else if (type == kmtype.text) {
     
+    texts <- separate_missings(fromJSON(jsonstr), request="text")
+    names(texts)[which(names(texts)=="items")] <- "df"
+    names(texts)[which(names(texts)=="key")] <- "manifesto_id"
+    
+    return(texts)
+      
   }
+    
+    
+  
 }

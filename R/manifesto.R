@@ -250,18 +250,41 @@ summary.ManifestoAvailability <- function(avl) {
 #' ## summary(corpus)
 manifesto.texts <- function(ids, apikey=NULL, cache=TRUE) {
   
+  # TODO also provide way of using ids from metadata to get documents
   
   if ("ManifestoMetadata" %in% class(ids)) {
     metadata <- ids    
   } else {
     metadata <- manifesto.meta(ids, apikey=apikey, cache=cache)
   }
+    
+  call <- function(ids) {
+    parameters <- as.list(ids$manifesto_id)
+    names(parameters) <- rep("keys[]", length(parameters))
+    
+    texts <- manifestodb.get(type = kmtype.text,
+                            parameters = parameters,
+                             apikey = apikey) 
+
+    texts$party <- ids$party[order(ids$manifesto_id)]
+    texts$party[order(texts$manifesto_id)] <- texts$party
+    texts$date <- ids$date[order(ids$manifesto_id)]
+    texts$date[order(texts$manifesto_id)] <- texts$date
+
+    return(texts)
+
+  }
   
-  availability <- manifesto.availability(metadata, apikey=apikey, cache=cache) # do you need this?
-  
-  ## TODO get the documents via the mergeintocache mechanism
-  
+  ids <- ids[which(!is.na(ids$manifesto_id)),]
+  # TODO warn about number of manifesto_ids which are NA ? Or change api?
+  texts <- mergeintocache(call,
+                          filename=cachefilename(kmtype.text, ids),
+                          ids,
+                          multifile=TRUE,
+                          usecache=cache)
+
   ## TODO Format the documents into a ManifestoCorpus
   
+  return(texts)
   
 }

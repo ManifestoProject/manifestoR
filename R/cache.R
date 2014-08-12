@@ -56,6 +56,16 @@ cachefilename <- function(type, parameters=c()) {
     return(file.path(manifesto.getcachelocation(), paste(kversions, ".csv", sep="")))    
   } else if (type == kmtype.meta) {
     return(file.path(manifesto.getcachelocation(), paste(kmetadata, ".csv", sep="")))
+  } else if (type == kmtype.text) {
+    print(parameters)
+    textsdir <- file.path(manifesto.getcachelocation(), ktexts)
+    if (!is.null(parameters$party) & !is.null(parameters$date)) {
+      filename <- paste(parameters$party, parameters$date,
+                        parameters$manifesto_id, sep="_")
+    } else {
+      filename <- parameters$manifesto_id
+    }
+    return(file.path(textsdir, paste(filename, ".csv", sep="")))
   }
   
 }
@@ -123,40 +133,94 @@ filterids <- function(data, filter, ids=NULL, setminus=TRUE) {
   }
 }
 
-## TODO document (and export?)
-mergeintocache <- function(call, filename, ids, usecache=TRUE) {
+writedfstocache <- function(content, filename) {
   
+  if (nrow(content) != length(filename)) {
+    stop("cannot write data to cache, because number of filenames and data frames do not match!")
+  }
+  
+  for (i in 1:length(filename)) {
+    write.csv(content$df[[i]], file=filename[i], row.names=FALSE)
+  }
+  
+}
+
+readdfsfromcache <- function(ids, filenames) {
+  
+  if (nrow(ids) != length(filenames)) {
+    stop("cannot write data to cache, because number of filenames and data frames do not match!")
+  }
+  
+  if (nrow(ids) > 0) {
+    
+    ids$df <- vector("list", nrow(ids)) 
+    for (i in 1:nrow(ids)) {
+      ids$df[[i]] <- read.csv(filenames[i])
+    }
+    
+    return(ids)
+    
+  } else {
+    return(c())
+  }
+  
+}
+
+## TODO document (and export?)
+mergeintocache <- function(call, filename, ids, multifile=FALSE, usecache=TRUE) {
+    
   if (usecache) {
-    if (file.exists(filename)) {
-      # read from cache
-      oldcontent <- read.csv(filename)
+    
+    if (!multifile) {
+                     
+      if (file.exists(filename)) {
+        # read from cache
+        oldcontent <- read.csv(filename)
+        
+        # filter all ids which are in oldcontent
+        filteredids <- unique(filterids(ids, oldcontent, ids=names(ids)))
+        
+        # download new ids
+        if (nrow(filteredids) > 0) {
+          newcontent <- call(filteredids)
+          content <- rbind(oldcontent, newcontent)
+        } else {
+          content <- oldcontent
+        }
+        
+        # write to cache and prepare return value
+        write.csv(content, file=filename, row.names=FALSE)
+        content <- filterids(content, ids, setminus=FALSE)
       
-      # filter all ids which are in oldcontent
-      filteredids <- unique(filterids(ids, oldcontent, ids=names(ids)))
+      } else {
+        # download and write to cache
+        content <- call(ids)
+        write.csv(content, file=filename, row.names=FALSE)
+      }
+    
+    } else { # multifile case
       
-      # download new ids
-      if (nrow(filteredids) > 0) {
-        newcontent <- call(filteredids)
-        content <- rbind(oldcontent, newcontent)
+      newidxs <- which(!file.exists(filename))
+      oldidxs <- which(file.exists(filename))
+      
+      oldcontent <- readdfsfromcache(ids[oldidxs,], filename[oldidxs])
+
+      if (length(newidxs) > 0) {
+        newcontent <- call(ids[newidxs,])        
+        writedfstocache(newcontent, filename[newidxs])
+        content <- rbind(newcontent, oldcontent)  
       } else {
         content <- oldcontent
       }
       
-      # write to cache and prepare return value
-      write.csv(content, file=filename, row.names=FALSE)
-      newcontent <- filterids(content, ids, setminus=FALSE)
-      
-    } else {
-      # download and write to cache
-      newcontent <- call(ids)
-      write.csv(newcontent, file=filename, row.names=FALSE)
     }
     
   } else {
-    newcontent <- call(ids)
+    # TODO warn about number of manifesto_ids which are NA ? Or change api?
+    content <- call(ids)
   }
   
-  return(newcontent)
+  return(content)
 }
 
 #' Empty the current cache
