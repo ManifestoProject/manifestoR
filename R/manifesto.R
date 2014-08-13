@@ -44,7 +44,6 @@ manifesto.maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
 #' from the internal .csv files (in cache or from the API)
 #'
 #' @param mpds A data.frame with a main data set version to be formatted
-
 formatmpds <- function(mpds) {
   
   names(mpds) <- tolower(names(mpds))
@@ -283,8 +282,27 @@ manifesto.texts <- function(ids, apikey=NULL, cache=TRUE) {
                           multifile=TRUE,
                           usecache=cache)
 
-  ## TODO Format the documents into a ManifestoCorpus
+  ## Format the documents into a tm Corpus of ManifestoDocuments
+  ## TODO is it better to use a tm Source? (Corpus(ManifestoSource(texts)))
+  the.names <- names(texts)
+  the.names <- the.names[which(the.names != "df")]
   
-  return(texts)
+  textToManifestoDocument <- function(idx) {    
+    the.meta <- structure(as.list(texts[idx, the.names]))
+    class(the.meta) <- "TextDocumentMeta"
+    
+    the.df <- texts[idx, "df"][[1]]
+    
+    mdoc <- structure(list(df=the.df, meta=the.meta),
+                      class=c("ManifestoDocument", "PlainTextDocument",
+                              "TextDocument"))
+    return(mdoc)    
+  }
+  corpus <- structure(list(content=lapply(1:nrow(texts),
+                                          textToManifestoDocument),
+                           meta=structure(c(), class="CorpusMeta")),
+                      class=c("ManifestoCorpus", "VCorpus", "Corpus"))
+  # TODO sensible and important corpus metadata?  
+  return(corpus)
   
 }

@@ -16,9 +16,16 @@ wanted <- mpds[idxs,]
 print(wanted)
 metadata <- manifesto.meta(wanted)
 
-texts <- manifesto.texts(metadata) ## this should take long
-texts <- manifesto.texts(metadata) ## this not
+corpus <- manifesto.texts(metadata) ## this should take long
+corpus <- manifesto.texts(metadata) ## this not
 
-## TODO more tests also for merging etc.
+## TODO more tests 
 
+
+## - merging into cache
+
+## basic tm corpus functionality
+print(corpus)
+summary(content(corpus[[2]]))
+inspect(TermDocumentMatrix(corpus))
 
