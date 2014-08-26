@@ -45,6 +45,33 @@ content.ManifestoDocument <- function(doc) {
   return(doc)
 }
 
+
+#' Get the codes of a \code{\link{ManifestoDocument}}
+#' 
+#' @param doc ManifestoDocument
+#' @export
+codes <- function(x) {
+  UseMethod("codes", x)
+}
+#' @export
+codes.ManifestoDocument <- function(doc) {
+  return(as.numeric(doc$content$code))
+}
+
+#' Modify the codes of a \code{\link{ManifestoDocument}}
+#' 
+#' @param doc ManifestoDocument
+#' @param value new codes
+#' @export
+`codes<-` <- function(x, value) {
+  UseMethod("codes<-", x)
+}
+#' @export
+`codes<-.ManifestoDocument` <- function(doc, value) {
+  doc$content$code <- value
+  return(doc)
+}
+
 #' Get the metadata of a \code{\link{ManifestoDocument}}
 #' 
 #' @param doc ManifestoDocument
@@ -112,4 +139,8 @@ ManifestoCorpus <- function(csource) {
   corpus <- VCorpus(csource)
   class(corpus) <- c("ManifestoCorpus", class(corpus))
   return(corpus)
+}
+#' @export
+codes.ManifestoCorpus <- function(corpus) {
+  c(unlist(lapply(corpus, codes)))
 }

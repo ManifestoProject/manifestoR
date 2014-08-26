@@ -19,13 +19,15 @@ metadata <- manifesto.meta(wanted)
 corpus <- manifesto.texts(metadata) ## this should take long
 corpus <- manifesto.texts(metadata) ## this not
 
-## TODO more tests 
-
-
-## - merging into cache
+## TODO test merging into cache
 
 ## basic tm corpus functionality
 print(corpus)
 summary(content(corpus[[2]]))
+print(meta(corpus[[2]], "party"))
 print(TermDocumentMatrix(corpus))
+
+## specific ManifestoDocument functionality
+print(table(codes(corpus[[2]])))
+print(table(codes(corpus), useNA = "always"))
 

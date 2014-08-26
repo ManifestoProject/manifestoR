@@ -293,6 +293,7 @@ manifesto.texts <- function(ids, apikey=NULL, cache=TRUE) {
     
     the.df <- texts[idx, "df"][[1]]
     names(the.df)[which(names(the.df)=="content")] <- "text" ## rename from json
+    the.df[which(is.nacode(the.df$code)),] <- NA
     
     
     elem <- structure(list(content=the.df, meta=the.meta))
@@ -303,4 +304,8 @@ manifesto.texts <- function(ids, apikey=NULL, cache=TRUE) {
                                                    textToManifestoDocument)))
   return(corpus)
   
+}
+
+is.nacode <- function(x) {
+  return(is.na(x) | as.character(x) %in% c("NA", "n.a."))
 }
