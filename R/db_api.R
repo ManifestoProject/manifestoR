@@ -121,7 +121,6 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL) {
   } else if (type == kmtype.text) {
     
     texts <- separate_missings(fromJSON(jsonstr), request="text")
-    names(texts)[which(names(texts)=="items")] <- "df"
     names(texts)[which(names(texts)=="key")] <- "manifesto_id"
     
     return(texts)

@@ -285,18 +285,19 @@ manifesto.texts <- function(ids, apikey=NULL, cache=TRUE) {
   ## Format the documents into a tm Corpus of ManifestoDocuments
   ## TODO is it better to use a tm Source? (Corpus(ManifestoSource(texts)))
   the.names <- names(texts)
-  the.names <- the.names[which(the.names != "df")]
+  the.names <- the.names[which(the.names != "items")]
   
   textToManifestoDocument <- function(idx) {    
     the.meta <- structure(as.list(texts[idx, the.names]))
     class(the.meta) <- "TextDocumentMeta"
     
-    the.df <- texts[idx, "df"][[1]]
-    names(the.df)[which(names(the.df)=="content")] <- "text" ## rename from json
-    the.df[which(is.nacode(the.df$code)),] <- NA
+    items <- texts[idx, "items"][[1]]
+    print(names(items))
+    names(items)[which(names(items)=="content")] <- "text" ## rename from json
+    items[which(is.nacode(items$code)),] <- NA
     
     
-    elem <- structure(list(content=the.df, meta=the.meta))
+    elem <- structure(list(content=items, meta=the.meta))
     return(elem)    
   }
   

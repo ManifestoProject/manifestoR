@@ -133,19 +133,19 @@ filterids <- function(data, filter, ids=NULL, setminus=TRUE) {
   }
 }
 
-writedfstocache <- function(content, filename) {
+writeitemstocache <- function(content, filename) {
   
   if (nrow(content) != length(filename)) {
     stop("cannot write data to cache, because number of filenames and data frames do not match!")
   }
   
   for (i in 1:length(filename)) {
-    write.csv(content$df[[i]], file=filename[i], row.names=FALSE)
+    write.csv(content$items[[i]], file=filename[i], row.names=FALSE)
   }
   
 }
 
-readdfsfromcache <- function(ids, filenames) {
+readitemsfromcache <- function(ids, filenames) {
   
   if (nrow(ids) != length(filenames)) {
     stop("cannot write data to cache, because number of filenames and data frames do not match!")
@@ -153,9 +153,9 @@ readdfsfromcache <- function(ids, filenames) {
   
   if (nrow(ids) > 0) {
     
-    ids$df <- vector("list", nrow(ids)) 
+    ids$items <- vector("list", nrow(ids)) 
     for (i in 1:nrow(ids)) {
-      ids$df[[i]] <- read.csv(filenames[i])
+      ids$items[[i]] <- read.csv(filenames[i])
     }
     
     return(ids)
@@ -203,11 +203,11 @@ mergeintocache <- function(call, filename, ids, multifile=FALSE, usecache=TRUE) 
       newidxs <- which(!file.exists(filename))
       oldidxs <- which(file.exists(filename))
       
-      oldcontent <- readdfsfromcache(ids[oldidxs,], filename[oldidxs])
+      oldcontent <- readitemsfromcache(ids[oldidxs,], filename[oldidxs])
 
       if (length(newidxs) > 0) {
         newcontent <- call(ids[newidxs,])        
-        writedfstocache(newcontent, filename[newidxs])
+        writeitemstocache(newcontent, filename[newidxs])
         content <- rbind(newcontent, oldcontent)  
       } else {
         content <- oldcontent
