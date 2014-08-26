@@ -292,17 +292,15 @@ manifesto.texts <- function(ids, apikey=NULL, cache=TRUE) {
     class(the.meta) <- "TextDocumentMeta"
     
     the.df <- texts[idx, "df"][[1]]
+    names(the.df)[which(names(the.df)=="content")] <- "text" ## rename from json
     
-    mdoc <- structure(list(df=the.df, meta=the.meta),
-                      class=c("ManifestoDocument", "PlainTextDocument",
-                              "TextDocument"))
-    return(mdoc)    
+    
+    elem <- structure(list(content=the.df, meta=the.meta))
+    return(elem)    
   }
-  corpus <- structure(list(content=lapply(1:nrow(texts),
-                                          textToManifestoDocument),
-                           meta=structure(c(), class="CorpusMeta")),
-                      class=c("ManifestoCorpus", "VCorpus", "Corpus"))
-  # TODO sensible and important corpus metadata?  
+  
+  corpus <- ManifestoCorpus(ManifestoSource(lapply(1:nrow(texts),
+                                                   textToManifestoDocument)))
   return(corpus)
   
 }

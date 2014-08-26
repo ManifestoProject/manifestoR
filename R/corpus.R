@@ -32,7 +32,7 @@ NULL
 #' @param doc ManifestoDocument
 #' @export
 content.ManifestoDocument <- function(doc) {
-  return(as.character(doc$df$content))
+  return(as.character(doc$content$text))
 }
 
 #' Modify the content of a \code{\link{ManifestoDocument}}
@@ -41,7 +41,7 @@ content.ManifestoDocument <- function(doc) {
 #' @param value new content
 #' @export
 `content<-.ManifestoDocument` <- function(doc, value) {
-  doc$df$content <- value
+  doc$content$text <- value
   return(doc)
 }
 
@@ -70,3 +70,46 @@ meta.ManifestoDocument <- function(doc, tag=NULL) {
 }
 
 
+## document: param language is ignored
+readManifesto <- function(elem, language, id) {
+ doc <- ManifestoDocument(content = elem$content[[1]]$content,
+                          meta = elem$content[[1]]$meta,
+                          id = id)
+ return(doc)
+}
+
+ManifestoDocumentMeta <- function(meta = list(), id = character(0)) {
+  if (!is.null(id)) {
+    meta$id <- id
+  } else {
+    meta$id <- character(0)
+  }
+  structure(meta, class = c("ManifestoDocumentMeta", "TextDocumentMeta"))
+}
+
+ManifestoDocument <- function(content = data.frame(names = c("text", "code")),
+                              id = character(0),
+                              meta = ManifestoDocumentMeta()) {
+  structure(list(content = content,
+                 meta = ManifestoDocumentMeta(meta = meta, id = id)),
+            class = (c("ManifestoDocument", "PlainTextDocument", "TextDocument")))
+}
+
+ManifestoSource <- function(texts) {
+  SimpleSource(length = length(texts),
+               reader = readManifesto,
+               content = texts,
+               class = c("ManifestoSource"))
+}
+
+#' @export
+getElem.ManifestoSource <- function(x) {
+  list(content = x$content[x$position],
+       uri = NULL)    
+}
+
+ManifestoCorpus <- function(csource) {
+  corpus <- VCorpus(csource)
+  class(corpus) <- c("ManifestoCorpus", class(corpus))
+  return(corpus)
+}

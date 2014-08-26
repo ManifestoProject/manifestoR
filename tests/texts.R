@@ -1,6 +1,6 @@
 library(manifestoR)
 
-setwd("~/Documents/manifestoR/tests")
+# setwd("~/Documents/manifestoR/tests")
 manifesto.emptycache()
 
 fl <- file("apikey.txt")
@@ -27,5 +27,5 @@ corpus <- manifesto.texts(metadata) ## this not
 ## basic tm corpus functionality
 print(corpus)
 summary(content(corpus[[2]]))
-inspect(TermDocumentMatrix(corpus))
+print(TermDocumentMatrix(corpus))
 
