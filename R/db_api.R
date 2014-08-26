@@ -56,7 +56,7 @@ extract_text <- function(robj) {
 #' Download content from the Manifesto Database
 #' 
 #' Internal implementation. For more convenient access and caching use one of 
-#' \code{\link{manifesto.texts}}, 
+#' \code{\link{manifesto.corpus}}, 
 #' \code{\link{manifesto.originals}}, 
 #' \code{\link{manifesto.availability}},  
 #' \code{\link{manifesto.maindataset}}.

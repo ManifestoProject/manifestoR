@@ -16,8 +16,8 @@ wanted <- mpds[idxs,]
 print(wanted)
 metadata <- manifesto.meta(wanted)
 
-corpus <- manifesto.texts(metadata) ## this should take long
-corpus <- manifesto.texts(metadata) ## this not
+corpus <- manifesto.corpus(metadata) ## this should take long
+corpus <- manifesto.corpus(metadata) ## this not
 
 ## TODO test merging into cache
 

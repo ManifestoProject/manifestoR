@@ -245,9 +245,9 @@ summary.ManifestoAvailability <- function(avl) {
 #' @export
 #' @examples
 #' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## corpus <- manifesto.texts(wanted)
+#' ## corpus <- manifesto.corpus(wanted)
 #' ## summary(corpus)
-manifesto.texts <- function(ids, apikey=NULL, cache=TRUE) {
+manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
   
   # TODO also provide way of using ids from metadata to get documents
   
