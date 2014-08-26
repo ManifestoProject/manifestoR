@@ -283,7 +283,6 @@ manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
                           usecache=cache)
 
   ## Format the documents into a tm Corpus of ManifestoDocuments
-  ## TODO is it better to use a tm Source? (Corpus(ManifestoSource(texts)))
   the.names <- names(texts)
   the.names <- the.names[which(the.names != "items")]
   
