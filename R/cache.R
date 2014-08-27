@@ -57,7 +57,6 @@ cachefilename <- function(type, parameters=c()) {
   } else if (type == kmtype.meta) {
     return(file.path(manifesto.getcachelocation(), paste(kmetadata, ".csv", sep="")))
   } else if (type == kmtype.text) {
-    print(parameters)
     textsdir <- file.path(manifesto.getcachelocation(), ktexts)
     if (!is.null(parameters$party) & !is.null(parameters$date)) {
       filename <- paste(parameters$party, parameters$date,

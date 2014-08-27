@@ -11,12 +11,16 @@ idxs <- which(mpds$party==41320
               & mpds$edate > as.Date("2001-01-01"))
 wanted <- mpds[idxs,]
 print(wanted)
-metadata <- manifesto.meta(wanted)
 
-corpus <- manifesto.corpus(metadata) ## this should take long
-corpus <- manifesto.corpus(metadata) ## this not
+corpus <- manifesto.corpus(wanted) ## this should take long
+print(corpus)
 
 ## TODO test merging into cache
+
+## this should yield the same
+manifesto.emptycache()
+metadata <- manifesto.meta(wanted)
+corpus <- manifesto.corpus(metadata)
 
 ## basic tm corpus functionality
 print(corpus)

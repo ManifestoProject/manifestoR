@@ -136,6 +136,13 @@ manifesto.meta <- function(ids, apikey=NULL, cache=TRUE) {
   
 }
 
+as.metaids <- function(ids, apikey=NULL, cache=TRUE) {
+  if ( !("ManifestoMetadata" %in% class(ids)) ) {
+    ids <- manifesto.meta(ids, apikey=apikey, cache=cache)
+  }
+  return(ids)
+}
+
 is.naorstringna <- function(v) {
   return(is.na(v) | v=="NA")
 }
@@ -164,11 +171,7 @@ is.naorstringna <- function(v) {
 #' ## summary(avl)
 manifesto.availability <- function(ids, apikey=NULL, cache=TRUE) {
   
-  if ("ManifestoMetadata" %in% class(ids)) {
-    metadata <- ids    
-  } else {
-    metadata <- manifesto.meta(ids, apikey=apikey, cache=cache)
-  }
+  ids <- as.metaids(ids, apikey=apikey, cache=cache)
   
   availability <- metadata[,c("party", "date", "language", "is_primary_doc",
                               "may_contradict_core_dataset")]
@@ -249,14 +252,8 @@ summary.ManifestoAvailability <- function(avl) {
 #' ## summary(corpus)
 manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
   
-  # TODO also provide way of using ids from metadata to get documents
+  ids <- as.metaids(ids, apikey=apikey, cache=cache)
   
-  if ("ManifestoMetadata" %in% class(ids)) {
-    metadata <- ids    
-  } else {
-    metadata <- manifesto.meta(ids, apikey=apikey, cache=cache)
-  }
-    
   call <- function(ids) {
     parameters <- as.list(ids$manifesto_id)
     names(parameters) <- rep("keys[]", length(parameters))
@@ -291,7 +288,6 @@ manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
     class(the.meta) <- "TextDocumentMeta"
     
     items <- texts[idx, "items"][[1]]
-    print(names(items))
     names(items)[which(names(items)=="content")] <- "text" ## rename from json
     items[which(is.nacode(items$code)),] <- NA
     

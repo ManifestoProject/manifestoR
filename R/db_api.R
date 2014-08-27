@@ -19,7 +19,6 @@ kmurl.apiroot <- "https://manifesto-project.wzb.eu/tools/"
 #' @export
 manifestodb.setapikey <- function(key = NA, key.file = NULL) {
   if (!is.null(key.file)) {
-    print(paste("path: ", getwd()))
     fl <- file(key.file)
     key <- readLines(fl, 1)
     close.connection(fl)    
@@ -28,6 +27,9 @@ manifestodb.setapikey <- function(key = NA, key.file = NULL) {
   assign(kapikey, key, envir = manifesto.globalenv)
 }
 manifestodb.setapikey(NA)
+# tryCatch({manifestodb.setapikey(key.file = "manifesto_apikey.txt")},
+#          error = function(e) { warning("No key set!") },
+#          finally = {NULL})
 
 toamplist <- function(params) {
   pairs <- paste(names(params), params, sep="=")
