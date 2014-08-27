@@ -1,11 +1,7 @@
 library(manifestoR)
+manifestodb.setapikey(key.file = "manifesto_apikey.txt")
 
-setwd("~/Documents/manifestoR/tests")
 manifesto.emptycache()
-
-fl <- file("apikey.txt")
-manifestodb.setapikey(key = readLines(fl, 1))
-close.connection(fl)
 
 ## first get documents via ids
 wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))

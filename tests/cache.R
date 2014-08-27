@@ -1,4 +1,5 @@
 library(manifestoR)
+manifestodb.setapikey(key.file = "manifesto_apikey.txt")
 
 removecache <- function() {
   system(paste("rm -rf ", manifesto.getcachelocation()))
@@ -6,10 +7,6 @@ removecache <- function() {
 lscache <- function() {
   system(paste("ls -R", manifesto.getcachelocation()))
 }
-
-fl <- file("apikey.txt")
-manifestodb.setapikey(key = readLines(fl, 1))
-close.connection(fl)
 
 manifesto.listversions()
 

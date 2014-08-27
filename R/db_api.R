@@ -17,7 +17,13 @@ kmurl.apiroot <- "https://manifesto-project.wzb.eu/tools/"
 #'
 #' @param key new API key
 #' @export
-manifestodb.setapikey <- function(key) {
+manifestodb.setapikey <- function(key = NA, key.file = NULL) {
+  if (!is.null(key.file)) {
+    print(paste("path: ", getwd()))
+    fl <- file(key.file)
+    key <- readLines(fl, 1)
+    close.connection(fl)    
+  }
   # TODO check key?
   assign(kapikey, key, envir = manifesto.globalenv)
 }

@@ -1,11 +1,8 @@
 library(manifestoR)
+manifestodb.setapikey(key.file = "manifesto_apikey.txt")
 
 # setwd("~/Documents/manifestoR/tests")
 manifesto.emptycache()
-
-fl <- file("apikey.txt")
-manifestodb.setapikey(key = readLines(fl, 1))
-close.connection(fl)
 
 mpds <- manifesto.maindataset()
 
