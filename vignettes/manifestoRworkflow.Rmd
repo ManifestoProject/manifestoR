@@ -1,0 +1,128 @@
+---
+title: "The workflow with the manifestoR package"
+author: "Jirka Lewandowski <jirka.lewandowski@wzb.eu>"
+date: "27.08.2014"
+output: pdf_document
+---
+
+Contents:
+
+- [Working with the corpus](#working-with-the-corpus)
+- [Saving and exporting documents](#saving-and-exporting-documents)
+- [Working with the CMP codings](#working-with-the-cmp-codings)
+- ...
+
+First of all, load the `manifestoR` package:
+
+```{r}
+library(manifestoR)
+```
+
+## Working with the corpus
+
+This section explains how to ...
+
+- ... connect to the Manifesto Corpus database,
+- ... download specific documents and document sets,
+- ... access and process document afterwars.
+
+### How to connect to the Manifesto Corpus database
+
+To access the data in the Manifesto Corpus, an account for the Manifesto Project
+webpage with an API key is required.
+If you do not yet have an account, you can create one at 
+[](https://manifesto-project.wzb.eu/signup).
+When you have an account, you can create the API key on your profile page.
+For every R session using manifestoR and connecting to the Manifesto Corpus database,
+you need to set the API key in your work environment.
+This can be done by passing either a key or the name of a file containing the
+key to the `manifestodb.setapikey()` function (see documentation for details).
+Thus, your R script using manifestoR usually will start like this:
+
+```{r eval=FALSE}
+library(manifestoR)
+manifestodb.setapikey(key.file = "manifesto_apikey.txt")
+```
+```{r eval=TRUE, include=FALSE}
+manifestodb.setapikey(key.file = "../tests/manifesto_apikey.txt")
+```
+
+Note that it is a security risk to store the API key file or a script containing
+the key in public repositories.
+
+### How to download documents and document sets
+
+Downloading documents works via the function `manifesto.corpus(...)`.
+It takes a `data.frame` listing combinations of party ids and election
+dates and returns a `ManifestoCorpus` object, a subtype of the `Corpus` defined
+in the package `tm`:
+
+```{r}
+wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+corpus <- manifesto.corpus(wanted)
+print(corpus)
+head(content(corpus[[1]]))
+```
+
+TODO explain why the corpus is shorter!/ Use different example
+
+The `manifesto.corpus` function also understands several other formats of
+input arguments, for details refer to its documentation.
+The party ids (41320 in the example) are the ids as in the Manifesto Project's
+main dataset.
+The party ids can be found in the current dataset documentation at
+[](https://manifesto-project.wzb.eu/datasets)
+or additionally are used and linked to party names, countries, etc. in
+the main dataset, which is also accessible via manifestoR:
+
+```{r eval=TRUE, include=FALSE}
+manifesto.emptycache()
+```
+
+```{r cache=FALSE}
+mpds <- manifesto.maindataset()
+head(names(mpds)) ## .. and much more
+## TODO use a differet example
+wanted <- mpds[which(mpds$party==41320
+              & mpds$edate < as.Date("2010-01-01")
+              & mpds$edate > as.Date("2001-01-01")),]
+corpus <- manifesto.corpus(wanted)
+print(corpus)
+```
+
+
+
+Note: downloaded documents are automatically cached locally. To learn about
+the caching mechanism read the section
+[Understanding manifestoR's caching mechanism](#understanding-manifestors-caching-mechanism)
+below.
+
+
+
+
+## Saving and exporting documents
+
+## Working with the CMP codings
+
+## Text scaling methods
+
+TODO: ?
+
+## Working with the additional core data: RILE, eletion results, ...
+
+## Working with the original documents
+
+## Understanding manifestoR's caching mechanism
+
+## TODO additional
+
+### Linking manifestoR to other data
+
+### Contributing to manifestoR
+
+### Contacting the Manifesto Project team
+
+
+```{r eval=TRUE, include=FALSE}
+manifesto.emptycache()
+```

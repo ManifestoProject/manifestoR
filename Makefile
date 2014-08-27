@@ -5,12 +5,16 @@ pkgversion = 0.1
 # default target
 all: pack check
 
+workflowvignette: vignettes/manifestoRworkflow.Rmd
+	(cd vignettes; R -e "library(knitr); knit('manifestoRworkflow.Rmd'); library(markdown); markdownToHTML('manifestoRworkflow.md', 'manifestoRworkflow.html')"; pandoc manifestoRworkflow.html -o manifestoRworkflow.pdf)
+
+vignettes: workflowvignette
 
 doc:
 	R -e "library(devtools); library(roxygen2); document(clean = TRUE, roclets = c('namespace', 'rd'))"
 # TODO run roxygen2
 
-pack: doc
+pack: doc vignettes
 	(cd ../; R CMD build $(pkgname))
 
 check:
