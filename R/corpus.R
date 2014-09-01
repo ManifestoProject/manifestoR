@@ -1,5 +1,3 @@
-library(tm)
-
 #' Manifesto Corpus class
 #' 
 #' A \code{tm} \code{\link{Corpus}} storing \code{\link{ManifestoDocument}s}

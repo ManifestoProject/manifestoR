@@ -9,8 +9,8 @@ Maintainer: Jirka Lewandowski <jirka.lewandowski@wzb.eu>
 Description: Access and process data and documents of the Manifesto Project
 Depends:
     R (>= 3.1.0),
+    httr (>= 0.3),
     tm (>= 0.6),
-    RCurl (>= 1.95-4.1),
     jsonlite (>= 0.9.8)
 Suggests: knitr, markdown
 VignetteBuilder: knitr

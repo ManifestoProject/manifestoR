@@ -1,4 +1,5 @@
 library(manifestoR)
+
 manifestodb.setapikey(key.file = "manifesto_apikey.txt")
 
 manifesto.emptycache()

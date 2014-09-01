@@ -1,4 +1,3 @@
-
 #' Set location of the cache for downloaded Manifesto Project data
 #' 
 #' @param path new path for the download cache; when this function is never

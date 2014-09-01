@@ -1,6 +1,3 @@
-library(RCurl)
-library(jsonlite)
-
 kmerror.keymissing <- 
     paste("No API key specified. Specify apikey via manifestodb.setapikey()",
           "or go to http://manifesto-project.wzb.eu to create key and/or",
@@ -62,17 +59,20 @@ separate_missings <- function(robj, request="") {
 #' gets the requested url and passes HTTP header error codes on to raise R
 #' errors with the same text
 #'
-#' @param url url
-manifestodb.getURL <- function(url) {
-  response <- getURLContent(url, header=TRUE)
-  header <- response[["header"]]
-  content <- response[["body"]]
-  if (header[["status"]] != "200") {
-    msg <- paste("HTTP Error", header[["status"]],
+#' @param file file to request below apiroot url
+#' @param body body text of the posted request: should contain the parameters
+#' as specified by the Manifesto Project Database API
+manifestodb.request <- function(file, body) {
+  
+  response <- POST(url=paste0(kmurl.apiroot, file),
+                   body=body)
+  content <- httr::content(response, as="text")
+  if (response$status_code != "200") {
+    msg <- paste("HTTP Error", response$status_code,
                  "when connecting to Manifesto Corpus Database")
     try({
       msg <- paste0(msg, ": ",
-                    fromJSON(getURL(header[["Location"]]))$error)
+                    fromJSON(content(GET(header(response)$location), as="text"))$error)
     }, silent = TRUE)
     stop(msg)
   } else {
@@ -117,10 +117,12 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL) {
   }
   
   # get content from web
-  requesturl <- paste(kmurl.apiroot, requestfile, "?",
-                      "api_key=", apikey,
-                      "&", toamplist(parameters), sep="")
-  jsonstr <- manifestodb.getURL(requesturl)
+#   requesturl <- paste(kmurl.apiroot, requestfile, "?",
+#                       "api_key=", apikey,
+#                       "&", toamplist(parameters), sep="")
+  jsonstr <- manifestodb.request(file=requestfile,
+                                 body=paste0("api_key=", apikey, "&", 
+                                             toamplist(parameters)))
   
   # convert to desired format for caching
   if (type == kmtype.versions) {

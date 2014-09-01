@@ -1,8 +1,13 @@
 library(manifestoR)
+
+manifesto.emptycache()
+
+try(manifesto.maindataset(), silent=FALSE) # should show error
+
+
 manifestodb.setapikey(key.file = "manifesto_apikey.txt")
 
 # setwd("~/Documents/manifestoR/tests")
-manifesto.emptycache()
 
 mpds <- manifesto.maindataset()
 
