@@ -14,7 +14,7 @@ doc:
 	R -e "library(devtools); library(roxygen2); document(clean = TRUE, roclets = c('namespace', 'rd'))"
 # TODO run roxygen2
 
-pack: doc vignettes
+pack: doc
 	(cd ../; R CMD build $(pkgname))
 
 check:
@@ -36,3 +36,5 @@ metadatatest:
 	
 corpustest:
 	(cd tests; R -f corpus.R)
+	
+withvignettes: vignettes all

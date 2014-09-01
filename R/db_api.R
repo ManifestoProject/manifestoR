@@ -57,8 +57,27 @@ separate_missings <- function(robj, request="") {
   return(robj)
 }
 
-extract_text <- function(robj) {
-  
+#' gets URL and handles Error
+#' 
+#' gets the requested url and passes HTTP header error codes on to raise R
+#' errors with the same text
+#'
+#' @param url url
+manifestodb.getURL <- function(url) {
+  response <- getURLContent(url, header=TRUE)
+  header <- response[["header"]]
+  content <- response[["body"]]
+  if (header[["status"]] != "200") {
+    msg <- paste("HTTP Error", header[["status"]],
+                 "when connecting to Manifesto Corpus Database")
+    try({
+      msg <- paste0(msg, ": ",
+                    fromJSON(getURL(header[["Location"]]))$error)
+    }, silent = TRUE)
+    stop(msg)
+  } else {
+    return(content[1])
+  }
 }
 
 #' Download content from the Manifesto Database
@@ -101,7 +120,7 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL) {
   requesturl <- paste(kmurl.apiroot, requestfile, "?",
                       "api_key=", apikey,
                       "&", toamplist(parameters), sep="")
-  jsonstr <- getURL(requesturl)
+  jsonstr <- manifestodb.getURL(requesturl)
   
   # convert to desired format for caching
   if (type == kmtype.versions) {

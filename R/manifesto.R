@@ -55,7 +55,7 @@ formatmpds <- function(mpds) {
     }
     
     if (name == "edate") {
-      mpds[,name] <- as.Date(as.character(mpds[,name]), format="%m/%d/%Y")
+      mpds[,name] <- as.Date(as.character(mpds[,name]), format="%d/%m/%Y")
     }
     
   }
@@ -171,7 +171,7 @@ is.naorstringna <- function(v) {
 #' ## summary(avl)
 manifesto.availability <- function(ids, apikey=NULL, cache=TRUE) {
   
-  ids <- as.metaids(ids, apikey=apikey, cache=cache)
+  metadata <- as.metaids(ids, apikey=apikey, cache=cache)
   
   availability <- metadata[,c("party", "date", "language", "is_primary_doc",
                               "may_contradict_core_dataset")]
