@@ -112,6 +112,7 @@ filterids <- function(data, filter, ids=NULL, setminus=TRUE) {
   if (is.null(ids)) {
     ids <- intersect(names(filter), names(data))
   }
+  ids <- intersect(ids, intersect(names(filter), names(data)))
   
   reducanddata <- function(left, right) { paste(left, data[,right]) }
   reducandfilter <- function(left, right) { paste(left, filter[,right]) }

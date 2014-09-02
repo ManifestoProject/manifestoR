@@ -84,6 +84,34 @@ manifesto.listversions <- function(apikey=NULL, cache=TRUE) {
   return(versions)
 }
 
+
+#' Format ids for web API queru
+#' 
+#' Formats a data.frame of ids such that it can be used for querying
+#' the Manifesto Project Database. That is, it must have non-NA-fields
+#' party and date.
+#'
+#' @param ids ids data.frame, information used: party, date, edate
+formatids <- function(ids) {
+  
+  names(ids) <- tolower(names(ids))
+  ids <- ids[,intersect(c("party", "date", "edate"), names(ids))]
+  
+  nodate.idxs <- which(is.null(ids$date) | is.na(ids$date))
+  ids$date[nodate.idxs] <- as.numeric(format(ids[nodate.idxs,
+                                                 "edate"], format="%Y%m"))
+  
+  n.before <- nrow(ids)
+  ids <- ids[which(!is.na(ids$party) & !is.na(ids$date)),]
+  n.after <- nrow(ids)
+  if (n.after < n.before) {
+    warning(paste(n.after - n.before, "rows were ommitted from querying the database,",
+                  "because they are NULL or NA."))
+  }
+  
+  return(ids)
+}
+
 #' Get meta data for election programmes
 #' 
 #' @details
@@ -107,12 +135,7 @@ manifesto.listversions <- function(apikey=NULL, cache=TRUE) {
 manifesto.meta <- function(ids, apikey=NULL, cache=TRUE) {
   
   # convert ids to parameter list for the api call
-  names(ids) <- tolower(names(ids))
-  ids <- ids[,intersect(c("party", "date", "edate"), names(ids))]
-  
-  if (is.null(ids$date)) {
-    ids$date <- as.numeric(format(ids$edate, format="%Y%m"))
-  }
+  ids <- formatids(ids)
   
   # for mergeintocache() the call has a data.frame with ids as argument
   call <- function(ids) {

@@ -22,7 +22,14 @@ print(corpus)
 print(length(na.omit(content(corpus[[1]])))) ## should be 1
 print(length(na.omit(content(corpus[[2]])))) ## should be 2278
 
-## TODO test merging into cache
+## test merging into cache
+manifesto.emptycache()
+meta.spd <- manifesto.meta(mpds[which(mpds$party==41320),])
+meta.a2000 <- manifesto.meta(mpds[which(mpds$edate > as.Date("2010-01-01")),])
+meta.kpd <- manifesto.meta(data.frame(party=41220, date=194908))
+meta.kpd <- manifesto.meta(data.frame(party=41220, edate=as.Date("1949-08-14")))
+meta.mixed <- manifesto.meta(data.frame(party=c(41320, 41220), date=c(200909, NA), edate=as.Date(c(NA, "1949-08-14"))))
+meta.kpd <- manifesto.meta(data.frame(party=c(41220, NA), date=194908)) # should warn about ids
 
 ## this should yield the same
 manifesto.emptycache()
