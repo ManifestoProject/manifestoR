@@ -97,15 +97,17 @@ formatids <- function(ids) {
   names(ids) <- tolower(names(ids))
   ids <- ids[,intersect(c("party", "date", "edate"), names(ids))]
   
-  nodate.idxs <- which(is.null(ids$date) | is.na(ids$date))
-  ids$date[nodate.idxs] <- as.numeric(format(ids[nodate.idxs,
-                                                 "edate"], format="%Y%m"))
+  suppressWarnings({
+    nodate.idxs <- which(is.null(ids$date) | is.na(ids$date))
+    ids$date[nodate.idxs] <- as.numeric(format(ids[nodate.idxs,
+                                                   "edate"], format="%Y%m"))
+  })
   
   n.before <- nrow(ids)
   ids <- ids[which(!is.na(ids$party) & !is.na(ids$date)),]
   n.after <- nrow(ids)
   if (n.after < n.before) {
-    warning(paste(n.after - n.before, "rows were ommitted from querying the database,",
+    warning(paste(n.before - n.after, "rows were ommitted from querying the database,",
                   "because they are NULL or NA."))
   }
   
