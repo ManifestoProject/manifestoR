@@ -191,13 +191,13 @@ is.naorstringna <- function(v) {
 #' @examples
 #' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
 #' ## avl <- manifesto.availability(wanted)
-#' ## summary(avl)
+#' ## print(avl)
 manifesto.availability <- function(ids, apikey=NULL, cache=TRUE) {
   
   metadata <- as.metaids(ids, apikey=apikey, cache=cache)
   
   availability <- metadata[,c("party", "date", "language", "is_primary_doc",
-                              "may_contradict_core_dataset")]
+                              "may_contradict_core_dataset", "annotations")]
   
   availability$manifestos <- !is.naorstringna(metadata$manifesto_id)
   availability$originals <- !is.naorstringna(metadata$url_original)
@@ -227,24 +227,31 @@ manifesto.availability <- function(ids, apikey=NULL, cache=TRUE) {
 #' ## summary(avl)
 NULL
 
-#' Summarize availability information of a manifesto document query
+#' Print availability information of a manifesto document query
 #' 
 #' @export
-summary.ManifestoAvailability <- function(avl) {
+print.ManifestoAvailability <- function(avl) {
+  
+  decs <- 3
   
   nqueried <- nrow(unique(avl$query)[,c("party", "date")])
-  ncovereddocs <- length(which(unique(avl$availability[which(
-                             avl$availability$manifestos),])$manifestos))
+  ncoveredtexts <- length(which(unique(avl$availability[which(
+    avl$availability$manifestos),])$manifestos))
+  ncovereddocs <- length(unique(avl$availability[which(
+    avl$availability$annotations),]))
   ncoveredorigs <- length(which(unique(avl$availability[which(
                              avl$availability$originals),])$originals))
   languages <- unique(avl$availability$language)
   
   summary <- list('Queried for'=nqueried,
-                  'Documents found'=paste(length(which(avl$availability$manifestos)),
-                                       " (", 100*ncovereddocs/nqueried, "%)",
-                                       sep=""),
+                  'Raw Texts found'=paste(length(which(avl$availability$manifestos)),
+                                          " (", round(100*ncoveredtexts/nqueried, decs), "%)",
+                                          sep=""),
+                  'Coded Documents found'=paste(length(which(avl$availability$annotations)),
+                                      " (", round(100*ncovereddocs/nqueried, decs), "%)",
+                                      sep=""),
                   'Originals found'=paste(length(which(avl$availability$originals)),
-                                        " (", 100*ncoveredorigs/nqueried, "%)",
+                                        " (", round(100*ncoveredorigs/nqueried, decs), "%)",
                                         sep=""),
                   Languages=paste(length(languages),
                                   " (", Reduce(paste, languages), ")", sep=""))
