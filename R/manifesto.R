@@ -289,7 +289,7 @@ manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
     
     items <- texts[idx, "items"][[1]]
     names(items)[which(names(items)=="content")] <- "text" ## rename from json
-    items[which(is.nacode(items$code)),] <- NA
+    items[which(is.nacode(items$code)),"code"] <- NA
     
     
     elem <- structure(list(content=items, meta=the.meta))

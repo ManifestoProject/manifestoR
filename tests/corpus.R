@@ -19,6 +19,8 @@ print(wanted)
 
 corpus <- manifesto.corpus(wanted) ## this should take long
 print(corpus)
+print(length(na.omit(content(corpus[[1]])))) ## should be 1
+print(length(na.omit(content(corpus[[2]])))) ## should be 2278
 
 ## TODO test merging into cache
 
