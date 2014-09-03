@@ -15,7 +15,7 @@ Contents:
 First of all, load the `manifestoR` package:
 
 ```
-library(manifestor)
+library(manifestoR)
 ```
 
 ```{r eval=TRUE, include=FALSE, echo=TRUE}
