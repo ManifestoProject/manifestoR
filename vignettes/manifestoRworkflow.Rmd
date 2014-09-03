@@ -2,7 +2,7 @@
 title: "The workflow with the manifestoR package"
 author: "Jirka Lewandowski <jirka.lewandowski@wzb.eu>"
 date: "27.08.2014"
-output: pdf_document
+output: html_document
 ---
 
 Contents:
@@ -14,7 +14,7 @@ Contents:
 
 First of all, load the `manifestoR` package:
 
-```{r}
+```{r echo=FALSE}
 library(manifestoR)
 ```
 
@@ -24,7 +24,7 @@ This section explains how to ...
 
 - ... connect to the Manifesto Corpus database,
 - ... download specific documents and document sets,
-- ... access and process document afterwars.
+- ... access and process documents afterwards.
 
 ### How to connect to the Manifesto Corpus database
 
@@ -57,14 +57,20 @@ It takes a `data.frame` listing combinations of party ids and election
 dates and returns a `ManifestoCorpus` object, a subtype of the `Corpus` defined
 in the package `tm`:
 
+# TODO use KPD party id
 ```{r}
-wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+wanted <- data.frame(party=c(41320, 41220), date=c(200909, 200909))
 corpus <- manifesto.corpus(wanted)
 print(corpus)
 head(content(corpus[[1]]))
 ```
 
-TODO explain why the corpus is shorter!/ Use different example
+Note that we received only 1 document, while querying for two.
+This is because the party with the id 41220 (KPD) did not run for elections
+in September 2009.
+Also, not for every party and election data manifesto documents are availabe in the Manifesto Project Corpus.
+You can check availability of your query beforehand with the function
+`manifesto.availability(...)`.
 
 The `manifesto.corpus` function also understands several other formats of
 input arguments, for details refer to its documentation.
