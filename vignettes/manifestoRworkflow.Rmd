@@ -14,8 +14,15 @@ Contents:
 
 First of all, load the `manifestoR` package:
 
-```{r echo=FALSE}
+```
+library(manifestor)
+```
+
+```{r eval=TRUE, include=FALSE, echo=TRUE}
 library(manifestoR)
+```
+```{r eval=TRUE, include=FALSE}
+manifesto.emptycache()
 ```
 
 ## Working with the corpus
@@ -57,7 +64,6 @@ It takes a `data.frame` listing combinations of party ids and election
 dates and returns a `ManifestoCorpus` object, a subtype of the `Corpus` defined
 in the package `tm`:
 
-# TODO use KPD party id
 ```{r}
 wanted <- data.frame(party=c(41320, 41220), date=c(200909, 200909))
 corpus <- manifesto.corpus(wanted)
@@ -81,52 +87,73 @@ The party ids can be found in the current dataset documentation at
 or additionally are used and linked to party names, countries, etc. in
 the main dataset, which is also accessible via manifestoR:
 
-```{r eval=TRUE, include=FALSE}
-manifesto.emptycache()
-```
+Subsets of the main data set can directly be used for querying the corpus
+database.
 
 ```{r cache=FALSE}
 mpds <- manifesto.maindataset()
 head(names(mpds)) ## .. and much more
-## TODO use a different example
-wanted <- mpds[which(mpds$party==41320
-              & mpds$edate < as.Date("2010-01-01")
-              & mpds$edate > as.Date("2001-01-01")),]
+wanted <- subset(mpds,
+                 eumember==10 & # see main dataset codebook
+                   pervote > 20.0 &
+                   edate > as.Date("1990-01-01"))
 corpus <- manifesto.corpus(wanted)
 print(corpus)
 ```
-
-
 
 Note: downloaded documents are automatically cached locally. To learn about
 the caching mechanism read the section
 [Understanding manifestoR's caching mechanism](#understanding-manifestors-caching-mechanism)
 below.
 
-
-
-
 ## Saving and exporting documents
+
+... TODO
 
 ## Working with the CMP codings
 
+The central way for accessing the CMP codings is the accessor method `codes(...)`.
+It can be called on `ManifestoDocument`s and `ManifestoCorpus`s and returns a vector
+of the CMP codings attached to the quasi-sentences of the document/corpus in a row:
+
+```{r}
+corpus <- manifesto.corpus(data.frame(party=41320, date=200909))
+head(codes(corpus))
+head(codes(corpus[[1]]))
+head(content(corpus[[1]])[which(codes(corpus[[1]])==503)])
+```
+
 ## Text scaling methods
 
-TODO: ?
+... TODO ?
 
 ## Working with the additional core data: RILE, election results, ...
 
+... TODO
+
 ## Working with the original documents
+
+... TODO (currently not even implemented)
 
 ## Understanding manifestoR's caching mechanism
 
+... TODO
+
 ## TODO additional
 
-### Linking manifestoR to other data
+... TODO
+
+### Linking manifestoR to other data and frameworkds
+
+... TODO
 
 ### Contributing to manifestoR
 
+... TODO
+
 ### Contacting the Manifesto Project team
+
+... TODO
 
 
 ```{r eval=TRUE, include=FALSE}

@@ -4,7 +4,7 @@
 #' \tabular{ll}{
 #' Package: \tab manifestoR\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.1\cr
+#' Version: \tab 0.5\cr
 #' Date: \tab 2014-07-28\cr
 #' License: \tab GPL (>= 3)\cr
 #' LazyLoad: \tab yes\cr

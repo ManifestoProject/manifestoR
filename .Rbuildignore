@@ -1,3 +1,4 @@
-^\.travis\.yml$
-^/devel/.*$
-^/notes/.*$
+notes/
+devel/
+tests/
+Makefile
