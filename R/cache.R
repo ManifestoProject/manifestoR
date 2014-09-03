@@ -160,7 +160,7 @@ readitemsfromcache <- function(ids, filenames) {
     return(ids)
     
   } else {
-    return(c())
+    return(data.frame())
   }
   
 }
@@ -182,7 +182,7 @@ mergeintocache <- function(call, filename, ids, multifile=FALSE, usecache=TRUE) 
         # download new ids
         if (nrow(filteredids) > 0) {
           newcontent <- call(filteredids)
-          content <- rbind(oldcontent, newcontent)
+          content <- rbind.fill(oldcontent, newcontent)
         } else {
           content <- oldcontent
         }
@@ -207,7 +207,7 @@ mergeintocache <- function(call, filename, ids, multifile=FALSE, usecache=TRUE) 
       if (length(newidxs) > 0) {
         newcontent <- call(ids[newidxs,])        
         writeitemstocache(newcontent, filename[newidxs])
-        content <- rbind(newcontent, oldcontent)  
+        content <- rbind.fill(newcontent, oldcontent)  
       } else {
         content <- oldcontent
       }
