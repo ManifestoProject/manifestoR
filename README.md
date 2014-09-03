@@ -11,7 +11,9 @@ It is avialbale in different formats in the subfolder `vignettes` of this reposi
 
 ### From tarball
 
-A tarball of v0.5 is available in Jirka`s ownCloud folder: [](https://cloud.wzb.eu/public.php?service=files&t=8b30d7bd0e9a18062fbeea6cf8f2e3f3)
+A tarball of v0.5 is available in Jirka`s ownCloud folder:
+[here](https://cloud.wzb.eu/public.php?service=files&t=8b30d7bd0e9a18062fbeea6cf8f2e3f3).
+The password is manifestoeroe.
 
 To install, download the tar.gz file and run the following R command, with the path adapted to your situation:
 
