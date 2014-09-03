@@ -2,7 +2,7 @@
 title: "The workflow with the manifestoR package"
 author: "Jirka Lewandowski <jirka.lewandowski@wzb.eu>"
 date: "27.08.2014"
-output: pdf_document
+output: html_document
 ---
 
 Contents:
@@ -14,7 +14,7 @@ Contents:
 
 First of all, load the `manifestoR` package:
 
-```{r}
+```{r echo=FALSE}
 library(manifestoR)
 ```
 
@@ -82,7 +82,7 @@ manifesto.emptycache()
 ```{r cache=FALSE}
 mpds <- manifesto.maindataset()
 head(names(mpds)) ## .. and much more
-## TODO use a differet example
+## TODO use a different example
 wanted <- mpds[which(mpds$party==41320
               & mpds$edate < as.Date("2010-01-01")
               & mpds$edate > as.Date("2001-01-01")),]
@@ -108,7 +108,7 @@ below.
 
 TODO: ?
 
-## Working with the additional core data: RILE, eletion results, ...
+## Working with the additional core data: RILE, election results, ...
 
 ## Working with the original documents
 
