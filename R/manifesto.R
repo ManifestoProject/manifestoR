@@ -239,8 +239,7 @@ print.ManifestoAvailability <- function(avl) {
   nqueried <- nrow(unique(avl$query)[,c("party", "date")])
   ncoveredtexts <- length(which(unique(avl$availability[which(
     avl$availability$manifestos),])$manifestos))
-  ncovereddocs <- length(unique(avl$availability[which(
-    avl$availability$annotations),]))
+  ncovereddocs <- nrow(avl$availability[which(avl$availability$annotations),])
   ncoveredorigs <- length(which(unique(avl$availability[which(
                              avl$availability$originals),])$originals))
   languages <- unique(avl$availability$language)
