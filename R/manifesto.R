@@ -283,7 +283,7 @@ print.ManifestoAvailability <- function(avl) {
 #' ## summary(corpus)
 manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
   
-  ids <- as.metaids(ids, apikey=apikey, cache=cache)
+  ids <- as.metaids(ids, apikey=apikey, cache=cache)  
   
   call <- function(ids) {
     parameters <- as.list(ids$manifesto_id)
@@ -302,7 +302,7 @@ manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
 
   }
   
-  ids <- ids[which(!is.na(ids$manifesto_id)),]
+  ids <- ids[which(!is.naorstringna(ids$manifesto_id)),]
   # TODO warn about number of manifesto_ids which are NA ? Or change api?
   texts <- mergeintocache(call,
                           filename=cachefilename(kmtype.text, ids),
@@ -310,25 +310,29 @@ manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
                           multifile=TRUE,
                           usecache=cache)
 
-  ## Format the documents into a tm Corpus of ManifestoDocuments
-  the.names <- names(texts)
-  the.names <- the.names[which(the.names != "items")]
-  
-  textToManifestoDocument <- function(idx) {    
-    the.meta <- structure(as.list(texts[idx, the.names]))
-    class(the.meta) <- "TextDocumentMeta"
+  if (nrow(texts) > 0) {
+
+    ## Format the documents into a tm Corpus of ManifestoDocuments
+    the.names <- names(texts)
+    the.names <- the.names[which(the.names != "items")]
     
-    items <- texts[idx, "items"][[1]]
-    names(items)[which(names(items)=="content")] <- "text" ## rename from json
-    items[which(is.nacode(items$code)),"code"] <- NA
-    
-    
-    elem <- structure(list(content=items, meta=the.meta))
-    return(elem)    
+    textToManifestoDocument <- function(idx) {    
+      the.meta <- structure(as.list(texts[idx, the.names]))
+      class(the.meta) <- "TextDocumentMeta"
+      
+      items <- texts[idx, "items"][[1]]
+      names(items)[which(names(items)=="content")] <- "text" ## rename from json
+      items[which(is.nacode(items$code)),"code"] <- NA
+      
+      
+      elem <- structure(list(content=items, meta=the.meta))
+      return(elem)    
+    }
+    corpus <- ManifestoCorpus(ManifestoSource(lapply(1:nrow(texts),
+                                                     textToManifestoDocument)))    
+  } else {
+    corpus <- ManifestoCorpus(ManifestoSource(c()))
   }
-  
-  corpus <- ManifestoCorpus(ManifestoSource(lapply(1:nrow(texts),
-                                                   textToManifestoDocument)))
   return(corpus)
   
 }

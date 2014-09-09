@@ -56,14 +56,18 @@ cachefilename <- function(type, parameters=c()) {
   } else if (type == kmtype.meta) {
     return(file.path(manifesto.getcachelocation(), paste(kmetadata, ".csv", sep="")))
   } else if (type == kmtype.text) {
-    textsdir <- file.path(manifesto.getcachelocation(), ktexts)
-    if (!is.null(parameters$party) & !is.null(parameters$date)) {
-      filename <- paste(parameters$party, parameters$date,
-                        parameters$manifesto_id, sep="_")
+    if (nrow(parameters) > 0) {
+      textsdir <- file.path(manifesto.getcachelocation(), ktexts)
+      if (!is.null(parameters$party) & !is.null(parameters$date)) {
+        filename <- paste(parameters$party, parameters$date,
+                          parameters$manifesto_id, sep="_")
+      } else {
+        filename <- parameters$manifesto_id
+      }
+      return(file.path(textsdir, paste(filename, ".csv", sep="")))      
     } else {
-      filename <- parameters$manifesto_id
+      return(c())
     }
-    return(file.path(textsdir, paste(filename, ".csv", sep="")))
   }
   
 }
@@ -199,8 +203,13 @@ mergeintocache <- function(call, filename, ids, multifile=FALSE, usecache=TRUE) 
     
     } else { # multifile case
       
-      newidxs <- which(!file.exists(filename))
-      oldidxs <- which(file.exists(filename))
+      if (!is.null(filename)) {
+        newidxs <- which(!file.exists(filename))
+        oldidxs <- which(file.exists(filename))
+      } else {
+        newidxs <- c()
+        oldidxs <- c()
+      }
       
       oldcontent <- readitemsfromcache(ids[oldidxs,], filename[oldidxs])
 

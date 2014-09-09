@@ -31,6 +31,12 @@ meta.kpd <- manifesto.meta(data.frame(party=41220, edate=as.Date("1949-08-14")))
 meta.mixed <- manifesto.meta(data.frame(party=c(41320, 41220), date=c(200909, NA), edate=as.Date(c(NA, "1949-08-14"))))
 meta.kpd <- manifesto.meta(data.frame(party=c(41220, NA), date=194908)) # should warn about ids
 
+## requesting only a not available document
+manifesto.emptycache()
+meta.spd04 <- data.frame(party=c(41320), date=c(200409)) ## this does not exist
+corp.spd04 <- manifesto.corpus(meta.spd04)
+length(corp.spd04)
+
 ## this should yield the same
 manifesto.emptycache()
 metadata <- manifesto.meta(wanted)
