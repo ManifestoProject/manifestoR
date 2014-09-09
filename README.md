@@ -23,6 +23,10 @@ install.packages("path/to/manifestoR_0.5.tar.gz", repos=NULL, type="source")
 
 You might need to install dependencies before: `tm`, `httr`, `jsonlite`, `plyr`.
 
+```r
+install.packages(c("httr", "tm", "jsonlite", "plyr"))
+```
+
 The ownCloud folder also contains the current main documentation, the `manifestoRworkflow` vignette.
 
 
