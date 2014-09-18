@@ -5,21 +5,14 @@ R package for accessing manifesto data and original documents directly from R.
 ## Documentation
 
 The main user documentation is the vignette `manifestoRworkflow`.
-It is avialbale in different formats in the subfolder `vignettes` of this repository.
+It is available in different formats in the subfolder `vignettes` of this repository.
+A pdf version is available in Jirka`s ownCloud folder:
+[here](https://cloud.wzb.eu/public.php?service=files&t=8b30d7bd0e9a18062fbeea6cf8f2e3f3).
+The password is manifestoeroe.
 
 ## Installation
 
 ### From tarball
-
-A tarball of v0.5 is available in Jirka`s ownCloud folder:
-[here](https://cloud.wzb.eu/public.php?service=files&t=8b30d7bd0e9a18062fbeea6cf8f2e3f3).
-The password is manifestoeroe.
-
-To install, download the tar.gz file and run the following R command, with the path adapted to your situation:
-
-```r
-install.packages("path/to/manifestoR_0.5.tar.gz", repos=NULL, type="source")
-```
 
 You might need to install dependencies before: `tm`, `httr`, `jsonlite`, `plyr`.
 
@@ -27,8 +20,33 @@ You might need to install dependencies before: `tm`, `httr`, `jsonlite`, `plyr`.
 install.packages(c("httr", "tm", "jsonlite", "plyr"))
 ```
 
-The ownCloud folder also contains the current main documentation, the `manifestoRworkflow` vignette.
+A tarball of v0.5 is available in Jirka`s ownCloud folder:
+[here](https://cloud.wzb.eu/public.php?service=files&t=8b30d7bd0e9a18062fbeea6cf8f2e3f3).
+The password is manifestoeroe.
 
+To install, download the tar.gz file.
+
+#### Linux and Max OS X
+
+Run the following R command, with the path adapted to your situation:
+
+```r
+install.packages("path/to/manifestoR_0.5.tar.gz", repos=NULL, type="source")
+```
+
+#### Windows
+
+1. Find out where your R.exe is (Usually in `C:/Program Files/R/R-3.0.0/bin/R.exe` or other version number).
+
+2. Open a command line.
+
+3. cd into the directory of your R.exe
+
+4. Issue the following command (with the path adapted to where you downloaded the .tar.gz):
+
+```
+R.exe CMD INSTALL path/to/manifestoR_0.5.tar.gz
+```
 
 ### From source repositories
 
