@@ -8,8 +8,11 @@
 #' ## manifesto.setcachelocation(file.path(getwd(), "manifestofiles"))
 #' 
 manifesto.setcachelocation <- function(path) {
-  assign(kcachelocation, path, envir = manifesto.globalenv)
-  if (!is.null(get(kcachelocation, envir = manifesto.globalenv))) {
+  if (is.null(path)) {
+    assign(kcachelocation, path, envir = manifesto.globalenv)
+  } else {
+    path <- file.path(path.expand(getwd()), path)
+    assign(kcachelocation, path, envir = manifesto.globalenv)
     ensurecacheexists(path)
   }
 }
@@ -27,7 +30,7 @@ manifesto.setcachelocation(NULL)
 #' 
 manifesto.getcachelocation <- function() {
   if (is.null(get(kcachelocation, envir = manifesto.globalenv))) {
-    manifesto.setcachelocation(file.path(getwd(), kdefaultcachename))
+    manifesto.setcachelocation(kdefaultcachename)
   }
   return(get(kcachelocation, envir = manifesto.globalenv))
 }
@@ -240,7 +243,7 @@ mergeintocache <- function(call, filename, ids, multifile=FALSE, usecache=TRUE) 
 #' ## manifesto.emptycache()
 #' 
 manifesto.emptycache <- function() {
-  system(paste("rm -rf ", manifesto.getcachelocation())) ## remove cache
+  unlink(manifesto.getcachelocation(), recursive = TRUE) ## remove cache
   ensurecacheexists(manifesto.getcachelocation())
 }
 
