@@ -52,3 +52,15 @@ print(TermDocumentMatrix(corpus))
 print(table(codes(corpus[[2]])))
 print(table(codes(corpus), useNA = "always"))
 
+## check for codes as strings/factors/...
+factor.codes <- data.frame(party=c(41521, 41113, 41320), date=c(200209, 200209, 200209))
+factor.codes.corp <- manifesto.corpus(factor.codes)
+codes(factor.codes.corp)
+
+valid.code <- function(x) {
+  return(x == 0 | is.na(x) | x >= 100)
+}
+
+all(valid.code(codes(factor.codes.corp))) ## this should be true
+codes(factor.codes.corp)[!valid.code(codes(factor.codes.corp))] ## this should be empty
+
