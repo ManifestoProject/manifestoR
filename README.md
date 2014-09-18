@@ -18,10 +18,14 @@ The password is manifestoeroe.
 To install, download the tar.gz file and run the following R command, with the path adapted to your situation:
 
 ```r
-install.packages("path/to/manifestoR_0.5.tar.gz", repos=NULL)
+install.packages("path/to/manifestoR_0.5.tar.gz", repos=NULL, type="source")
 ```
 
 You might need to install dependencies before: `tm`, `httr`, `jsonlite`, `plyr`.
+
+```r
+install.packages(c("httr", "tm", "jsonlite", "plyr"))
+```
 
 The ownCloud folder also contains the current main documentation, the `manifestoRworkflow` vignette.
 
