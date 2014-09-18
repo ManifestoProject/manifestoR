@@ -104,7 +104,7 @@ formatids <- function(ids) {
   })
   
   n.before <- nrow(ids)
-  ids <- ids[which(!is.na(ids$party) & !is.na(ids$date)),]
+  suppressWarnings(ids <- ids[which(!is.na(ids$party) & !is.na(ids$date)),])
   n.after <- nrow(ids)
   if (n.after < n.before) {
     warning(paste(n.before - n.after, "rows were ommitted from querying the database,",
@@ -323,7 +323,9 @@ manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
       items <- texts[idx, "items"][[1]]
       names(items)[which(names(items)=="content")] <- "text" ## rename from json
       items[which(is.nacode(items$code)),"code"] <- NA
-      items[,"code"] <- as.numeric(as.character(items[,"code"])) ## string codes might have become factor
+      suppressWarnings( ## string codes might have become factor
+        items[,"code"] <- as.numeric(as.character(items[,"code"]))
+      ) 
       
       
       elem <- structure(list(content=items, meta=the.meta))

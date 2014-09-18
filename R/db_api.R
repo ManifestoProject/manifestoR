@@ -17,7 +17,7 @@ kmurl.apiroot <- "https://manifesto-project.wzb.eu/tools/"
 manifestodb.setapikey <- function(key = NA, key.file = NULL) {
   if (!is.null(key.file)) {
     fl <- file(key.file)
-    key <- readLines(fl, 1)
+    key <- readLines(fl, 1, warn = FALSE)
     close.connection(fl)    
   }
   # TODO check key?
