@@ -52,6 +52,16 @@ print(TermDocumentMatrix(corpus))
 print(table(codes(corpus[[2]])))
 print(table(codes(corpus), useNA = "always"))
 
+## check export as data.frame
+df <- data.frame(corpus)
+print(names(df))
+df <- as.data.frame(corpus)
+print(names(df))
+df <- as.data.frame(corpus[[2]])
+print(names(df))
+df <- as.data.frame(corpus, with.meta=TRUE)
+print(names(df))
+
 ## check for codes as strings/factors/...
 factor.codes <- data.frame(party=c(41521, 41113, 41320), date=c(200209, 200209, 200209))
 factor.codes.corp <- manifesto.corpus(factor.codes)

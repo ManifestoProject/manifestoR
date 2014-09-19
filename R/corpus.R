@@ -16,12 +16,12 @@ ManifestoCorpus <- function(csource) {
   class(corpus) <- c("ManifestoCorpus", class(corpus))
   return(corpus)
 }
+#' @method codes ManifestoCorpus
 #' @export
-#' @rdname codes
+#' @rdname generics
 codes.ManifestoCorpus <- function(corpus) {
   c(unlist(lapply(corpus, codes)))
 }
-
 
 #' Manifesto Documents class
 #' 
@@ -63,6 +63,7 @@ ManifestoDocument <- function(content = data.frame(names = c("text", "code")),
 
 #' Get the content of a \code{\link{ManifestoDocument}}
 #' 
+#' 
 #' @param doc ManifestoDocument
 #' @rdname generics
 #' @method content ManifestoDocument
@@ -74,7 +75,7 @@ content.ManifestoDocument <- function(doc) {
 #' Modify the content of a \code{\link{ManifestoDocument}}
 #' 
 #' @param doc ManifestoDocument
-#' @param value new content
+#' @param value new content text (as `character`)
 #' @rdname generics
 #' @method content ManifestoDocument
 #' @export
@@ -84,14 +85,15 @@ content.ManifestoDocument <- function(doc) {
 }
 
 
-#' Get the codes of a \code{\link{ManifestoDocument}}
+#' Get the codes of a document of corpus
 #' 
-#' @param doc ManifestoDocument
+#' @param x ManifestoDocument
 #' @rdname codes
 #' @export
 codes <- function(x) {
   UseMethod("codes", x)
 }
+
 #' @rdname codes
 #' @method codes ManifestoDocument
 #' @export
@@ -99,17 +101,18 @@ codes.ManifestoDocument <- function(doc) {
   return(as.numeric(doc$content$code))
 }
 
-#' Modify the codes of a \code{\link{ManifestoDocument}}
+#' Modify the codes of a document or corpus
 #' 
-#' @rdname codes
-#' @param doc ManifestoDocument
+#' @rdname generics
+#' @param x document or corpus
 #' @param value new codes
 #' @export
 `codes<-` <- function(x, value) {
   UseMethod("codes<-", x)
 }
-#' @rdname codes
-#' @method `codes<-` ManifestoDocument
+
+#' @rdname generics
+#' @method codes<- ManifestoDocument
 #' @export
 `codes<-.ManifestoDocument` <- function(doc, value) {
   doc$content$code <- value
@@ -120,6 +123,7 @@ codes.ManifestoDocument <- function(doc) {
 #' 
 #' @param doc ManifestoDocument
 #' @param tag tag of specific metadata to get
+#' @method meta ManifestoDocument
 #' @export
 meta.ManifestoDocument <- function(doc, tag=NULL) {
   if (!is.null(tag)) {
@@ -129,11 +133,38 @@ meta.ManifestoDocument <- function(doc, tag=NULL) {
   }
 }
 
+#' @method length ManifestoDocument
+#' @export
+length.ManifestoDocument <- function(doc) {
+  length(content(doc))
+}
+  
+#' @method as.data.frame ManifestoDocument
+#' @export
+as.data.frame.ManifestoDocument <- function(doc, with.meta = FALSE, ...) {
+  dftotal <- data.frame(content=content(doc), code=codes(doc),
+                        pos = 1:length(doc), ...)
+  if (with.meta) {
+    metadata <- data.frame(t(unlist(meta(doc))))
+    dftotal <- data.frame(dftotal, metadata)
+  }
+  return(dftotal)
+}
+
+#' @method as.data.frame ManifestoCorpus
+#' @export
+as.data.frame.ManifestoCorpus <- function(corp, ...) {
+  dfslist <- lapply(corp, as.data.frame, ...)
+  return(do.call(rbind.fill, dfslist))
+}
+
+
 #' Modify the metadata of a \code{\link{ManifestoDocument}}
 #' 
 #' @param doc ManifestoDocument
 #' @param tag tag of specific metadata to modify
 #' @param value new value of metadata tag
+#' @method meta<- ManifestoDocument
 #' @export
 `meta<-.ManifestoDocument` <- function(doc, tag, ..., value) {
   doc$meta[[tag]] <- value
