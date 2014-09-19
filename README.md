@@ -14,6 +14,8 @@ The password is manifestoeroe.
 
 ### From tarball
 
+R version 3.1 or higher is required.
+
 You might need to install dependencies before: `tm`, `httr`, `jsonlite`, `plyr`.
 
 ```r
