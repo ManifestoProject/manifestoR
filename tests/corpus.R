@@ -55,6 +55,7 @@ print(table(codes(corpus), useNA = "always"))
 ## check export as data.frame
 df <- data.frame(corpus)
 print(names(df))
+print(class(df$content)) ## should be character
 df <- as.data.frame(corpus)
 print(names(df))
 df <- as.data.frame(corpus[[2]])

@@ -324,7 +324,7 @@ manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
       names(items)[which(names(items)=="content")] <- "text" ## rename from json
       items[which(is.nacode(items$code)),"code"] <- NA
       suppressWarnings( ## string codes might have become factor
-        items[,"code"] <- as.numeric(as.character(items[,"code"]))
+        items[,"code"] <- as.integer(as.character(items[,"code"]))
       ) 
       
       

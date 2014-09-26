@@ -98,7 +98,7 @@ viacache <- function(call, filename, usecache=TRUE) {
   if (usecache) {
     if (file.exists(filename)) {
       # read from cache
-      content <- read.csv(filename)
+      content <- read.csv(filename, stringsAsFactors = FALSE)
     } else {
       # download and write to cache
       content <- call
@@ -161,7 +161,7 @@ readitemsfromcache <- function(ids, filenames) {
     
     ids$items <- vector("list", nrow(ids)) 
     for (i in 1:nrow(ids)) {
-      ids$items[[i]] <- read.csv(filenames[i])
+      ids$items[[i]] <- read.csv(filenames[i], stringsAsFactors = FALSE)
     }
     
     return(ids)
@@ -181,7 +181,7 @@ mergeintocache <- function(call, filename, ids, multifile=FALSE, usecache=TRUE) 
                      
       if (file.exists(filename)) {
         # read from cache
-        oldcontent <- read.csv(filename)
+        oldcontent <- read.csv(filename, stringsAsFactors = FALSE)
         
         # filter all ids which are in oldcontent
         filteredids <- unique(filterids(ids, oldcontent, ids=names(ids)))

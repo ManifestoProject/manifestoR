@@ -98,7 +98,7 @@ codes <- function(x) {
 #' @method codes ManifestoDocument
 #' @export
 codes.ManifestoDocument <- function(doc) {
-  return(as.numeric(doc$content$code))
+  return(as.integer(doc$content$code))
 }
 
 #' Modify the codes of a document or corpus
@@ -143,7 +143,7 @@ length.ManifestoDocument <- function(doc) {
 #' @export
 as.data.frame.ManifestoDocument <- function(doc, with.meta = FALSE, ...) {
   dftotal <- data.frame(content=content(doc), code=codes(doc),
-                        pos = 1:length(doc), ...)
+                        pos = 1:length(doc), stringsAsFactors = FALSE, ...)
   if (with.meta) {
     metadata <- data.frame(t(unlist(meta(doc))))
     dftotal <- data.frame(dftotal, metadata)
@@ -154,7 +154,7 @@ as.data.frame.ManifestoDocument <- function(doc, with.meta = FALSE, ...) {
 #' @method as.data.frame ManifestoCorpus
 #' @export
 as.data.frame.ManifestoCorpus <- function(corp, ...) {
-  dfslist <- lapply(corp, as.data.frame, ...)
+  dfslist <- lapply(corp, as.data.frame, c(..., stringsAsFactors = FALSE))
   return(do.call(rbind.fill, dfslist))
 }
 
