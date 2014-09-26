@@ -78,4 +78,5 @@ Tarballs will be provided as soon as this makes sense.
 To pack the source and documentation from this folder into a package tarball your system needs to have installed:
 
 * R packages `devtools` and `roxygen2`
+* R packages `knitr` (for documentation)
 * `texlive-fonts-extra` (for documentation)
