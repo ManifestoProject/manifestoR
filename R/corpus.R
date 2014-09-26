@@ -77,7 +77,7 @@ content.ManifestoDocument <- function(doc) {
 #' @param doc ManifestoDocument
 #' @param value new content text (as `character`)
 #' @rdname generics
-#' @method content ManifestoDocument
+#' @method content<- ManifestoDocument
 #' @export
 `content<-.ManifestoDocument` <- function(doc, value) {
   doc$content$text <- value

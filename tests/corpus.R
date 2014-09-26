@@ -55,6 +55,9 @@ print(table(codes(corpus), useNA = "always"))
 ## check for subset functionality
 print(length(subset(corpus[[2]], codes(corpus[[2]]) == 305)))
 
+## test content assignment
+content(corpus[[2]]) <- gsub("SPD", "USPD", content(corpus[[2]]))
+
 ## check export as data.frame
 df <- data.frame(corpus)
 print(names(df))
