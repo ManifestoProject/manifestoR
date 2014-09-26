@@ -52,6 +52,9 @@ print(TermDocumentMatrix(corpus))
 print(table(codes(corpus[[2]])))
 print(table(codes(corpus), useNA = "always"))
 
+## check for subset functionality
+print(length(subset(corpus[[2]], codes(corpus[[2]]) == 305)))
+
 ## check export as data.frame
 df <- data.frame(corpus)
 print(names(df))

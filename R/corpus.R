@@ -138,6 +138,14 @@ meta.ManifestoDocument <- function(doc, tag=NULL) {
 length.ManifestoDocument <- function(doc) {
   length(content(doc))
 }
+
+#' @method subset ManifestoDocument
+#' @export
+subset.ManifestoDocument <- function(doc, subset, ...) {
+  cpdoc <- doc
+  cpdoc$content <- base::subset(cpdoc$content, subset, ...)
+  return(cpdoc)
+}
   
 #' @method as.data.frame ManifestoDocument
 #' @export
