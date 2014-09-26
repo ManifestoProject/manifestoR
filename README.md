@@ -12,7 +12,7 @@ The password is manifestoeroe.
 
 ## Installation
 
-### From tarball
+### Requirements
 
 R version 3.1 or higher is required.
 
@@ -21,6 +21,16 @@ You might need to install dependencies before: `tm`, `httr`, `jsonlite`, `plyr`.
 ```r
 install.packages(c("httr", "tm", "jsonlite", "plyr"))
 ```
+
+**Note**: manifestoR depends on the most recent version 0.9.12 of `jsonlite`,
+which is not on CRAN as of now. Using `devtools` it can be installed from GitHub:
+
+```r
+install.package("devtools") ## if necessary
+install_github("jsonlite", user="jeroenooms", ref="master")
+```
+
+### From tarball
 
 A tarball of v0.5 is available in Jirka`s ownCloud folder:
 [here](https://cloud.wzb.eu/public.php?service=files&t=8b30d7bd0e9a18062fbeea6cf8f2e3f3).

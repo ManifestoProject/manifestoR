@@ -11,7 +11,7 @@ Depends:
     R (>= 3.1.0),
     httr (>= 0.3),
     tm (>= 0.6),
-    jsonlite (>= 0.9.8),
+    jsonlite (>= 0.9.12),
     plyr (>= 1.8)
 Suggests: knitr, markdown
 VignetteBuilder: knitr
