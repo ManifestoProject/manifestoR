@@ -26,7 +26,7 @@ install.packages(c("httr", "tm", "jsonlite", "plyr"))
 which is not on CRAN as of now. Using `devtools` it can be installed from GitHub:
 
 ```r
-install.package("devtools") ## if necessary
+install.packages("devtools") ## if necessary
 install_github("jsonlite", user="jeroenooms", ref="master")
 ```
 
