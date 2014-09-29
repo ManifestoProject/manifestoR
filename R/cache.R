@@ -11,7 +11,7 @@ manifesto.setcachelocation <- function(path) {
   if (is.null(path)) {
     assign(kcachelocation, path, envir = manifesto.globalenv)
   } else {
-    path <- normalizePath(path)
+    path <- suppressWarnings(normalizePath(path))
     assign(kcachelocation, path, envir = manifesto.globalenv)
     ensurecacheexists(path)
   }
