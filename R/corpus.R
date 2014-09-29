@@ -166,6 +166,19 @@ as.data.frame.ManifestoCorpus <- function(corp, ...) {
   return(do.call(rbind.fill, dfslist))
 }
 
+#' @method head ManifestoDocument
+#' @export
+head.ManifestoDocument <- function(doc, n = 6) {
+  subset(doc, c(rep(TRUE, n), rep(FALSE, length(doc) - n)))
+}
+
+#' @method tail ManifestoDocument
+#' @export
+tail.ManifestoDocument <- function(doc, n = 6) {
+  subset(doc, c(rep(FALSE, length(doc) - n), rep(TRUE, n)))
+}
+
+
 
 #' Modify the metadata of a \code{\link{ManifestoDocument}}
 #' 
