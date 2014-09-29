@@ -2,3 +2,5 @@ notes/
 devel/
 tests/
 Makefile
+^.*\.Rproj$
+^\.Rproj\.user$
