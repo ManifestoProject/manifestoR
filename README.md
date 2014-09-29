@@ -27,7 +27,7 @@ which is not on CRAN as of now. Using `devtools` it can be installed from GitHub
 
 ```r
 install.packages("devtools") ## if necessary
-install_github("jsonlite", user="jeroenooms", ref="master")
+install_github("jeroenooms/jsonlite", ref="master")
 ```
 
 ### From tarball
