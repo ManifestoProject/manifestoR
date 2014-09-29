@@ -2,38 +2,32 @@
 title: "The workflow with the manifestoR package"
 author: "Jirka Lewandowski <jirka.lewandowski@wzb.eu>"
 date: "27.08.2014"
-output: html_document
+output:
+  html_document:
+    keep_md: yes
+    number_sections: yes
+    toc: yes
+  pdf_document:
+    toc: yes
 ---
 
-Contents:
 
-- [Working with the corpus](#working-with-the-corpus)
-- [Saving and exporting documents](#saving-and-exporting-documents)
-- [Working with the CMP codings](#working-with-the-cmp-codings)
-- ...
+# Loading the package
 
-First of all, load the `manifestoR` package:
+First of all, load the `manifestoR` package with the usual R syntax:
 
-```
+```{r eval=FALSE}
 library(manifestoR)
 ```
 
 ```{r eval=TRUE, include=FALSE, echo=TRUE}
 library(manifestoR)
 ```
-```{r eval=TRUE, include=FALSE}
+```{r eval=FALSE, include=FALSE}
 manifesto.emptycache()
 ```
 
-## Working with the corpus
-
-This section explains how to ...
-
-- ... connect to the Manifesto Corpus database,
-- ... download specific documents and document sets,
-- ... access and process documents afterwards.
-
-### How to connect to the Manifesto Corpus database
+# How to connect to the Manifesto Corpus database
 
 To access the data in the Manifesto Corpus, an account for the Manifesto Project
 webpage with an API key is required.
@@ -57,14 +51,14 @@ manifestodb.setapikey(key.file = "../tests/manifesto_apikey.txt")
 Note that it is a security risk to store the API key file or a script containing
 the key in public repositories.
 
-### How to download documents and document sets
+# How to download documents and document sets
 
 Downloading documents works via the function `manifesto.corpus(...)`.
 It takes a `data.frame` listing combinations of party ids and election
 dates and returns a `ManifestoCorpus` object, a subtype of the `Corpus` defined
 in the package `tm`:
 
-```{r}
+```{r warning=FALSE}
 wanted <- data.frame(party=c(41320, 41220), date=c(200909, 200909))
 corpus <- manifesto.corpus(wanted)
 print(corpus)
@@ -82,76 +76,155 @@ The `manifesto.corpus` function also understands several other formats of
 input arguments, for details refer to its documentation.
 The party ids (41320 in the example) are the ids as in the Manifesto Project's
 main dataset.
-The party ids can be found in the current dataset documentation at
+They can be found in the current dataset documentation at
 [](https://manifesto-project.wzb.eu/datasets)
-or additionally are used and linked to party names, countries, etc. in
-the main dataset, which is also accessible via manifestoR:
-
-Subsets of the main data set can directly be used for querying the corpus
-database.
+or in the main dataset, which is also accessible via manifestoR:
 
 ```{r cache=FALSE}
 mpds <- manifesto.maindataset()
 head(names(mpds)) ## .. and much more
 wanted <- subset(mpds,
-                 eumember==10 & # see main dataset codebook
+                 countryname == "Germany" & # see main dataset codebook
                    pervote > 20.0 &
                    edate > as.Date("1990-01-01"))
 corpus <- manifesto.corpus(wanted)
 print(corpus)
 ```
 
-Note: downloaded documents are automatically cached locally. To learn about
+Note how you can use subsets of the main data set directly for querying the corpus
+database, since they are already in the right format.
+
+Downloaded documents are automatically cached locally. To learn about
 the caching mechanism read the section
 [Understanding manifestoR's caching mechanism](#understanding-manifestors-caching-mechanism)
 below.
 
-## Saving and exporting documents
-
-... TODO
-
-## Working with the CMP codings
+# Working with the CMP codings
 
 The central way for accessing the CMP codings is the accessor method `codes(...)`.
 It can be called on `ManifestoDocument`s and `ManifestoCorpus`s and returns a vector
 of the CMP codings attached to the quasi-sentences of the document/corpus in a row:
 
 ```{r}
-corpus <- manifesto.corpus(data.frame(party=41320, date=200909))
-head(codes(corpus))
-head(codes(corpus[[1]]))
-head(content(corpus[[1]])[which(codes(corpus[[1]])==503)])
+doc <- corpus[[7]]
+head(codes(doc), n = 15)
+head(codes(corpus), n = 15)
+
 ```
 
-## Text scaling methods
+The coding scheme can be found in the online documentation of the Manifesto
+Project dataset at [](https://manifesto-project.wzb.eu/coding_schemes/1).
 
-... TODO ?
 
-## Working with the additional core data: RILE, election results, ...
+# Processing the corpus documents
+
+Since the Manifesto Corpus uses the infrastructure of the `tm` package, all
+of `tm`s filtering and transforming functionality can be applied directly
+to the downloaded `ManifestoCorpus`.
+
+For example, standard natural language processors are available via:
+
+```{r}
+corpus.cleaned <- tm_map(corpus, removePunctuation)
+corpus.nostop <- tm_map(corpus.cleaned, removeWords, stopwords("german"))
+head(content(corpus.nostop[[7]]))
+```
+
+For more information about the functionality provided by the `tm`,
+please refer to its [documentation](http://cran.r-project.org/web/packages/tm/vignettes/tm.pdf).
+
+Since documents contain many quasi-sentences of which potentially only
+specific selections are of interest, `manifestoR` provides a function
+for subsetting documents easily:
+
+```{r}
+# original document length
+length(doc)
+
+# subsetting based on codes
+doc.subcodes <- subset(doc, codes(doc) %in% c(202, 503, 607))
+length(doc.subcodes)
+
+# subsetting based on text
+doc.subtext <- subset(doc, grepl("Demokratie", content(doc)))
+head(content(doc.subtext), n = 3)
+head(codes(doc.subtext), n = 10)
+```
+
+
+# Understanding manifestoR's caching mechanism
+
+To save time and network traffic, manifestoR saves all downloaded data and
+documents locally on your computer and does not connect to the online database
+when the same data is requested for the second time.
+
+```{r eval=FALSE}
+## connects to online database, might take some seconds:
+corpus <- manifesto.corpus(wanted)
+
+## does not connect to online databse, since only already downloaded documents
+## are requested:
+subcorpus <- manifesto.corpus(wanted[3:7,])
+```
+
+This has several advantages:
+
+- Internet connection is required only for the first run of a script
+- Scripts and analyses stay reproducible also when online database content is updated
+- Locally saved data can be copied and exported to other analyses using `manifestoR`
+and even other programs (see [next section](#saving-and-exporting-documents))
+
+By default, the file system location of the cached data is the subfolder
+"manifestofiles" of the R working directory when `manifestoR` was loaded.
+You can find out and change the cache path from within `manifestoR`:
+
+```{r eval=TRUE}
+manifesto.getcachelocation()
+manifesto.setcachelocation("~/new-cache/")
+manifesto.getcachelocation()
+```
+
+```{r eval=TRUE, include=FALSE}
+manifesto.setcachelocation(NULL)
+```
+
+When you want to update your local data to the most recent version of the
+Manifesto Project's corpus and database, you can empty the cache to make
+`manifestoR` download the data again the next time you query them.
+
+```{r eval=FALSE}
+manifesto.emptycache()
+
+## connects to online database again
+corpus <- manifesto.corpus(wanted)
+```
+
+# Saving and exporting documents
+
+## ... to the file system
+
+TODO `manifesto.copycache()`
+
+TODO describe cache content
+
+## ... within R
+
+TODO `as.data.frame`
 
 ... TODO
 
-## Working with the original documents
 
-... TODO (currently not even implemented)
 
-## Understanding manifestoR's caching mechanism
 
-... TODO
 
-## TODO additional
+# Additional Information
 
-... TODO
 
-### Linking manifestoR to other data and frameworkds
+## Contributing to manifestoR
 
 ... TODO
 
-### Contributing to manifestoR
-
-... TODO
-
-### Contacting the Manifesto Project team
+## Contacting the Manifesto Project team
 
 ... TODO
 
