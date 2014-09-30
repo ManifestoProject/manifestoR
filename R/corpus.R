@@ -169,12 +169,14 @@ as.data.frame.ManifestoCorpus <- function(corp, ...) {
 #' @method head ManifestoDocument
 #' @export
 head.ManifestoDocument <- function(doc, n = 6) {
+  n <- min(length(doc), n)
   subset(doc, c(rep(TRUE, n), rep(FALSE, length(doc) - n)))
 }
 
 #' @method tail ManifestoDocument
 #' @export
 tail.ManifestoDocument <- function(doc, n = 6) {
+  n <- min(length(doc), n)
   subset(doc, c(rep(FALSE, length(doc) - n), rep(TRUE, n)))
 }
 
