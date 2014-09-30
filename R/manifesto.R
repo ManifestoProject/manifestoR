@@ -282,57 +282,72 @@ print.ManifestoAvailability <- function(avl) {
 #' ## corpus <- manifesto.corpus(wanted)
 #' ## summary(corpus)
 manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
-  
-  ids <- as.metaids(ids, apikey=apikey, cache=cache)  
-  
-  call <- function(ids) {
-    parameters <- as.list(ids$manifesto_id)
-    names(parameters) <- rep("keys[]", length(parameters))
-    
-    texts <- manifestodb.get(type = kmtype.text,
-                            parameters = parameters,
-                             apikey = apikey) 
 
-    texts$party <- ids$party[order(ids$manifesto_id)]
-    texts$party[order(texts$manifesto_id)] <- texts$party
-    texts$date <- ids$date[order(ids$manifesto_id)]
-    texts$date[order(texts$manifesto_id)] <- texts$date
+  ids <- as.metaids(ids, apikey=apikey, cache=cache)
 
-    return(texts)
-
-  }
-  
   ids <- ids[which(!is.naorstringna(ids$manifesto_id)),]
   # TODO warn about number of manifesto_ids which are NA ? Or change api?
-  texts <- mergeintocache(call,
-                          filename=cachefilename(kmtype.text, ids),
-                          ids,
-                          multifile=TRUE,
-                          usecache=cache)
 
-  if (nrow(texts) > 0) {
-
-    ## Format the documents into a tm Corpus of ManifestoDocuments
-    the.names <- names(texts)
-    the.names <- the.names[which(the.names != "items")]
+  if (nrow(ids) > 0) {
     
-    textToManifestoDocument <- function(idx) {    
-      the.meta <- structure(as.list(texts[idx, the.names]))
-      class(the.meta) <- "TextDocumentMeta"
+    ids <- ids[order(ids$manifesto_id),]
+    
+    call <- function(ids) {
+      parameters <- as.list(ids$manifesto_id)
+      names(parameters) <- rep("keys[]", length(parameters))
       
-      items <- texts[idx, "items"][[1]]
-      names(items)[which(names(items)=="content")] <- "text" ## rename from json
-      items[which(is.nacode(items$code)),"code"] <- NA
-      suppressWarnings( ## string codes might have become factor
-        items[,"code"] <- as.integer(as.character(items[,"code"]))
-      ) 
-      
-      
-      elem <- structure(list(content=items, meta=the.meta))
-      return(elem)    
+      texts <- manifestodb.get(type = kmtype.text,
+                              parameters = parameters,
+                               apikey = apikey)
+  
+      ## a list ordering quick fix
+      the.order <- order(texts$manifesto_id)
+      l <- list()
+      for (i in 1:length(the.order)) {
+        l[[i]] <- texts$items[[the.order[i]]]
+      }
+      texts$items <- l
+  
+      for (name in intersect(names(texts), names(ids))) {
+        texts[,name] <- ids[the.order, name]
+      }
+  
+      return(texts)
+  
     }
-    corpus <- ManifestoCorpus(ManifestoSource(lapply(1:nrow(texts),
-                                                     textToManifestoDocument)))    
+  
+    texts <- mergeintocache(call,
+                            filename=cachefilename(kmtype.text, ids),
+                            ids,
+                            multifile=TRUE,
+                            usecache=cache)
+  
+    if (nrow(texts) > 0) {
+  
+      ## Format the documents into a tm Corpus of ManifestoDocuments
+      the.names <- names(texts)
+      the.names <- the.names[which(the.names != "items")]
+      
+      textToManifestoDocument <- function(idx) {    
+        the.meta <- structure(as.list(texts[idx, the.names]))
+        class(the.meta) <- "TextDocumentMeta"
+        
+        items <- texts[idx, "items"][[1]]
+        names(items)[which(names(items)=="content")] <- "text" ## rename from json
+        items[which(is.nacode(items$code)),"code"] <- NA
+        suppressWarnings( ## string codes might have become factor
+          items[,"code"] <- as.integer(as.character(items[,"code"]))
+        ) 
+        
+        
+        elem <- structure(list(content=items, meta=the.meta))
+        return(elem)    
+      }
+      corpus <- ManifestoCorpus(ManifestoSource(lapply(1:nrow(texts),
+                                                       textToManifestoDocument)))    
+    } else {
+      corpus <- ManifestoCorpus(ManifestoSource(c()))
+    }
   } else {
     corpus <- ManifestoCorpus(ManifestoSource(c()))
   }

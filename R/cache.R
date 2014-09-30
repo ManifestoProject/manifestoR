@@ -140,7 +140,7 @@ filterids <- function(data, filter, ids=NULL, setminus=TRUE) {
 }
 
 writeitemstocache <- function(content, filename) {
-  
+
   if (nrow(content) != length(filename)) {
     stop("cannot write data to cache, because number of filenames and data frames do not match!")
   }
@@ -213,11 +213,11 @@ mergeintocache <- function(call, filename, ids, multifile=FALSE, usecache=TRUE) 
         newidxs <- c()
         oldidxs <- c()
       }
-      
+
       oldcontent <- readitemsfromcache(ids[oldidxs,], filename[oldidxs])
 
       if (length(newidxs) > 0) {
-        newcontent <- call(ids[newidxs,])        
+        newcontent <- call(ids[newidxs,])
         writeitemstocache(newcontent, filename[newidxs])
         content <- rbind.fill(newcontent, oldcontent)  
       } else {
