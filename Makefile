@@ -38,3 +38,14 @@ corpustest:
 	(cd tests; R -f corpus.R)
 	
 withvignettes: vignettes all
+
+pushdeploy:
+	git checkout deploy
+	git merge master
+	git rm -f --ignore-unmatch man/*
+	make doc
+	git add -f NAMESPACE
+	git add -f man/*
+	git commit -m "Auto-creation of documentation"
+	git push origin deploy	
+	git checkout master

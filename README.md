@@ -12,22 +12,31 @@ The password is manifestoeroe.
 
 ## Installation
 
+You should be able to install the most recent `manifestoR` version
+using `devtools` by running in R:
+
+```r
+library(devtools)
+install_git("https://<GITLABUSERNAME>:<GITLABPASSWORD>@gitlab.manifesto.wzb.eu/marpor/manifestor.git", branch="deploy")
+```
+
+- Replace `<GITLABUSERNAME>` with your gitlab user name and `<GITLABPASSWORD>` with your gitlab password
+- All dependencies will be installed/updated automatically
+- On Windows this probably requires `Rtools` and `git` to to be installed
+
+For other installation methods see the following subsections.
+
+Development note: To push your current master to the `deploy` branch (and create documentation etc.) run `make pushdeploy`
+
 ### Requirements
 
 R version 3.1 or higher is required.
 
-You might need to install dependencies before: `tm`, `httr`, `jsonlite`, `plyr`.
+`manifesoR` depends on the packages `tm`, `httr`, `jsonlite`, `plyr`, which are
+automatically installed when using `install_git`. If this does not work: use
 
 ```r
 install.packages(c("httr", "tm", "jsonlite", "plyr"))
-```
-
-**Note**: manifestoR depends on the most recent version 0.9.12 of `jsonlite`,
-which is not on CRAN as of now. Using `devtools` it can be installed from GitHub:
-
-```r
-install.packages("devtools") ## if necessary
-install_github("jeroenooms/jsonlite", ref="master")
 ```
 
 ### From tarball
