@@ -139,6 +139,14 @@ length.ManifestoDocument <- function(doc) {
   length(content(doc))
 }
 
+#' @method str ManifestoDocument
+#' @export
+str.ManifestoDocument <- function(doc, ...) {
+  doc2 <- doc
+  class(doc2) <- "list"
+  return(str(doc2, ...))
+}
+
 #' @method subset ManifestoDocument
 #' @export
 subset.ManifestoDocument <- function(doc, subset, ...) {
