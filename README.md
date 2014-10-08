@@ -43,7 +43,7 @@ To install, download the tar.gz file.
 Run the following R command, with the path adapted to your situation:
 
 ```r
-install.packages("path/to/manifestoR_0.5.tar.gz", repos=NULL, type="source")
+install.packages("path/to/manifestoR_<version>.tar.gz", repos=NULL, type="source")
 ```
 
 #### Windows
@@ -57,7 +57,7 @@ install.packages("path/to/manifestoR_0.5.tar.gz", repos=NULL, type="source")
 4. Issue the following command (with the path adapted to where you downloaded the .tar.gz):
 
 ```
-R.exe CMD INSTALL path/to/manifestoR_0.5.tar.gz
+R.exe CMD INSTALL path/to/manifestoR_<version>.tar.gz
 ```
 
 ### From source repositories
