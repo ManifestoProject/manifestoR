@@ -12,4 +12,5 @@ comparedf <- data.frame(from.dataset=mpds.fr$rile,
 
 tolerance <- 0.01
 abs.error <- abs(comparedf$from.dataset - comparedf$from.manifestoR)
+print(abs.error)
 stopifnot(max(abs.error) < tolerance)
