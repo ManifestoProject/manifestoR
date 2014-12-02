@@ -3,7 +3,11 @@
 #' Computes the scaling position for the cases
 #' in the data.frame data according to the logic of a generalized linear model:
 #' the values of the variables are weighted,
-#' summed up, and the link function is applied
+#' summed up, and the link function is applied.
+#' 
+#' @details
+#' If variable names used for the definition of the scale
+#' are not present in the data frame they are assumed to be 0.
 #'
 #' @param data A data.frame with cases to be scaled
 #' @param vars variable names that should contribute to the linear combination
@@ -15,7 +19,11 @@ gl.scaling <- function(data,
                        vars = grep("per.*", names(data), value=TRUE),
                        weights = 1,
                        link.fun = identity) {
+  
+  weights <- weights[vars %in% names(data)]
+  vars <- vars[vars %in% names(data)]
   link.fun(colSums(t(data[,vars])*weights)) # apply weighting to rows, sum, link
+
 }
 
 #' Logit scaling function
