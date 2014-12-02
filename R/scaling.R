@@ -18,8 +18,23 @@ gl.scaling <- function(data,
   link.fun(colSums(t(data[,vars])*weights)) # apply weighting to rows, sum, link
 }
 
+#' Logit scaling function
+#' 
+#' Computes the scaling position for the cases
+#' in the data.frame data according to logit scaling as in Lowe 2013
+#'
+#' @param data A data.frame with cases to be scaled
+#' @param pos variable names that should contribute to the numerator ("positively")
+#' @param neg variable names that should contribute to the denominator ("negatively")
+#' @param N vector of numbers of quasi sentences to convert percentages to counts
+#' (choose 1 if ) data is already in counts
+#' @export
+logit.scaling <- function(data, pos, neg, N = data[,"total"]) {
+  abs.data <- data[,union(pos, neg)]*N
+  log(gl.scaling(abs.data, pos)/ gl.scaling(abs.data, neg))
+}
 
-#' Bipolar scaling function
+#' Bipolar linear scaling function
 #' 
 #' Computes the scaling position for the cases
 #' in the data.frame data by adding up the variable
@@ -63,8 +78,28 @@ rile.l <- c(103, 105, 106, 107, 202, 403, 404, 406, 412, 413, 504, 506, 701)
 
 #' RILE
 #' 
-#' Computes the RILE for each case in a data.frame
+#' Computes the RILE or other bipolar linear scaling measures for each case in a data.frame
 #'
 #' @param data A data.frame with cases to be scaled, variables named "per..."
 #' @export
 rile <- create.scaling(pos=rile.r, neg=rile.l)
+
+#' @rdname rile
+#' @export
+logit.rile <- create.scaling(pos=rile.r, neg=rile.l, base.fun=logit.scaling)
+
+#' @rdname rile
+#' @export
+planeco <- create.scaling(pos=c(403, 404, 412), neg=c())
+
+#' @rdname rile
+#' @export
+markeco <- create.scaling(pos=c(401, 414), neg=c())
+
+#' @rdname rile
+#' @export
+welfare <- create.scaling(pos=c(503, 504), neg=c())
+
+#' @rdname rile
+#' @export
+intpeace <- create.scaling(pos=c(102, 105, 106), neg=c())

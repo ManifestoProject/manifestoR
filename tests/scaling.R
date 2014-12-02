@@ -14,3 +14,6 @@ tolerance <- 0.01
 abs.error <- abs(comparedf$from.dataset - comparedf$from.manifestoR)
 print(abs.error)
 stopifnot(max(abs.error) < tolerance)
+
+comparedf$logit.rile <- logit.rile(mpds.fr)
+print(comparedf$logit.rile)
