@@ -1,6 +1,6 @@
 # variables
 pkgname = manifestoR
-pkgversion = 0.6-0
+pkgversion = 0.6-2
 
 # default target
 all: pack check
@@ -36,6 +36,9 @@ metadatatest:
 	
 corpustest:
 	(cd tests; R -f corpus.R)
+	
+scalingtest:
+	(cd tests; R -f scaling.R)
 	
 withvignettes: vignettes all
 
