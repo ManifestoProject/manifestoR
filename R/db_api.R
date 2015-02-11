@@ -37,20 +37,36 @@ separate_missings <- function(robj, request="") {
   
   missings <- robj$missing_items
   
+  robj <- robj$items
+  
   for (misskey in missings) {
     
-    split <- strsplit(misskey, "_")
-    party_id <- split[[1]][1]
-    election_date <- split[[1]][2]
     
-    warning(paste("No ", request, " information for party ", party_id,
-                  " at election date ", election_date,
-                  " in the Manifesto Project database! ",
-                  "Please verify correctness of you query.",
-                  sep=""))
+    if (request == "metadata") {
+        
+      split <- strsplit(misskey, "_")
+      party_id <- split[[1]][1]
+      election_date <- split[[1]][2]
+      
+      warning(paste("No ", request, " information for party ", party_id,
+                    " at election date ", election_date,
+                    " in the Manifesto Project database! ",
+                    "Please verify correctness of you query.",
+                    sep=""))
+    } else if (request == "text") {
+      
+      warning(paste0("No document found with id ", misskey, ". ",
+                     "This should not happen if you did not request ",
+                     "documents by manifesto_ids manually."))
+      
+    } else {
+      
+      warning(paste0("No information returned from API for key ", misskey))
+      
+    }
   }
   
-  robj <- robj$items
+  
   return(robj)
 }
 
