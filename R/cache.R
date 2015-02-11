@@ -141,13 +141,15 @@ filterids <- function(data, filter, ids=NULL, setminus=TRUE) {
 
 writeitemstocache <- function(content, filename) {
 
-  if (nrow(content) != length(filename)) {
-    stop("cannot write data to cache, because number of filenames and data frames do not match!")
-  }
-  
-  for (i in 1:length(filename)) {
-    write.csv(content$items[[i]], file=filename[i], row.names=FALSE)
-  }
+#   TODO cache should be rewritten
+# 
+#   if (nrow(content) != length(filename)) {
+#     stop("cannot write data to cache, because number of filenames and data frames do not match!")
+#   }
+#   
+#   for (i in 1:length(filename)) {
+#     write.csv(content$items[[i]], file=filename[i], row.names=FALSE)
+#   }
   
 }
 
