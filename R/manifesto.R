@@ -77,9 +77,7 @@ formatmpds <- function(mpds) {
 #' ## manifesto.listversions()
 manifesto.listversions <- function(apikey=NULL, cache=TRUE) {
   
-  versions <- viacache(manifestodb.get(kmtype.versions, apikey=apikey),
-                       filename=cachefilename(kmtype.versions),
-                       usecache=cache)
+  versions <- get_viacache(kmtype.versions, apikey=apikey, cache=cache)
   
   return(versions)
 }

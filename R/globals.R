@@ -1,4 +1,5 @@
 manifesto.globalenv <- new.env()
+mp_cache <- new.env()
 
 kcachelocation <- "cachelocation"
 kapikey <- "apikey"
