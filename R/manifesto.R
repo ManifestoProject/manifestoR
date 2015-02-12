@@ -29,35 +29,6 @@ manifesto.maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
   mpds <- get_viacache(kmtype.main, ids = parameters,
                        cache = cache, apikey = apikey)
   
-  ## format for accesibility
-  mpds <- formatmpds(mpds)
-  
-  return(mpds)
-  
-}
-
-#' Format the main data set
-#' 
-#' Creates the format that is visible to the R user
-#' from the internal .csv files (in cache or from the API)
-#'
-#' @param mpds A data.frame with a main data set version to be formatted
-formatmpds <- function(mpds) {
-  
-  names(mpds) <- tolower(names(mpds))
-  
-  for (name in names(mpds)) {
-    
-    if (!name %in% c("edate", "countryname", "partyname")) {
-      mpds[,name] <- as.numeric(as.character(mpds[,name]))
-    }
-    
-    if (name == "edate") {
-      mpds[,name] <- as.Date(as.character(mpds[,name]), format="%d/%m/%Y")
-    }
-    
-  }
-  
   return(mpds)
   
 }

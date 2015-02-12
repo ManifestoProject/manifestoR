@@ -1,5 +1,6 @@
-# library(manifestoR)
 manifestodb.setapikey(key.file = "../manifesto_apikey.txt")
+
+manifesto.emptycache()
 
 test_that("simple caching of listversions() works", {
   

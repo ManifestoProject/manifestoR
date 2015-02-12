@@ -70,6 +70,38 @@ separate_missings <- function(robj, request="") {
   return(robj)
 }
 
+
+#' Format the main data set
+#' 
+#' Creates the format that is visible to the R user
+#' from the internal .csv files (in cache or from the API)
+#'
+#' @param mpds A data.frame with a main data set version to be formatted
+formatmpds <- function(mpds) {
+    
+  # fix names
+  names(mpds) <- tolower(make.names(as.vector(as.matrix(mpds[1,])))) 
+  mpds <- mpds[-1,] # names are in first row
+  row.names(mpds) <- NULL # or: paste(mpds$party, mpds$date, sep="-")
+  
+#   print(head(mpds))
+  
+  for (name in names(mpds)) {
+    
+    if (!name %in% c("edate", "countryname", "partyname")) {
+      mpds[,name] <- as.numeric(as.character(mpds[,name]))
+    }
+    
+    if (name == "edate") {
+      mpds[,name] <- as.Date(as.character(mpds[,name]), format="%d/%m/%Y")
+    }
+    
+  }
+  
+  return(mpds)
+  
+}
+
 #' gets URL and handles Error
 #' 
 #' gets the requested url and passes HTTP header error codes on to raise R
@@ -146,12 +178,8 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL) {
     return(data.frame(fromJSON(jsonstr)))
     
   } else if (type == kmtype.main) {
-    mpds <- data.frame(fromJSON(jsonstr))
     
-    # fix names
-    names(mpds) <- make.names(as.vector(as.matrix(mpds[1,]))) # names are in first row
-    mpds <- mpds[-1,]
-    row.names(mpds) <- NULL # or: paste(mpds$party, mpds$date, sep="-")
+    mpds <- formatmpds(data.frame(fromJSON(jsonstr)))
   
     return(mpds)
     
