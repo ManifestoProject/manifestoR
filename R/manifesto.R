@@ -26,10 +26,8 @@ manifesto.maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
   
   parameters <- list(key=version)
 
-  mpds <- viacache(manifestodb.get(kmtype.main, parameters=parameters,
-                                   apikey=apikey),
-                   filename=cachefilename(kmtype.main, parameters),
-                   usecache=cache)
+  mpds <- get_viacache(kmtype.main, ids = parameters,
+                       cache = cache, apikey = apikey)
   
   ## format for accesibility
   mpds <- formatmpds(mpds)

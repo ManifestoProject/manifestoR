@@ -1,4 +1,4 @@
-wrap_mp_call <- function(call) {
+wrap_mpdb_call <- function(call) {
   function() {
     print("Connecting to Manifesto Project DB API...")
     return(call)
@@ -11,7 +11,7 @@ clear_env <- function(env) {
   env
 }
 
-single_var_caching <- function(varname, call, cache = TRUE, ...) {
+single_var_caching <- function(varname, call, cache = TRUE) {
   
   if (cache) {
     if (exists(varname, envir = mp_cache)) {
@@ -40,9 +40,16 @@ get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
   
   if (type == kmtype.versions) {
     
-    call <- wrap_mp_call(manifestodb.get(kmtype.versions, ...))
+    call <- wrap_mpdb_call(manifestodb.get(kmtype.versions, ...))
     
-    return(single_var_caching(kversions, call, cache = cache, ...))
+    return(single_var_caching(kversions, call, cache = cache))
+    
+  } else if (type == kmtype.main) {
+    
+    call <- wrap_mpdb_call(manifestodb.get(kmtype.main,
+                                           parameters=ids,
+                                           ...))
+    return(single_var_caching(paste0(kdatasetname, ids$key), call, cache = cache))
     
   }
   
