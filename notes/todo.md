@@ -1,5 +1,19 @@
 ## Todo
 
+## akut
+
+surgery plan:
+
+- start to convert tests to testthat
+  - move the caching to RAM/local environment
+    - meta data
+    - corpus
+    - save/load!
+    
+
+- use dplyr instead of plyr everywhere
+
+
 ## substantial:
 
 - implement manifesto.originals
