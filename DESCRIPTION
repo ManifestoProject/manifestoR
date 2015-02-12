@@ -7,13 +7,14 @@ Authors@R: c(person("Jirka", "Lewandowski", role = c("aut", "cre"),
 Author: Jirka Lewandowski <jirka.lewandowski@wzb.eu>
 Maintainer: Jirka Lewandowski <jirka.lewandowski@wzb.eu>
 Description: Access and process data and documents of the Manifesto Project
-Depends:
+Depends: 
     R (>= 3.1.0),
     httr (>= 0.3),
     tm (>= 0.6),
     jsonlite (>= 0.9.12),
     plyr (>= 1.8)
-Suggests: knitr, markdown
+Suggests: knitr, markdown,
+    testthat
 VignetteBuilder: knitr
 Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R
 License: GPL (>= 3)
