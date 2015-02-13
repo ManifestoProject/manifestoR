@@ -43,6 +43,15 @@ formatmetaparams <- function(ids) {
   
 }
 
+formattextparams <- function(ids) {
+  
+  parameters <- as.list(ids$manifesto_id)
+  names(parameters) <- rep("keys[]", length(parameters))
+  
+  return(parameters)
+  
+}
+
 separate_missings <- function(robj, request="") {
   
   missings <- robj$missing_items

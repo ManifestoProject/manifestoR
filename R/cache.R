@@ -35,6 +35,53 @@ single_var_caching <- function(varname, call, cache = TRUE) {
   
 }
 
+
+## in the cache things are stored in db
+
+write_multivar_to_cache <- function(df, ids) {
+  
+  sapply(df$manifesto_id, function(id) {
+    
+    vname <- ids$cache_varname[which(ids$manifesto_id == id)]
+    assign(vname, subset(df, manifesto_id == id), envir = mp_cache)
+    
+  })
+  
+}
+
+read_multivar_from_cache <- function(varnames) {
+  
+  Reduce(function(df, id) {
+      
+      bind_rows(df, get(id, envir = mp_cache))
+      
+    },
+    varnames,
+    init = data.frame())
+
+}
+
+
+multi_var_caching <- function(ids, get_fun, varname_fun,
+                              cache = TRUE) {
+  
+  ids <- within(ids, {
+     cache_varname <- varname_fun(ids)
+     is_cached <- sapply(cache_varname, Curry(exists, envir = mp_cache))
+  })
+  
+  fromcache <- read_multivar_from_cache(subset(ids, is_cached)$cache_varname)
+  idstoget <- subset(ids, !is_cached)
+  if (nrow(idstoget) > 0) {
+    fromdb <- get_fun(idstoget)
+    write_multivar_to_cache(fromdb, idstoget)    
+    return(bind_rows(fromcache, fromdb))
+  } else {
+    return(fromcache)
+  }
+  
+}
+
 table_caching <- function(varname, fun, ids,
                           id.names = names(ids), cache = TRUE) {
   
@@ -124,6 +171,21 @@ get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
     return(table_caching(kmetadata, fun, ids, id.names = c("party", "date"),
                          cache = cache))
     
+  } else if (type == kmtype.text) {
+    
+    get_fun <- wrap_mpdb_call_with_ids(function(ids) {
+      
+      return(manifestodb.get(type = kmtype.text,
+                             parameters = formattextparams(ids),
+                             ...))      
+    })
+    
+    varname_fun <- function(ids) {
+      paste(ktextname, ids$party, ids$date, ids$manifesto_ids, sep = "_")
+    }
+    
+    return(multi_var_caching(ids, get_fun, varname_fun,
+                             cache = cache))
   }
   
 }

@@ -2,33 +2,25 @@
 
 ## akut
 
-surgery plan:
+- write tests for cache
 
-- start to convert tests to testthat
-  - move the caching to RAM/local environment
-    - meta data
-    - corpus
-    - save/load!
+  - from old corpus test
+  - from testthat stub
+  - from Pola's script?
+
+- implement save/load for cache
+
+  - as R environment
+  - as csv
     
-
-- use dplyr instead of plyr everywhere
 
 
 ## substantial:
 
 - implement manifesto.originals
 
-- Fix issue about cache --> use dplyr
-
-- fill the db with some useful manifestos
-
-
 ## documentation:
 
-- write a vignette & convenience functions
+- write vignette
 
-## stability:
-
-* test on windows
-- extend the corpus test
 

@@ -241,42 +241,11 @@ manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
 
   ids <- as.metaids(ids, apikey=apikey, cache=cache)
 
-  ids <- ids[which(!is.naorstringna(ids$manifesto_id)),]
-  # TODO warn about number of manifesto_ids which are NA ? Or change api?
-
+  ids <- subset(ids, !is.naorstringna(manifesto_id))
+  
   if (nrow(ids) > 0) {
     
-    ids <- ids[order(ids$manifesto_id),]
-    
-    call <- function(ids) {
-      parameters <- as.list(ids$manifesto_id)
-      names(parameters) <- rep("keys[]", length(parameters))
-      
-      texts <- manifestodb.get(type = kmtype.text,
-                              parameters = parameters,
-                               apikey = apikey)
-  
-      ## a list ordering quick fix
-      the.order <- order(texts$manifesto_id)
-      l <- list()
-      for (i in 1:length(the.order)) {
-        l[[i]] <- texts$items[[the.order[i]]]
-      }
-      texts$items <- l
-  
-      for (name in intersect(names(texts), names(ids))) {
-        texts[,name] <- ids[the.order, name]
-      }
-  
-      return(texts)
-  
-    }
-  
-    texts <- mergeintocache(call,
-                            filename=cachefilename(kmtype.text, ids),
-                            ids,
-                            multifile=TRUE,
-                            usecache=cache)
+    texts <- get_viacache(kmtype.text, ids, apikey=apikey, cache=cache)
   
     if (nrow(texts) > 0) {
   
@@ -285,10 +254,12 @@ manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
       the.names <- the.names[which(the.names != "items")]
       
       textToManifestoDocument <- function(idx) {    
-        the.meta <- structure(as.list(texts[idx, the.names]))
+        the.meta <- structure(as.list(left_join(
+          within(texts[idx, the.names], {
+            manifesto_id <- as.integer(manifesto_id)
+          }), ids, by = "manifesto_id")))
         class(the.meta) <- "TextDocumentMeta"
-        
-        items <- texts[idx, "items"][[1]]
+        items <- texts[idx, "items"][[1]][[1]] ## what the hack...
         names(items)[which(names(items)=="content")] <- "text" ## rename from json
         items[which(is.nacode(items$code)),"code"] <- NA
         suppressWarnings( ## string codes might have become factor

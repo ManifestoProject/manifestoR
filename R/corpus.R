@@ -170,8 +170,10 @@ as.data.frame.ManifestoDocument <- function(doc, with.meta = FALSE, ...) {
 #' @method as.data.frame ManifestoCorpus
 #' @export
 as.data.frame.ManifestoCorpus <- function(corp, ...) {
-  dfslist <- lapply(corp, as.data.frame, c(..., stringsAsFactors = FALSE))
-  return(do.call(rbind.fill, dfslist))
+  suppressWarnings({
+    dfslist <- lapply(corp, as.data.frame, c(..., stringsAsFactors = FALSE))
+    do.call(bind_rows, dfslist)
+  })
 }
 
 #' @method head ManifestoDocument
