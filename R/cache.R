@@ -5,6 +5,13 @@ wrap_mpdb_call <- function(call) {
   }
 }
 
+wrap_mpdb_call_with_ids <- function(fun) {
+  function(ids) {
+    print("Connecting to Manifesto Project DB API...")
+    return(fun(ids))
+  }
+}
+
 clear_env <- function(env) {
   names <- ls(envir = env)
   rm(list = names, envir = env)
@@ -28,6 +35,57 @@ single_var_caching <- function(varname, call, cache = TRUE) {
   
 }
 
+table_caching <- function(varname, fun, ids,
+                          id.names = names(ids), cache = TRUE) {
+  
+  ids <- select(ids, one_of(id.names))
+  
+  if (cache) {
+    
+    ## load cache, create if !exists
+    if (!exists(varname, envir = mp_cache)) {
+      assign(varname, filter(ids, FALSE), envir = mp_cache)
+    }
+    cachedata <- get(varname, envir = mp_cache)
+    
+    ## check which ids are and are not already in cache
+    datatoget <- anti_join(ids, cachedata, by = id.names)
+    datafromcache <- semi_join(cachedata, ids, by = id.names)
+    
+    if (nrow(datatoget) > 0) {
+      
+      ## get missing ids
+      requested <- fun(datatoget)
+      
+      if (nrow(datatoget) > 0) {
+        
+        ## write missings to cache
+        cachedata <- bind_rows(cachedata, requested)
+        assign(varname, cachedata, envir = mp_cache)
+        
+        ## return all the requested ids
+        data <- bind_rows(requested, datafromcache) 
+        
+      } else { ## only invalid queries
+        
+        data <- datafromcache
+        
+      }
+ 
+    } else {
+      
+      data <- datafromcache
+
+    }
+    
+  } else {
+    data <- fun(ids)
+  }
+  
+  return(data)
+  
+}
+
 
 #' Get API results via cache 
 #' 
@@ -35,6 +93,7 @@ single_var_caching <- function(varname, call, cache = TRUE) {
 #' 
 #' @param type type of objects to get (metadata, documents, ...)
 #' @param ids identifiers of objects to get. Depending on the type a data.frame or vector of identifiers.
+#' @param ... additional parameters handed over to manifestodb.get
 #' 
 get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
   
@@ -42,141 +101,31 @@ get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
     
     call <- wrap_mpdb_call(manifestodb.get(kmtype.versions, ...))
     
-    return(single_var_caching(kversions, call, cache = cache))
+    return(single_var_caching(kversions, call,
+                              cache = cache))
     
   } else if (type == kmtype.main) {
     
     call <- wrap_mpdb_call(manifestodb.get(kmtype.main,
                                            parameters=ids,
                                            ...))
-    return(single_var_caching(paste0(kdatasetname, ids$key), call, cache = cache))
+    return(single_var_caching(paste0(kdatasetname, ids$key), call,
+                              cache = cache))
     
-  }
-  
-}
-
-
-# a functional programming solution for a simple data.frame filter with combined ids
-filterids <- function(data, filter, ids=NULL, setminus=TRUE) {
-  
-  if (is.null(ids)) {
-    ids <- intersect(names(filter), names(data))
-  }
-  ids <- intersect(ids, intersect(names(filter), names(data)))
-  
-  reducanddata <- function(left, right) { paste(left, data[,right]) }
-  reducandfilter <- function(left, right) { paste(left, filter[,right]) }
-  
-  dataids <- Reduce(reducanddata, ids, "")
-  filterids <- Reduce(reducandfilter, ids, "")
+  } else if (type == kmtype.meta) {
     
-  filtered <- which(dataids %in% filterids)
-  if (setminus) {
-    if (length(filtered)==0) {  # [-] op seems to not work for empty vector
-      return(data)
-    } else {
-      return(data[-filtered,])      
-    }
-  } else {
-    return(data[filtered,])
-  }
-}
-
-writeitemstocache <- function(content, filename) {
-
-#   TODO cache should be rewritten
-# 
-#   if (nrow(content) != length(filename)) {
-#     stop("cannot write data to cache, because number of filenames and data frames do not match!")
-#   }
-#   
-#   for (i in 1:length(filename)) {
-#     write.csv(content$items[[i]], file=filename[i], row.names=FALSE)
-#   }
-  
-}
-
-readitemsfromcache <- function(ids, filenames) {
-  
-  if (nrow(ids) != length(filenames)) {
-    stop("cannot write data to cache, because number of filenames and data frames do not match!")
-  }
-  
-  if (nrow(ids) > 0) {
-    
-    ids$items <- vector("list", nrow(ids)) 
-    for (i in 1:nrow(ids)) {
-      ids$items[[i]] <- read.csv(filenames[i], stringsAsFactors = FALSE)
-    }
-    
-    return(ids)
-    
-  } else {
-    return(data.frame())
-  }
-  
-}
-
-## TODO document (and export?)
-mergeintocache <- function(call, filename, ids, multifile=FALSE, usecache=TRUE) {
-    
-  if (usecache) {
-    
-    if (!multifile) {
-                     
-      if (file.exists(filename)) {
-        # read from cache
-        oldcontent <- read.csv(filename, stringsAsFactors = FALSE)
-        
-        # filter all ids which are in oldcontent
-        filteredids <- unique(filterids(ids, oldcontent, ids=names(ids)))
-        
-        # download new ids
-        if (nrow(filteredids) > 0) {
-          newcontent <- call(filteredids)
-          content <- rbind.fill(oldcontent, newcontent)
-        } else {
-          content <- oldcontent
-        }
-        
-        # write to cache and prepare return value
-        write.csv(content, file=filename, row.names=FALSE)
-        content <- filterids(content, ids, setminus=FALSE)
+    fun <- wrap_mpdb_call_with_ids(function(ids) {
       
-      } else {
-        # download and write to cache
-        content <- call(ids)
-        write.csv(content, file=filename, row.names=FALSE)
-      }
+      return(manifestodb.get(type = kmtype.meta,
+                             parameters = formatmetaparams(ids),
+                             ...))
+    })
     
-    } else { # multifile case
-      
-      if (!is.null(filename)) {
-        newidxs <- which(!file.exists(filename))
-        oldidxs <- which(file.exists(filename))
-      } else {
-        newidxs <- c()
-        oldidxs <- c()
-      }
-
-      oldcontent <- readitemsfromcache(ids[oldidxs,], filename[oldidxs])
-
-      if (length(newidxs) > 0) {
-        newcontent <- call(ids[newidxs,])
-        writeitemstocache(newcontent, filename[newidxs])
-        content <- rbind.fill(newcontent, oldcontent)  
-      } else {
-        content <- oldcontent
-      }
-      
-    }
+    return(table_caching(kmetadata, fun, ids, id.names = c("party", "date"),
+                         cache = cache))
     
-  } else {
-    # TODO warn about number of manifesto_ids which are NA ? Or change api?
-    content <- call(ids)
   }
   
-  return(content)
 }
 
 #' Empty the current cache
@@ -202,5 +151,5 @@ manifesto.emptycache <- function() {
 #' 
 manifesto.copycache <- function(destination) {
   ## TODO unclear
-  system(paste("cp -r", manifesto.getcachelocation(), destination)) ## remove cache
+#   system(paste("cp -r", manifesto.getcachelocation(), destination)) ## remove cache
 }

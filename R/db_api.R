@@ -33,6 +33,16 @@ toamplist <- function(params) {
   return(Reduce(function(x, y){ paste(x, y, sep="&") }, pairs))
 }
 
+formatmetaparams <- function(ids) {
+  
+  ids <- paste(ids$party, ids$date, sep="_")
+  parameters <- as.list(ids)
+  names(parameters) <- rep("keys[]", length(parameters))
+  
+  return(parameters)
+  
+}
+
 separate_missings <- function(robj, request="") {
   
   missings <- robj$missing_items
@@ -186,8 +196,17 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL) {
   } else if (type == kmtype.meta) {
       
     metadata <- data.frame(separate_missings(fromJSON(jsonstr), request="metadata"))
-    names(metadata)[which(names(metadata)=="party_id")] <- "party"
-    names(metadata)[which(names(metadata)=="election_date")] <- "date"
+    
+    if (nrow(metadata) > 0) {
+      names(metadata)[which(names(metadata)=="party_id")] <- "party"
+      names(metadata)[which(names(metadata)=="election_date")] <- "date"
+      
+      ## convert types
+      metadata <- within(metadata, {
+        party <- as.numeric(party)
+        date <- as.numeric(date)
+      })      
+    }
     
     return(metadata)
   

@@ -8,7 +8,7 @@ test_that("simple caching of listversions() works", {
   after_caching <- capture.output(list2 <- manifesto.listversions())
   
   expect_equal(list1, list2)
-  expect_true(length(setdiff(before_caching, after_caching)) > 0)
+  expect_true(length(setdiff(before_caching, after_caching)) > 0)  ## connection message
   expect_true(exists(kversions, envir = mp_cache))
   
   manifesto.emptycache()
@@ -32,10 +32,12 @@ test_that("caching of main data set works", {
   before_caching <- capture.output(mpds1 <- manifesto.maindataset())
   after_caching <- capture.output(mpds2 <- manifesto.maindataset())
   expect_equal(mpds1, mpds2)
-  expect_true(length(setdiff(before_caching, after_caching)) > 0)
+  expect_true(length(setdiff(before_caching, after_caching)) > 0)  ## connection message
   expect_true(exists(paste0(kdatasetname, versionname), envir = mp_cache))
   
 })
+
+## for more caching tests with metadata see testmetadata.R
  
 
 # TODO test copying and restoring of cache

@@ -12,7 +12,7 @@ Depends:
     httr (>= 0.3),
     tm (>= 0.6),
     jsonlite (>= 0.9.12),
-    plyr (>= 1.8)
+    dplyr (>= 0.4.1)
 Suggests: knitr, markdown,
     testthat
 VignetteBuilder: knitr

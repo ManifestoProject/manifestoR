@@ -104,23 +104,12 @@ formatids <- function(ids) {
 manifesto.meta <- function(ids, apikey=NULL, cache=TRUE) {
   
   # convert ids to parameter list for the api call
-  ids <- formatids(ids)
+  ids <- formatids(ids)  
   
-  # for mergeintocache() the call has a data.frame with ids as argument
-  call <- function(ids) {
-    ids <- paste(ids$party, ids$date, sep="_")
-    parameters <- as.list(ids)
-    names(parameters) <- rep("keys[]", length(parameters))
-    return(manifestodb.get(type = kmtype.meta,
-                           parameters = parameters,
-                           apikey = apikey))
-    
-  }
-  
-  metadata <- mergeintocache(call,
-                             filename=cachefilename(kmtype.meta),
+  metadata <- get_viacache(kmtype.meta,
                              ids=ids,
-                             usecache=cache)
+                             cache=cache,
+                             apikey=apikey)
   
   class(metadata) <- c("ManifestoMetadata", class(metadata))
   
