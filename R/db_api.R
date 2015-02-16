@@ -16,12 +16,13 @@ kmurl.apiroot <- "https://manifesto-project.wzb.eu/tools/"
 #' @export
 manifestodb.setapikey <- function(key = NA, key.file = NULL) {
   if (!is.null(key.file)) {
-    fl <- file(key.file)
-    key <- readLines(fl, 1, warn = FALSE)
-    close.connection(fl)    
+    tryCatch({
+      fl <- file(key.file)
+      key <- readLines(fl, 1, warn = FALSE)      
+      # TODO check key?
+      assign(kapikey, key, envir = manifesto.globalenv)
+    }, finally = { close.connection(fl)})
   }
-  # TODO check key?
-  assign(kapikey, key, envir = manifesto.globalenv)
 }
 manifestodb.setapikey(NA)
 # tryCatch({manifestodb.setapikey(key.file = "manifesto_apikey.txt")},
