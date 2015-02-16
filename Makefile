@@ -1,6 +1,6 @@
 # variables
 pkgname = manifestoR
-pkgversion = 0.6-1
+pkgversion = 0.8-9
 
 # default target
 all: pack check
@@ -33,11 +33,11 @@ withvignettes: vignettes all
 
 pushdeploy:
 	git checkout deploy
-	git merge master
+	git merge v0.9
 	git rm -f --ignore-unmatch man/*
 	make doc
 	git add -f NAMESPACE
 	git add -f man/*
 	git commit -m "Auto-creation of documentation"
 	git push origin deploy	
-	git checkout master
+	git checkout v0.9
