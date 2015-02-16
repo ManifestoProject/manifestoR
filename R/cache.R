@@ -1,13 +1,13 @@
 wrap_mpdb_call <- function(call) {
   function() {
-    print("Connecting to Manifesto Project DB API...")
+    cat("Connecting to Manifesto Project DB API...\n")
     return(call)
   }
 }
 
 wrap_mpdb_call_with_ids <- function(fun) {
   function(ids) {
-    print("Connecting to Manifesto Project DB API...")
+    cat("Connecting to Manifesto Project DB API...\n")
     return(fun(ids))
   }
 }
@@ -181,7 +181,7 @@ get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
     })
     
     varname_fun <- function(ids) {
-      paste(ktextname, ids$party, ids$date, ids$manifesto_ids, sep = "_")
+      paste(ktextname, ids$party, ids$date, ids$manifesto_id, sep = "_")
     }
     
     return(multi_var_caching(ids, get_fun, varname_fun,

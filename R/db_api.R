@@ -20,9 +20,9 @@ manifestodb.setapikey <- function(key = NA, key.file = NULL) {
       fl <- file(key.file)
       key <- readLines(fl, 1, warn = FALSE)      
       # TODO check key?
-      assign(kapikey, key, envir = manifesto.globalenv)
     }, finally = { close.connection(fl)})
   }
+  assign(kapikey, key, envir = manifesto.globalenv)
 }
 manifestodb.setapikey(NA)
 # tryCatch({manifestodb.setapikey(key.file = "manifesto_apikey.txt")},
@@ -139,8 +139,7 @@ manifestodb.request <- function(file, body) {
     msg <- paste("HTTP Error", response$status_code,
                  "when connecting to Manifesto Corpus Database")
     try({
-      msg <- paste0(msg, ": ",
-                    fromJSON(content(GET(header(response)$location), as="text"))$error)
+      msg <- paste0(msg, ": ", fromJSON(content)$error)
     }, silent = TRUE)
     stop(msg)
   } else {
