@@ -26,16 +26,8 @@ checktest:
 install: all
 	R -e "install.packages('../$(pkgname)_$(pkgversion).tar.gz')"
 	
-test: install cachetest metadatatest corpustest
-
-cachetest: 
-	(cd tests; R -f cache.R)
-	
-metadatatest: 
-	(cd tests; R -f metadata.R)
-	
-corpustest:
-	(cd tests; R -f corpus.R)
+test:
+	R -e "library(devtools); library(testthat); test()"
 	
 withvignettes: vignettes all
 
