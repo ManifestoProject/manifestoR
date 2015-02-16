@@ -111,6 +111,10 @@ manifesto.meta <- function(ids, apikey=NULL, cache=TRUE) {
                              cache=cache,
                              apikey=apikey)
   
+  if (is.null(metadata$manifesto_id)) {
+    metadata$manifesto_id <- rep(NA, times = nrow(metadata))
+  }
+
   class(metadata) <- c("ManifestoMetadata", class(metadata))
   
   return(metadata)
