@@ -29,6 +29,9 @@ install: all
 test:
 	R -e "library(devtools); library(testthat); test()"
 	
+scalingtest:
+	(cd tests; R -f scaling.R)
+	
 withvignettes: vignettes all
 
 pushdeploy:

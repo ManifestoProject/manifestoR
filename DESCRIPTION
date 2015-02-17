@@ -17,7 +17,7 @@ Depends:
 Suggests: knitr, markdown,
     testthat
 VignetteBuilder: knitr
-Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R
+Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R scaling.R
 License: GPL (>= 3)
 URL: http://manifesto-project.wzb.eu/
 LazyData: true
