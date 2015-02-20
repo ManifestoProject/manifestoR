@@ -1,14 +1,14 @@
-manifesto.emptycache()
-manifestodb.setapikey(key.file = "../manifesto_apikey.txt")
+mp_emptycache()
+mp_setapikey(key.file = "../manifesto_apikey.txt")
 
-mpds <- manifesto.maindataset()
+mpds <- mp_maindataset()
 
 test_that("rile computation from dataset equals dataset value", {
   
   mpds.blg <- subset(mpds, countryname=="Bulgaria" &
                            edate > as.Date("2000-01-01"))
 
-  corpus_riles <- rile(manifesto.corpus(mpds.blg))
+  corpus_riles <- rile(mp_corpus(mpds.blg))
   joint_riles <- left_join(corpus_riles,
                            select(mpds.blg, one_of("party", "date", "rile")),
                            by = c("party", "date"))
@@ -34,10 +34,10 @@ scaling_as_expected <- function(corp, scalingfun, scalingname) {
 
 test_that("corpus and document scaling works", {
   
-  mpds <- manifesto.maindataset()
+  mpds <- mp_maindataset()
   mpds.fr <- subset(mpds, countryname == "France")
   
-  corp <- manifesto.corpus(mpds.fr)
+  corp <- mp_corpus(mpds.fr)
 
   scaling_as_expected(corp, rile, "rile")
 #   scaling_as_expected(corp, logit_rile, "logit_rile")

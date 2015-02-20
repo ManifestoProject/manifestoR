@@ -9,18 +9,18 @@
 #'                versions.
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
-#'               environment \code{manifesto.globalenv} is used.
+#'               environment \code{mp_globalenv} is used.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
 #' @export
 #' @examples
-#' ## mpds <- manifesto.maindataset()
+#' ## mpds <- mp_maindataset()
 #' ## head(mpds)
 #' 
-manifesto.maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
+mp_maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
   
   if (version == "current") {
-    versions <- manifesto.listversions(apikey=apikey, cache=cache)
+    versions <- mp_listversions(apikey=apikey, cache=cache)
     version <- as.character(versions[nrow(versions), "datasets.id"]) # TODO date in dataset
   }
   
@@ -38,13 +38,13 @@ manifesto.maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
 #' 
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
-#'               environment \code{manifesto.globalenv} is used.
+#'               environment \code{mp_globalenv} is used.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
 #' @export
 #' @examples
-#' ## manifesto.listversions()
-manifesto.listversions <- function(apikey=NULL, cache=TRUE) {
+#' ## mp_listversions()
+mp_listversions <- function(apikey=NULL, cache=TRUE) {
   
   versions <- get_viacache(kmtype.versions, apikey=apikey, cache=cache)
   
@@ -94,14 +94,14 @@ formatids <- function(ids) {
 #'            (date: as.numeric, YYYYMM, edate: as.Date())
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
-#'               environment \code{manifesto.globalenv} is used.
+#'               environment \code{mp_globalenv} is used.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
 #' @export
 #' @examples
 #' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## manifesto.meta(wanted)
-manifesto.meta <- function(ids, apikey=NULL, cache=TRUE) {
+#' ## mp_metadata(wanted)
+mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
   
   # convert ids to parameter list for the api call
   ids <- formatids(ids)  
@@ -123,7 +123,7 @@ manifesto.meta <- function(ids, apikey=NULL, cache=TRUE) {
 
 as.metaids <- function(ids, apikey=NULL, cache=TRUE) {
   if ( !("ManifestoMetadata" %in% class(ids)) ) {
-    ids <- manifesto.meta(ids, apikey=apikey, cache=cache)
+    ids <- mp_metadata(ids, apikey=apikey, cache=cache)
   }
   return(ids)
 }
@@ -140,11 +140,11 @@ is.naorstringna <- function(v) {
 #' 
 #' @param ids Information on which documents to get. This can either be a
 #'            list of partys (as ids) and dates of elections as given to
-#'            \code{\link{manifesto.meta}} or a \code{ManifestoMetadata} object
-#'            (\code{data.frame}) as returned by \code{\link{manifesto.meta}}.
+#'            \code{\link{mp_metadata}} or a \code{ManifestoMetadata} object
+#'            (\code{data.frame}) as returned by \code{\link{mp_metadata}}.
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
-#'               environment \code{manifesto.globalenv} is used.
+#'               environment \code{mp_globalenv} is used.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
 #' @return an object of class \code{\link{ManifestoAvailability}}
@@ -152,9 +152,9 @@ is.naorstringna <- function(v) {
 #' @export
 #' @examples
 #' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## avl <- manifesto.availability(wanted)
+#' ## avl <- mp_availability(wanted)
 #' ## print(avl)
-manifesto.availability <- function(ids, apikey=NULL, cache=TRUE) {
+mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
   
   metadata <- as.metaids(ids, apikey=apikey, cache=cache)
   
@@ -172,7 +172,7 @@ manifesto.availability <- function(ids, apikey=NULL, cache=TRUE) {
 
 #' Manifesto Availability Information class
 #' 
-#' Objects returned by \code{\link{manifesto.availability}}. Use
+#' Objects returned by \code{\link{mp_availability}}. Use
 #' \code{summary} to display information.
 #' 
 #' @details
@@ -185,7 +185,7 @@ manifesto.availability <- function(ids, apikey=NULL, cache=TRUE) {
 #' @docType class
 #' @examples
 #' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## avl <- manifesto.availability(wanted)
+#' ## avl <- mp_availability(wanted)
 #' ## summary(avl)
 NULL
 
@@ -228,20 +228,20 @@ print.ManifestoAvailability <- function(avl) {
 #'
 #' @param ids Information on which documents to get. This can either be a
 #'            list of partys (as ids) and dates of elections as given to
-#'            \code{\link{manifesto.meta}} or a \code{ManifestoMetadata} object
-#'            (\code{data.frame}) as returned by \code{\link{manifesto.meta}}.
+#'            \code{\link{mp_metadata}} or a \code{ManifestoMetadata} object
+#'            (\code{data.frame}) as returned by \code{\link{mp_metadata}}.
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
-#'               environment \code{manifesto.globalenv} is used.
+#'               environment \code{mp_globalenv} is used.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
 #' @return an object of \code{tm Corpus}'s subclass \code{ManifestoCorpus}
 #' @export
 #' @examples
 #' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## corpus <- manifesto.corpus(wanted)
+#' ## corpus <- mp_corpus(wanted)
 #' ## summary(corpus)
-manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
+mp_corpus <- function(ids, apikey=NULL, cache=TRUE) {
 
   ids <- as.metaids(ids, apikey=apikey, cache=cache)
 

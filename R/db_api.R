@@ -1,5 +1,5 @@
 kmerror.keymissing <- 
-    paste("No API key specified. Specify apikey via manifestodb.setapikey()",
+    paste("No API key specified. Specify apikey via mp_setapikey()",
           "or go to http://manifesto-project.wzb.eu to create key and/or",
           "account.")
 
@@ -14,7 +14,7 @@ kmurl.apiroot <- "https://manifesto-project.wzb.eu/tools/"
 #'
 #' @param key new API key
 #' @export
-manifestodb.setapikey <- function(key = NA, key.file = NULL) {
+mp_setapikey <- function(key = NA, key.file = NULL) {
   if (!is.null(key.file)) {
     tryCatch({
       fl <- file(key.file)
@@ -22,10 +22,10 @@ manifestodb.setapikey <- function(key = NA, key.file = NULL) {
       # TODO check key?
     }, finally = { close.connection(fl)})
   }
-  assign(kapikey, key, envir = manifesto.globalenv)
+  assign(kapikey, key, envir = mp_globalenv)
 }
-manifestodb.setapikey(NA)
-# tryCatch({manifestodb.setapikey(key.file = "manifesto_apikey.txt")},
+mp_setapikey(NA)
+# tryCatch({mp_setapikey(key.file = "manifesto_apikey.txt")},
 #          error = function(e) { warning("No key set!") },
 #          finally = {NULL})
 
@@ -130,7 +130,7 @@ formatmpds <- function(mpds) {
 #' @param file file to request below apiroot url
 #' @param body body text of the posted request: should contain the parameters
 #' as specified by the Manifesto Project Database API
-manifestodb.request <- function(file, body) {
+mpdb_api_request <- function(file, body) {
   
   response <- POST(url=paste0(kmurl.apiroot, file),
                    body=body)
@@ -150,23 +150,23 @@ manifestodb.request <- function(file, body) {
 #' Download content from the Manifesto Database
 #' 
 #' Internal implementation. For more convenient access and caching use one of 
-#' \code{\link{manifesto.corpus}}, 
+#' \code{\link{mp_corpus}}, 
 #' \code{\link{manifesto.originals}}, 
-#' \code{\link{manifesto.availability}},  
-#' \code{\link{manifesto.maindataset}}.
+#' \code{\link{mp_availability}},  
+#' \code{\link{mp_maindataset}}.
 #'
 #' @param type string of \code{"meta", "text", "original", "main", "versions"} 
 #'             to indicate type of content to get
 #' @param parameters content filter parameters specific to type
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
-#'               environment \code{manifesto.globalenv} is used.
+#'               environment \code{mp_globalenv} is used.
 #' 
-manifestodb.get <- function(type, parameters=c(), apikey=NULL) {
+get_mpdb <- function(type, parameters=c(), apikey=NULL) {
   
   # check api key
   if (is.null(apikey)) {
-    apikey <- get(kapikey, envir = manifesto.globalenv)
+    apikey <- get(kapikey, envir = mp_globalenv)
   }
   if (is.na(apikey)) {
     stop(kmerror.keymissing)
@@ -187,7 +187,7 @@ manifestodb.get <- function(type, parameters=c(), apikey=NULL) {
 #   requesturl <- paste(kmurl.apiroot, requestfile, "?",
 #                       "api_key=", apikey,
 #                       "&", toamplist(parameters), sep="")
-  jsonstr <- manifestodb.request(file=requestfile,
+  jsonstr <- mpdb_api_request(file=requestfile,
                                  body=paste0("api_key=", apikey, "&", 
                                              toamplist(parameters)))
   

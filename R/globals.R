@@ -1,4 +1,4 @@
-manifesto.globalenv <- new.env()
+mp_globalenv <- new.env()
 mp_cache <- new.env()
 
 kcachelocation <- "cachelocation"

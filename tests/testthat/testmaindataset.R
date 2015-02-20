@@ -1,10 +1,10 @@
-manifestodb.setapikey(key.file = "../manifesto_apikey.txt")
+mp_setapikey(key.file = "../manifesto_apikey.txt")
 
-manifesto.emptycache()
+mp_emptycache()
 
 test_that("main data set is formatted correctly", {
   
-  mpds <- manifesto.maindataset()
+  mpds <- mp_maindataset()
   expect_more_than(nrow(mpds), 3800)
   expect_more_than(ncol(mpds), 130)
   expect_true(all(c("country", "countryname",

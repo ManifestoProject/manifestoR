@@ -140,20 +140,20 @@ table_caching <- function(varname, fun, ids,
 #' 
 #' @param type type of objects to get (metadata, documents, ...)
 #' @param ids identifiers of objects to get. Depending on the type a data.frame or vector of identifiers.
-#' @param ... additional parameters handed over to manifestodb.get
+#' @param ... additional parameters handed over to get_mpdb
 #' 
 get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
   
   if (type == kmtype.versions) {
     
-    call <- wrap_mpdb_call(manifestodb.get(kmtype.versions, ...))
+    call <- wrap_mpdb_call(get_mpdb(kmtype.versions, ...))
     
     return(single_var_caching(kversions, call,
                               cache = cache))
     
   } else if (type == kmtype.main) {
     
-    call <- wrap_mpdb_call(manifestodb.get(kmtype.main,
+    call <- wrap_mpdb_call(get_mpdb(kmtype.main,
                                            parameters=ids,
                                            ...))
     return(single_var_caching(paste0(kdatasetname, ids$key), call,
@@ -163,7 +163,7 @@ get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
     
     fun <- wrap_mpdb_call_with_ids(function(ids) {
       
-      return(manifestodb.get(type = kmtype.meta,
+      return(get_mpdb(type = kmtype.meta,
                              parameters = formatmetaparams(ids),
                              ...))
     })
@@ -175,7 +175,7 @@ get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
     
     get_fun <- wrap_mpdb_call_with_ids(function(ids) {
       
-      return(manifestodb.get(type = kmtype.text,
+      return(get_mpdb(type = kmtype.text,
                              parameters = formattextparams(ids),
                              ...))      
     })
@@ -196,22 +196,9 @@ get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
 #' 
 #' @export
 #' @examples
-#' ## manifesto.emptycache()
+#' ## mp_emptycache()
 #' 
-manifesto.emptycache <- function() {
+mp_emptycache <- function() {
   clear_env(mp_cache)
 }
 
-#' Copy the current cache
-#' 
-#' Copy the current cache to a specified location, e.g. for permanently
-#' storing the data snapshot used for an analysis
-#' 
-#' @export
-#' @examples
-#' ## manifesto.copycache("myproject/manifestofiles")
-#' 
-manifesto.copycache <- function(destination) {
-  ## TODO unclear
-#   system(paste("cp -r", manifesto.getcachelocation(), destination)) ## remove cache
-}

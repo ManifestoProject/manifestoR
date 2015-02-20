@@ -1,6 +1,6 @@
-manifestodb.setapikey(key.file = "../manifesto_apikey.txt")
+mp_setapikey(key.file = "../manifesto_apikey.txt")
 
-manifesto.emptycache()
+mp_emptycache()
 
 cache_vname <- function(party, date, manifesto_id) {
   paste(ktextname, party, date, manifesto_id, sep = "_")
@@ -18,9 +18,9 @@ valid_code <- function(x) {
 
 test_that("simple corpus download works", {
   
-  mpds <- manifesto.maindataset()
+  mpds <- mp_maindataset()
   swe <- subset(mpds, countryname == "Sweden")
-  corp <- manifesto.corpus(swe)
+  corp <- mp_corpus(swe)
   
   expect_is(corp, c("ManifestoCorpus", "Corpus"))
   expect_more_than(length(corp), 10)
@@ -29,18 +29,18 @@ test_that("simple corpus download works", {
 
 test_that("caching of corpus works correctly", {
   
-  mpds <- manifesto.maindataset()
+  mpds <- mp_maindataset()
   swe <- subset(mpds, countryname == "Sweden")
-  corpswe <- manifesto.corpus(swe)
+  corpswe <- mp_corpus(swe)
   
   ## check that corpus parts are now in cache
-  corpids <- manifesto.meta(subset(manifesto.availability(swe)$availability, annotations))
+  corpids <- mp_metadata(subset(mp_availability(swe)$availability, annotations))
   vnames <- cache_vname(corpids$party, corpids$date, corpids$manifesto_id)
   expect_true(all(exists(vnames, envir = mp_cache)))
   
   ## check that mapping of ids and texts is the same in corpus and cache
   lapply(content(corpswe), check_cache_mapping)
-  corpnsw <- manifesto.corpus(subset(mpds, countryname %in% c("Sweden", "Norway")))
+  corpnsw <- mp_corpus(subset(mpds, countryname %in% c("Sweden", "Norway")))
   lapply(content(corpnsw), check_cache_mapping)
   
 })
@@ -49,18 +49,18 @@ test_that("requesting an empty corpus works", {
   
   ## requesting only a not available document
   meta.spd04 <- data.frame(party=c(41320), date=c(200409)) ## this does not exist
-  expect_warning(corp.spd04 <- manifesto.corpus(meta.spd04))
+  expect_warning(corp.spd04 <- mp_corpus(meta.spd04))
   expect_equal(length(corp.spd04), 0)
   
 })
 
 test_that("corpus does tm stuff", {
   
-  mpds <- manifesto.maindataset()
+  mpds <- mp_maindataset()
   wanted <- subset(mpds, party==41320 &
                          edate < as.Date("2010-01-01") &
                          edate > as.Date("2001-01-01"))
-  corpus <- manifesto.corpus(wanted)
+  corpus <- mp_corpus(wanted)
   
   ## basic tm corpus functionality
 #   summary(content(corpus[[2]]))
@@ -84,8 +84,8 @@ test_that("corpus does tm stuff", {
 
 test_that("corpus to data.frame works", {
 
-  mpds <- manifesto.maindataset()
-  corpus <- manifesto.corpus(subset(mpds, countryname == "Germany"))
+  mpds <- mp_maindataset()
+  corpus <- mp_corpus(subset(mpds, countryname == "Germany"))
   
   corpdf <- as.data.frame(corpus)
   expect_is(corpdf, "data.frame")
@@ -102,10 +102,10 @@ test_that("corpus to data.frame works", {
 })
 
 # skn <- subset(mpds, countryname == "Sweden" | countryname == "Norway")
-# corp2 <- manifesto.corpus(skn)
+# corp2 <- mp_corpus(skn)
 # 
 # nor <- subset(mpds, countryname == "Norway")
-# corp3 <- manifesto.corpus(nor)
+# corp3 <- mp_corpus(nor)
 # 
 # head(as.data.frame(corp2))
 # head(as.data.frame(corp2, with.meta = TRUE))

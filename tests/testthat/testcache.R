@@ -1,36 +1,36 @@
-manifestodb.setapikey(key.file = "../manifesto_apikey.txt")
+mp_setapikey(key.file = "../manifesto_apikey.txt")
 
-manifesto.emptycache()
+mp_emptycache()
 
 test_that("simple caching of listversions() works", {
   
-  before_caching <- capture.output(list1 <- manifesto.listversions())
-  after_caching <- capture.output(list2 <- manifesto.listversions())
+  before_caching <- capture.output(list1 <- mp_listversions())
+  after_caching <- capture.output(list2 <- mp_listversions())
   
   expect_equal(list1, list2)
   expect_true(length(setdiff(before_caching, after_caching)) > 0)  ## connection message
   expect_true(exists(kversions, envir = mp_cache))
   
-  manifesto.emptycache()
+  mp_emptycache()
   expect_equal(length(ls(envir = mp_cache)), 0)
   
-  without_caching <- capture.output(list3 <- manifesto.listversions(cache = FALSE))
+  without_caching <- capture.output(list3 <- mp_listversions(cache = FALSE))
   expect_equal(length(ls(envir = mp_cache)), 0)
   
-  after_emptying <- capture.output(manifesto.listversions())
+  after_emptying <- capture.output(mp_listversions())
   expect_true(length(setdiff(after_emptying, after_caching)) > 0) 
 })
 
 
 test_that("caching of main data set works", {
   
-  versions <- manifesto.listversions()
+  versions <- mp_listversions()
   versionname <- as.character(versions[nrow(versions), "datasets.id"])  
 
   expect_false(exists(paste0(kdatasetname, versionname), envir = mp_cache))
   
-  before_caching <- capture.output(mpds1 <- manifesto.maindataset())
-  after_caching <- capture.output(mpds2 <- manifesto.maindataset())
+  before_caching <- capture.output(mpds1 <- mp_maindataset())
+  after_caching <- capture.output(mpds2 <- mp_maindataset())
   expect_equal(mpds1, mpds2)
   expect_true(length(setdiff(before_caching, after_caching)) > 0)  ## connection message
   expect_true(exists(paste0(kdatasetname, versionname), envir = mp_cache))
@@ -44,26 +44,26 @@ test_that("caching of main data set works", {
 # old version here:
 # 
 # head(mpds)
-# mpds <- manifesto.maindataset() ## this not
+# mpds <- mp_maindataset() ## this not
 # 
 # removecache()
 # 
 # manifesto.setcachelocation("altcache")
-# mpds <- manifesto.maindataset() # again long
+# mpds <- mp_maindataset() # again long
 # 
 # lscache()
 # 
 # manifesto.copycache("storedcache")
 # 
-# manifesto.emptycache()
+# mp_emptycache()
 # 
-# mpds <- manifesto.maindataset() # again long
+# mpds <- mp_maindataset() # again long
 # 
 # removecache()
 # 
 # manifesto.setcachelocation("storedcache")
 # 
-# mpds <- manifesto.maindataset() # should be fast and use cache
+# mpds <- mp_maindataset() # should be fast and use cache
 # 
 # ## corpus from cache
 # train.sample <- data.frame(party=c(41113,41223,41320,41420,41521,
@@ -75,11 +75,11 @@ test_that("caching of main data set works", {
 #           200209,200209,200209,200209,
 #           199809,199809,199809,199809
 # ))
-# manifesto.emptycache()
+# mp_emptycache()
 # wanted <- subset(mpds, country==41 & edate > as.Date("2006-01-01"))
-# corp <- manifesto.corpus(wanted)
+# corp <- mp_corpus(wanted)
 # class(content(corp[[1]])) ## should be character
-# corp <- manifesto.corpus(wanted)
+# corp <- mp_corpus(wanted)
 # class(content(corp[[1]])) ## should be character
 # 
 # removecache() ## cleanup

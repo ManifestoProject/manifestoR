@@ -15,7 +15,7 @@
 #' @param link.fun link function: (vectorized) function applied to the sums
 #' (default: none)
 #' @export
-gl.scaling <- function(data,
+scale_gl <- function(data,
                        vars = grep("per.*", names(data), value=TRUE),
                        weights = 1,
                        link.fun = identity) {
@@ -37,9 +37,9 @@ gl.scaling <- function(data,
 #' @param N vector of numbers of quasi sentences to convert percentages to counts
 #' (choose 1 if ) data is already in counts
 #' @export
-logit.scaling <- function(data, pos, neg, N = data[,"total"]) {
+scale_logit <- function(data, pos, neg, N = data[,"total"]) {
   abs.data <- data[,union(pos, neg)]*N
-  log(gl.scaling(abs.data, pos)/ gl.scaling(abs.data, neg))
+  log(scale_gl(abs.data, pos)/ scale_gl(abs.data, neg))
 }
 
 #' Bipolar linear scaling function
@@ -53,8 +53,8 @@ logit.scaling <- function(data, pos, neg, N = data[,"total"]) {
 #' @param pos variable names that should contribute positively
 #' @param neg variable names that should contribute negatively
 #' @export
-bipolar.scaling <- function(data, pos, neg, ...) {
-  gl.scaling(data,
+scale_bipolar <- function(data, pos, neg, ...) {
+  scale_gl(data,
              vars = c(pos, neg),
              weights = c(rep(1, length(pos)), rep(-1, length(neg))),
              ...)
@@ -64,15 +64,15 @@ bipolar.scaling <- function(data, pos, neg, ...) {
 #' 
 #' Convenience function to create a bipolar scaling function
 #' by fixing the arguments
-#' pos and neg of \code{\link{bipolar.scaling}}
+#' pos and neg of \code{\link{scale_bipolar}}
 #'
 #' @param pos codes that should contribute positively
 #' @param neg codes that should contribute negatively
 #' @param base.fun Generic bipolar scaling function to be used (must have arguments pos and neg)
 #' @param var.prefix Prefix used for all variable names
 #' @export
-create.scaling <- function(pos, neg,
-                           base.fun = bipolar.scaling,
+create_scaling <- function(pos, neg,
+                           base.fun = scale_bipolar,
                            var.prefix = "per",
                            ...) {
   Curry(base.fun,
@@ -154,7 +154,7 @@ corpus_scaling <- function(scalingfun, scalingname = "scaling") {
 rile <- function(x) { UseMethod("rile", x) }
 #' @rdname rile
 #' @export
-rile.default <- create.scaling(pos=rile_r, neg=rile_l)
+rile.default <- create_scaling(pos=rile_r, neg=rile_l)
 #' @rdname rile
 #' @export
 rile.ManifestoDocument <- document_scaling(rile.default, scalingname = "rile")
@@ -165,7 +165,7 @@ rile.ManifestoCorpus <- corpus_scaling(rile.default, scalingname = "rile")
 #' @rdname rile
 logit_rile <- function(x) { UseMethod("logit_rile", x) }
 #' @rdname rile
-logit_rile.default <- create.scaling(pos=rile_r, neg=rile_l, base.fun=logit.scaling)
+logit_rile.default <- create_scaling(pos=rile_r, neg=rile_l, base.fun=scale_logit)
 #' @rdname rile
 logit_rile.ManifestoDocument <- document_scaling(logit_rile.default, scalingname = "logit_rile")
 #' @rdname rile
@@ -177,7 +177,7 @@ logit_rile.ManifestoCorpus <- corpus_scaling(logit_rile.default, scalingname = "
 planeco <- function(x) { UseMethod("planeco", x) }
 #' @rdname rile
 #' @export
-planeco.default <- create.scaling(pos=c(403, 404, 412), neg=c())
+planeco.default <- create_scaling(pos=c(403, 404, 412), neg=c())
 #' @rdname rile
 #' @export
 planeco.ManifestoDocument <- document_scaling(planeco.default, scalingname = "planeco")
@@ -190,7 +190,7 @@ planeco.ManifestoCorpus <- corpus_scaling(planeco.default, scalingname = "planec
 markeco <- function(x) { UseMethod("markeco", x) }
 #' @rdname rile
 #' @export
-markeco.default <- create.scaling(pos=c(401, 414), neg=c())
+markeco.default <- create_scaling(pos=c(401, 414), neg=c())
 #' @rdname rile
 #' @export
 markeco.ManifestoDocument <- document_scaling(markeco.default, scalingname = "markeco")
@@ -203,7 +203,7 @@ markeco.ManifestoCorpus <- corpus_scaling(markeco.default, scalingname = "markec
 welfare <- function(x) { UseMethod("welfare", x) }
 #' @rdname rile
 #' @export
-welfare.default <- create.scaling(pos=c(503, 504), neg=c())
+welfare.default <- create_scaling(pos=c(503, 504), neg=c())
 #' @rdname rile
 #' @export
 welfare.ManifestoDocument <- document_scaling(welfare.default, scalingname = "welfare")
@@ -216,7 +216,7 @@ welfare.ManifestoCorpus <- corpus_scaling(welfare.default, scalingname = "welfar
 intpeace <- function(x) { UseMethod("intpeace", x) }
 #' @rdname rile
 #' @export
-intpeace.default <- create.scaling(pos=c(102, 105, 106), neg=c())
+intpeace.default <- create_scaling(pos=c(102, 105, 106), neg=c())
 #' @rdname rile
 #' @export
 intpeace.ManifestoDocument <- document_scaling(intpeace.default, scalingname = "intpeace")

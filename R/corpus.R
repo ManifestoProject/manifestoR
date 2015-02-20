@@ -3,7 +3,7 @@
 #' A \code{tm} \code{\link{Corpus}} storing \code{\link{ManifestoDocument}s}
 #' 
 #' @description
-#' Objects of this class are returned by \code{\link{manifesto.corpus}}.
+#' Objects of this class are returned by \code{\link{mp_corpus}}.
 #' 
 #' @details
 #' For usage and structure of the stored documents see
