@@ -34,6 +34,9 @@ scaling_as_expected <- function(corp, scalingfun, scalingname) {
 
 test_that("corpus and document scaling works", {
   
+  mpds <- manifesto.maindataset()
+  mpds.fr <- subset(mpds, countryname == "France")
+  
   corp <- manifesto.corpus(mpds.fr)
 
   scaling_as_expected(corp, rile, "rile")

@@ -2,8 +2,6 @@
 
 ## akut
 
-- fix tests (mpds)
-
 - do the renaming --> 0.9
 
 - implement save/load for cache

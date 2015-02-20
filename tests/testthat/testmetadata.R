@@ -15,6 +15,7 @@ metadata_as_request <- function(request,
 
 ## first get documents via ids
 test_that("simple metadata download works", {
+  
   wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
   before_caching <- capture.output(metadata <- manifesto.meta(wanted))
   metadata_as_request(wanted, metadata)
@@ -62,6 +63,7 @@ test_that("disabled cache does not change metadata cache", {
   
   oldcache <- get(kmetadata, envir = mp_cache)
   
+  mpds <- manifesto.maindataset()
   wanted <- subset(mpds, countryname == "Norway")
   newmeta <- manifesto.meta(wanted, cache = FALSE)
   metadata_as_request(wanted, newmeta)
@@ -84,6 +86,7 @@ test_that("querying wrong ids gives warning", {
 
 test_that("availability summary works", {
   
+  mpds <- manifesto.maindataset()
   swe <- subset(mpds, countryname == "Sweden")
   avl <- manifesto.availability(swe)
   
