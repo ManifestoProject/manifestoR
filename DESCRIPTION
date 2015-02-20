@@ -13,7 +13,8 @@ Depends:
     tm (>= 0.6),
     jsonlite (>= 0.9.12),
     dplyr (>= 0.4.1),
-    functional (>= 0.6)
+    functional (>= 0.6),
+    utils
 Suggests: knitr, markdown,
     testthat
 VignetteBuilder: knitr
