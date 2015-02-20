@@ -89,7 +89,7 @@ table_to_df <- function(tt, prefix = "per", relative = TRUE) {
   names(df) <- paste0(prefix, names(df))
   if (relative) {
     n <- sum(df[1,])
-    df[1,] <- df[1,]/n
+    df[1,] <- df[1,]/n * 100
     df$total <- n
   }
   return(df)

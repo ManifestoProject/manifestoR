@@ -5,9 +5,17 @@ mpds <- manifesto.maindataset()
 
 test_that("rile computation from dataset equals dataset value", {
   
-  mpds.fr <- subset(mpds, countryname=="France")
+  mpds.blg <- subset(mpds, countryname=="Bulgaria" &
+                           edate > as.Date("2000-01-01"))
 
-  expect_equal(as.vector(mpds.fr$rile), as.vector(rile(mpds.fr)), tolerance = 0.001)
+  corpus_riles <- rile(manifesto.corpus(mpds.blg))
+  joint_riles <- left_join(corpus_riles,
+                           select(mpds.blg, one_of("party", "date", "rile")),
+                           by = c("party", "date"))
+  
+  expect_equal(joint_riles$rile.x,
+               joint_riles$rile.y,
+               tolerance = 0.1)
   
 })
 

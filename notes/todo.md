@@ -2,16 +2,18 @@
 
 ## akut
 
-- write tests for cache
+- fix tests (mpds)
 
-  - from old corpus test
-  - from testthat stub
-  - from Pola's script?
+- do the renaming --> 0.9
 
 - implement save/load for cache
 
   - as R environment
   - as csv
+  
+  - auto-save option?
+  
+
     
 
 
