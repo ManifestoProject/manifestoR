@@ -69,8 +69,8 @@ test_that("disabled cache does not change metadata cache", {
   metadata_as_request(wanted, newmeta)
   
   newcache <- get(kmetadata, envir = mp_cache)
-  
-  expect_equal(length(setdiff(oldcache, newcache)), 0)
+    
+  expect_equal(length(base::setdiff(oldcache, newcache)), 0)
   
 })
 

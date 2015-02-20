@@ -15,4 +15,11 @@
 #' @title  Access and process data and documents of the Manifesto Project
 #' @author Jirka Lewandowski \email{jirka.lewandowski@@wzb.eu}
 #' @references \url{http://manifesto-project.wzb.eu/}
+#' 
+#' @importFrom utils head tail
+#' @import NLP
+#' @import dplyr
+#' @import functional
+#' @import tm
+#' @import jsonlite
 NULL

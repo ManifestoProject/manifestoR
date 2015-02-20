@@ -9,13 +9,17 @@ Maintainer: Jirka Lewandowski <jirka.lewandowski@wzb.eu>
 Description: Access and process data and documents of the Manifesto Project
 Depends: 
     R (>= 3.1.0),
-    httr (>= 0.3),
     tm (>= 0.6),
+    dplyr (>= 0.4.1)
+Imports:
+    NLP,
+    utils,
+    httr (>= 0.3),
     jsonlite (>= 0.9.12),
-    dplyr (>= 0.4.1),
-    functional (>= 0.6),
-    utils
-Suggests: knitr, markdown,
+    functional (>= 0.6)
+Suggests:
+    knitr,
+    markdown,
     testthat
 VignetteBuilder: knitr
 Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R scaling.R renaming.R

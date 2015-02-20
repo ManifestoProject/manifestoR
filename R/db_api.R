@@ -132,8 +132,8 @@ formatmpds <- function(mpds) {
 #' as specified by the Manifesto Project Database API
 mpdb_api_request <- function(file, body) {
   
-  response <- POST(url=paste0(kmurl.apiroot, file),
-                   body=body)
+  response <- httr::POST(url=paste0(kmurl.apiroot, file),
+                         body=body)
   content <- httr::content(response, as="text")
   if (response$status_code != "200") {
     msg <- paste("HTTP Error", response$status_code,
@@ -188,8 +188,8 @@ get_mpdb <- function(type, parameters=c(), apikey=NULL) {
 #                       "api_key=", apikey,
 #                       "&", toamplist(parameters), sep="")
   jsonstr <- mpdb_api_request(file=requestfile,
-                                 body=paste0("api_key=", apikey, "&", 
-                                             toamplist(parameters)))
+                              body=paste0("api_key=", apikey, "&", 
+                                          toamplist(parameters)))
   
   # convert to desired format for caching
   if (type == kmtype.versions) {

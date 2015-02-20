@@ -75,7 +75,7 @@ create_scaling <- function(pos, neg,
                            base.fun = scale_bipolar,
                            var.prefix = "per",
                            ...) {
-  Curry(base.fun,
+  functional::Curry(base.fun,
         pos=paste0(var.prefix, pos),
         neg=paste0(var.prefix, neg),
         ...)

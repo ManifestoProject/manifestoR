@@ -2,8 +2,6 @@
 
 ## akut
 
-- do the renaming --> 0.9
-
 - implement save/load for cache
 
   - as R environment
@@ -11,7 +9,7 @@
   
   - auto-save option?
   
-
+- implement versioning with MPDB-Api
     
 
 
