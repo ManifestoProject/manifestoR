@@ -19,8 +19,8 @@ ManifestoCorpus <- function(csource) {
 #' @method codes ManifestoCorpus
 #' @export
 #' @rdname generics
-codes.ManifestoCorpus <- function(corpus) {
-  c(unlist(lapply(corpus, codes)))
+codes.ManifestoCorpus <- function(x) {
+  c(unlist(lapply(x, codes)))
 }
 
 #' Manifesto Documents class
@@ -64,30 +64,30 @@ ManifestoDocument <- function(content = data.frame(names = c("text", "code")),
 #' Get the content of a \code{\link{ManifestoDocument}}
 #' 
 #' 
-#' @param doc ManifestoDocument
+#' @param x ManifestoDocument
 #' @rdname generics
 #' @method content ManifestoDocument
 #' @export
-content.ManifestoDocument <- function(doc) {
-  return(as.character(doc$content$text))
+content.ManifestoDocument <- function(x) {
+  return(as.character(x$content$text))
 }
 
 #' Modify the content of a \code{\link{ManifestoDocument}}
 #' 
-#' @param doc ManifestoDocument
+#' @param x ManifestoDocument
 #' @param value new content text (as `character`)
 #' @rdname generics
 #' @method content<- ManifestoDocument
 #' @export
-`content<-.ManifestoDocument` <- function(doc, value) {
-  doc$content$text <- value
-  return(doc)
+`content<-.ManifestoDocument` <- function(x, value) {
+  x$content$text <- value
+  return(x)
 }
 
 
-#' Get the codes of a document of corpus
+#' Get the codes of a document or corpus
 #' 
-#' @param x ManifestoDocument
+#' @param x document or corpus to get the codes from
 #' @rdname codes
 #' @export
 codes <- function(x) {
@@ -97,8 +97,8 @@ codes <- function(x) {
 #' @rdname codes
 #' @method codes ManifestoDocument
 #' @export
-codes.ManifestoDocument <- function(doc) {
-  return(as.integer(doc$content$code))
+codes.ManifestoDocument <- function(x) {
+  return(as.integer(x$content$code))
 }
 
 #' Modify the codes of a document or corpus
@@ -114,54 +114,64 @@ codes.ManifestoDocument <- function(doc) {
 #' @rdname generics
 #' @method codes<- ManifestoDocument
 #' @export
-`codes<-.ManifestoDocument` <- function(doc, value) {
-  doc$content$code <- value
-  return(doc)
+`codes<-.ManifestoDocument` <- function(x, value) {
+  x$content$code <- value
+  return(x)
 }
 
 #' Get the metadata of a \code{\link{ManifestoDocument}}
 #' 
-#' @param doc ManifestoDocument
+#' @param x ManifestoDocument
 #' @param tag tag of specific metadata to get
 #' @method meta ManifestoDocument
 #' @export
-meta.ManifestoDocument <- function(doc, tag=NULL) {
+meta.ManifestoDocument <- function(x, tag=NULL, ...) {
   if (!is.null(tag)) {
-    return(doc$meta[[tag]])
+    return(x$meta[[tag]])
   } else {
-    return(doc$meta)
+    return(x$meta)
   }
 }
 
 #' @method length ManifestoDocument
 #' @export
-length.ManifestoDocument <- function(doc) {
-  length(content(doc))
+length.ManifestoDocument <- function(x) {
+  length(content(x))
 }
 
 #' @method str ManifestoDocument
 #' @export
-str.ManifestoDocument <- function(doc, ...) {
-  doc2 <- doc
+str.ManifestoDocument <- function(object, ...) {
+  doc2 <- object
   class(doc2) <- "list"
   return(str(doc2, ...))
 }
 
 #' @method subset ManifestoDocument
 #' @export
-subset.ManifestoDocument <- function(doc, subset, ...) {
-  cpdoc <- doc
-  cpdoc$content <- base::subset(cpdoc$content, subset, ...)
+subset.ManifestoDocument <- function(x, subset, ...) {
+  cpdoc <- x
+  cpdoc$content <- base::subset(cpdoc$content, subset, ...) ## TODO use dplyr here?
   return(cpdoc)
 }
   
 #' @method as.data.frame ManifestoDocument
 #' @export
-as.data.frame.ManifestoDocument <- function(doc, with.meta = FALSE, ...) {
-  dftotal <- data.frame(content=content(doc), code=codes(doc),
-                        pos = 1:length(doc), stringsAsFactors = FALSE, ...)
+as.data.frame.ManifestoDocument <- function(x,
+                                            row.names = NULL,
+                                            optional = TRUE,
+                                            stringsAsFactors = FALSE,
+                                            with.meta = FALSE,
+                                            ...) {
+    
+  dftotal <- data.frame(content = content(x),
+                        code = codes(x),
+                        pos = 1:length(x),
+                        row.names = row.names,
+                        stringsAsFactors = stringsAsFactors,
+                        ...)
   if (with.meta) {
-    metadata <- data.frame(t(unlist(meta(doc))))
+    metadata <- data.frame(t(unlist(meta(x))), stringsAsFactors = stringsAsFactors)
     dftotal <- data.frame(dftotal, metadata)
   }
   return(dftotal)
@@ -169,25 +179,36 @@ as.data.frame.ManifestoDocument <- function(doc, with.meta = FALSE, ...) {
 
 #' @method as.data.frame ManifestoCorpus
 #' @export
-as.data.frame.ManifestoCorpus <- function(corp, ...) {
+as.data.frame.ManifestoCorpus <- function(x,
+                                          row.names = NULL,
+                                          optional = TRUE,
+                                          stringsAsFactors = FALSE,
+                                          with.meta = FALSE,
+                                          
+                                          ...) {
   suppressWarnings({
-    dfslist <- lapply(corp, as.data.frame, c(..., stringsAsFactors = FALSE))
+    dfslist <- lapply(x, Curry(as.data.frame,
+                                          stringsAsFactors = stringsAsFactors,
+                                          with.meta = with.meta,
+                                          row.names = row.names,
+                                          optional = optional,
+                                          ...))
     do.call(bind_rows, dfslist)
   })
 }
 
 #' @method head ManifestoDocument
 #' @export
-head.ManifestoDocument <- function(doc, n = 6) {
-  n <- min(length(doc), n)
-  subset(doc, c(rep(TRUE, n), rep(FALSE, length(doc) - n)))
+head.ManifestoDocument <- function(x, n = 6, ...) {
+  n <- min(length(x), n)
+  subset(x, c(rep(TRUE, n), rep(FALSE, length(x) - n)))
 }
 
 #' @method tail ManifestoDocument
 #' @export
-tail.ManifestoDocument <- function(doc, n = 6) {
-  n <- min(length(doc), n)
-  subset(doc, c(rep(FALSE, length(doc) - n), rep(TRUE, n)))
+tail.ManifestoDocument <- function(x, n = 6, ...) {
+  n <- min(length(x), n)
+  subset(x, c(rep(FALSE, length(x) - n), rep(TRUE, n)))
 }
 
 
@@ -199,9 +220,9 @@ tail.ManifestoDocument <- function(doc, n = 6) {
 #' @param value new value of metadata tag
 #' @method meta<- ManifestoDocument
 #' @export
-`meta<-.ManifestoDocument` <- function(doc, tag, ..., value) {
-  doc$meta[[tag]] <- value
-  return(doc)
+`meta<-.ManifestoDocument` <- function(x, tag, ..., value) {
+  x$meta[[tag]] <- value
+  return(x)
 }
 
 #' Reader for \code{\link{ManifestoDocumentSource}}

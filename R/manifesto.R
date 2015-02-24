@@ -192,8 +192,9 @@ NULL
 #' Print availability information of a manifesto document query
 #' 
 #' @export
-print.ManifestoAvailability <- function(avl) {
+print.ManifestoAvailability <- function(x, ...) {
   
+  avl <- x ## for better readability but S3 consistency of parameters
   decs <- 3
   
   nqueried <- nrow(unique(avl$query)[,c("party", "date")])
@@ -218,7 +219,7 @@ print.ManifestoAvailability <- function(avl) {
                                   " (", Reduce(paste, languages), ")", sep=""))
   
   class(summary) <- c("summaryDefault", "table")
-  return(summary)
+  print(summary)
   
 }
 

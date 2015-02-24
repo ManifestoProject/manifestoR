@@ -108,10 +108,10 @@ table_to_df <- function(tt, prefix = "per", relative = TRUE) {
 #' @rdname corpus_scaling
 document_scaling <- function(scalingfun, returndf = FALSE, scalingname = "scaling") {
   
-  return(function(doc) {
+  return(function(x) {
   
-    df <- data.frame(party=meta(doc, "party"), date=meta(doc, "date"))
-    df <- bind_cols(df, table_to_df(table(codes(doc))))
+    df <- data.frame(party=meta(x, "party"), date=meta(x, "date"))
+    df <- bind_cols(df, table_to_df(table(codes(x))))
 
     df[,scalingname] <- scalingfun(df)
     
@@ -135,10 +135,10 @@ document_scaling <- function(scalingfun, returndf = FALSE, scalingname = "scalin
 #' @export
 #' @rdname corpus_scaling
 corpus_scaling <- function(scalingfun, scalingname = "scaling") {
-  function(corpus) {
-    df <- data.frame(party = unlist(lapply(content(corpus), function(doc) { meta(doc, "party")})),
-               date = unlist(lapply(content(corpus), function(doc) { meta(doc, "date")})),
-               scaling = unlist(lapply(content(corpus), document_scaling(scalingfun))))
+  function(x) {
+    df <- data.frame(party = unlist(lapply(content(x), function(doc) { meta(doc, "party")})),
+               date = unlist(lapply(content(x), function(doc) { meta(doc, "date")})),
+               scaling = unlist(lapply(content(x), document_scaling(scalingfun))))
     names(df)[3] <- scalingname
     df
   }
