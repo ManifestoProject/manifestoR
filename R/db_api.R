@@ -162,7 +162,7 @@ mpdb_api_request <- function(file, body) {
 #'               currently stored in the variable \code{apikey} of the
 #'               environment \code{mp_globalenv} is used.
 #' 
-get_mpdb <- function(type, parameters=c(), apikey=NULL) {
+get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
   
   # check api key
   if (is.null(apikey)) {
@@ -179,8 +179,10 @@ get_mpdb <- function(type, parameters=c(), apikey=NULL) {
     requestfile <- "api_get_core.json"    
   } else if (type == kmtype.meta) {
     requestfile <- "api_metadata.json"
+    ## TODO versioning add versionid to parameters list if not null
   } else if (type == kmtype.text) {
     requestfile <- "api_texts_and_annotations.json"
+    ## TODO versioning add versionid to parameters list if not null
   }
   
   # get content from web
@@ -188,7 +190,7 @@ get_mpdb <- function(type, parameters=c(), apikey=NULL) {
 #                       "api_key=", apikey,
 #                       "&", toamplist(parameters), sep="")
   jsonstr <- mpdb_api_request(file=requestfile,
-                              body=paste0("api_key=", apikey, "&", 
+                              body=paste0("api_key=", apikey, "&",
                                           toamplist(parameters)))
   
   # convert to desired format for caching

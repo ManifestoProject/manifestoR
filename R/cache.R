@@ -36,8 +36,6 @@ single_var_caching <- function(varname, call, cache = TRUE) {
 }
 
 
-## in the cache things are stored in db
-
 write_multivar_to_cache <- function(df, ids) {
   
   sapply(df$manifesto_id, function(id) {
@@ -144,6 +142,11 @@ table_caching <- function(varname, fun, ids,
 #' 
 get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
   
+  ## TODO versioning:
+  ## if cache == TRUE, check for versionid in cache
+  ##   if there is one: use this
+  ##   if not: get list of versions, take most current one, cache the id
+  
   if (type == kmtype.versions) {
     
     call <- wrap_mpdb_call(get_mpdb(kmtype.versions, ...))
@@ -189,6 +192,12 @@ get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
   }
   
 }
+
+
+## TODO versioning
+## - implement check for updates of cache: is versionid the same as the most current one from the server?
+## - implement updating of entire cache: new versionid, new metadata subset, new texts iff md5 changed
+
 
 #' Empty the current cache
 #' 
