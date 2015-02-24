@@ -14,12 +14,11 @@ doc:
 	R -e "library(devtools); library(roxygen2); document(clean = TRUE, roclets = c('namespace', 'rd'))"
 # TODO run roxygen2
 
-pack: doc
+pack: doc test
 	(cd ../; R CMD build $(pkgname))
 
 check:
-	(cd ../; R CMD check $(pkgname)_$(pkgversion).tar.gz --no-tests)
-
+	R -e "library(devtools); check();"
 checktest:
 	(cd ../; R CMD check $(pkgname)_$(pkgversion).tar.gz)
 
