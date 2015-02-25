@@ -211,3 +211,26 @@ mp_emptycache <- function() {
   clear_env(mp_cache)
 }
 
+#' List the available versions of the Manifesto Project's Corpus
+#' 
+#' The Manifesto Project Database API assigns a new version code whenever changes
+#' to the corpus texts or metadata are made.
+#' 
+#' @details
+#' This function always bypasses the cache.
+#' 
+#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
+#'               currently stored in the variable \code{apikey} of the
+#'               environment \code{mp_globalenv} is used.
+#' @return a character vector with the available version ids
+#' @export
+#' @examples
+#' ## mp_coreversions()
+mp_corpusversions <- function(apikey=NULL, cache=TRUE) {
+  
+  versions <- get_mpdb(kmtype.metaversions, apikey=apikey)
+  
+  return(versions)
+}
+
+

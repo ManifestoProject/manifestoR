@@ -172,31 +172,38 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     stop(kmerror.keymissing)
   }
   
-  # prepare parameters
+  
+  # select URL
   if (type == kmtype.versions) {
     requestfile <- "api_list_core_versions.json"
   } else if (type == kmtype.main) {
     requestfile <- "api_get_core.json"    
   } else if (type == kmtype.meta) {
     requestfile <- "api_metadata.json"
-    ## TODO versioning add versionid to parameters list if not null
   } else if (type == kmtype.text) {
     requestfile <- "api_texts_and_annotations.json"
-    ## TODO versioning add versionid to parameters list if not null
+  } else if (type == kmtype.metaversions) {
+    requestfile <- "api_list_metadata_versions.json"
+  }
+  
+  # prepare version parameter if needed
+  if (!is.null(versionid) & type %in% c(kmtype.meta, kmtype.text)) {
+    parameters <- c(parameters, version = versionid)    
   }
   
   # get content from web
-#   requesturl <- paste(kmurl.apiroot, requestfile, "?",
-#                       "api_key=", apikey,
-#                       "&", toamplist(parameters), sep="")
   jsonstr <- mpdb_api_request(file=requestfile,
                               body=paste0("api_key=", apikey, "&",
                                           toamplist(parameters)))
   
-  # convert to desired format for caching
+  # convert to desired format (before caching)
   if (type == kmtype.versions) {
   
     return(data.frame(fromJSON(jsonstr)))
+    
+  } else if (type == kmtype.metaversions) {
+    
+    return(fromJSON(jsonstr)$versions)    
     
   } else if (type == kmtype.main) {
     

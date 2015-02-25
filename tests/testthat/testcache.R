@@ -4,8 +4,8 @@ mp_emptycache()
 
 test_that("simple caching of listversions() works", {
   
-  before_caching <- capture.output(list1 <- mp_listversions())
-  after_caching <- capture.output(list2 <- mp_listversions())
+  before_caching <- capture.output(list1 <- mp_coreversions())
+  after_caching <- capture.output(list2 <- mp_coreversions())
   
   expect_equal(list1, list2)
   expect_true(length(setdiff(before_caching, after_caching)) > 0)  ## connection message
@@ -14,17 +14,17 @@ test_that("simple caching of listversions() works", {
   mp_emptycache()
   expect_equal(length(ls(envir = mp_cache)), 0)
   
-  without_caching <- capture.output(list3 <- mp_listversions(cache = FALSE))
+  without_caching <- capture.output(list3 <- mp_coreversions(cache = FALSE))
   expect_equal(length(ls(envir = mp_cache)), 0)
   
-  after_emptying <- capture.output(mp_listversions())
+  after_emptying <- capture.output(mp_coreversions())
   expect_true(length(setdiff(after_emptying, after_caching)) > 0) 
 })
 
 
 test_that("caching of main data set works", {
   
-  versions <- mp_listversions()
+  versions <- mp_coreversions()
   versionname <- as.character(versions[nrow(versions), "datasets.id"])  
 
   expect_false(exists(paste0(kdatasetname, versionname), envir = mp_cache))

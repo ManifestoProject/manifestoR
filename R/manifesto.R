@@ -20,7 +20,7 @@
 mp_maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
   
   if (version == "current") {
-    versions <- mp_listversions(apikey=apikey, cache=cache)
+    versions <- mp_coreversions(apikey=apikey, cache=cache)
     version <- as.character(versions[nrow(versions), "datasets.id"]) # TODO date in dataset
   }
   
@@ -34,7 +34,7 @@ mp_maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
 }
 
 
-#' List the available versions of the Manifesto Project's Main Dataset available
+#' List the available versions of the Manifesto Project's Main Dataset
 #' 
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
@@ -43,8 +43,8 @@ mp_maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
 #'              available.
 #' @export
 #' @examples
-#' ## mp_listversions()
-mp_listversions <- function(apikey=NULL, cache=TRUE) {
+#' ## mp_coreversions()
+mp_coreversions <- function(apikey=NULL, cache=TRUE) {
   
   versions <- get_viacache(kmtype.versions, apikey=apikey, cache=cache)
   

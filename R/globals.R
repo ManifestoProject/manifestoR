@@ -6,6 +6,7 @@ kapikey <- "apikey"
 
 
 kversions <- "versions"
+kmetaversiona <- "metaversions"
 kdefaultcachename <- "manifestofiles"
 ktextname <- "manifesto_doc"
 kmetadata <- "docmetadata"
@@ -17,4 +18,4 @@ kmtype.text <- "text"
 kmtype.original <- "original"
 kmtype.main <- "main"
 kmtype.versions <- "versions"
-
+kmtype.metaversions <- "metaversions"
