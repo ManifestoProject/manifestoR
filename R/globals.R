@@ -1,12 +1,12 @@
 mp_globalenv <- new.env()
-mp_cache <- new.env()
+mp_cache <- new.env(parent = emptyenv())
 
 kcachelocation <- "cachelocation"
 kapikey <- "apikey"
 
 
 kversions <- "versions"
-kmetaversiona <- "metaversions"
+kmetaversion <- "metaversionid"
 kdefaultcachename <- "manifestofiles"
 ktextname <- "manifesto_doc"
 kmetadata <- "docmetadata"

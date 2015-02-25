@@ -131,7 +131,7 @@ formatmpds <- function(mpds) {
 #' @param body body text of the posted request: should contain the parameters
 #' as specified by the Manifesto Project Database API
 mpdb_api_request <- function(file, body) {
-  
+        
   response <- httr::POST(url=paste0(kmurl.apiroot, file),
                          body=body)
   content <- httr::content(response, as="text")
@@ -185,9 +185,9 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
   } else if (type == kmtype.metaversions) {
     requestfile <- "api_list_metadata_versions.json"
   }
-  
+    
   # prepare version parameter if needed
-  if (!is.null(versionid) & type %in% c(kmtype.meta, kmtype.text)) {
+  if (!is.null(versionid) && type %in% c(kmtype.meta, kmtype.text)) {
     parameters <- c(parameters, version = versionid)    
   }
   

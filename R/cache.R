@@ -131,6 +131,108 @@ table_caching <- function(varname, fun, ids,
   
 }
 
+#' Check for Updates of Corpus in Manifesto Project DB
+#' 
+#' \code{mp_check_for_copus_update} checks if the currently cached version of corpus text and metadata
+#' is older than the most recent version available via the Manifesto Project
+#' DB API.
+#' 
+#' \code{mp_update_cache} checks if a new Corpus Version is available and uses
+#' this via: \code{\link{mp_use_corpus_version}}. That is, 
+#' the internal cache of manifestoR will automatically be updated to this version
+#' and all future calls to the API will request for the specified version.
+#' 
+#' @details
+#' Note that this versioning applies to the corpus' texts and metadata, and not the
+#' versions of the core dataset. For this see \code{\link{mp_coreversions}}
+#' 
+#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
+#'               currently stored in the variable \code{apikey} of the
+#'               environment \code{mp_globalenv} is used.
+#' @return a list with a boolean \code{update_available} and \code{versionid},
+#'         a character string identifying the most recent online version available
+#' @rdname corpusupdate
+#' @export
+mp_check_for_corpus_update <- function(apikey = NULL) {
+  
+  cacheversion <- getn(kmetaversion, envir = mp_cache)
+  dbversion <- last(mp_corpusversions(apikey = apikey))
+  
+  return(list(update_available = (is.null(kmetaversion) || (cacheversion != dbversion)),
+              versionid = dbversion))
+
+}
+
+#' Use a specific version of the Manifesto Project Corpus
+#' 
+#' @details
+#' The internal cache of manifestoR will automatically be updated to this version
+#' and all future calls to the API will request for the specified version. Note
+#' that this versioning applies to the corpus' texts and metadata, and not the
+#' versions of the core dataset. For this see \code{\link{mp_coreversions}}
+#' 
+#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
+#'               currently stored in the variable \code{apikey} of the
+#'               environment \code{mp_globalenv} is used.
+#' @param versionid character id of the version to use (as received from API and
+#' \code{\link{mp_corpusversions}})
+#' 
+#' @export
+mp_use_corpus_version <- function(versionid, apikey=NULL) {
+  
+  cache_versionid <- getn(kmetaversion, envir = mp_cache)
+  
+  if (is.null(cache_versionid) || versionid != cache_versionid) {
+  
+    ## create new cache environment to prevent data loss if update fails
+    new_cache <- new.env()
+    assign(kmetaversion, versionid, envir = new_cache)
+    
+    meta_from_cache <- getn(kmetadata, envir = mp_cache)
+    
+    if (!is.null(meta_from_cache)) {
+      
+      if (nrow(meta_from_cache) > 0) {
+        ## update metadata
+        newmeta <- get_viacache(kmtype.meta,
+                                ids = select(meta_from_cache, one_of("party", "date")),
+                                versionid = versionid,
+                                cache = FALSE)
+        assign(kmetadata, newmeta, envir = new_cache)        
+      } else {
+        assign(kmetadata, meta_from_cache, envir = new_cache)
+      }
+      
+      
+    }    
+    
+    ## update corpus texts
+    
+    ## copy other cache content
+    
+    mp_load_cache(new_cache)
+    
+  }
+  
+}
+
+getn <- function(...) {
+  tryCatch(get(...),
+           error = function(e) { return(NULL) })
+}
+
+#' @rdname corpusupdate
+#' @return \code{mp_update_cache} return the character identifier of the version updated to
+#' @export
+mp_update_cache <- function(apikey=NULL) {
+  
+  ## get list of versions, take most current one
+  versionid <- last(mp_corpusversions(apikey = apikey))
+  mp_use_corpus_version(versionid)
+  
+  return(versionid)
+}
+
 
 #' Get API results via cache 
 #' 
@@ -140,16 +242,31 @@ table_caching <- function(varname, fun, ids,
 #' @param ids identifiers of objects to get. Depending on the type a data.frame or vector of identifiers.
 #' @param ... additional parameters handed over to get_mpdb
 #' 
-get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
-  
-  ## TODO versioning:
-  ## if cache == TRUE, check for versionid in cache
-  ##   if there is one: use this
-  ##   if not: get list of versions, take most current one, cache the id
+get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
+    
+  if (cache) {
+    
+    if (is.null(versionid)) {
+      
+      ## check for versionid in cache
+      if (exists(kmetaversion, envir = mp_cache)) {
+        
+        versionid <- get(kmetaversion, envir = mp_cache)
+        
+      } else {
+        
+        ## TODO: try to keep the cache content in sync with the stored versionid!
+        versionid <- last(mp_corpusversions(...))
+        assign(kmetaversion, versionid, envir = mp_cache)
+        
+      }    
+      
+    }
+  }
   
   if (type == kmtype.versions) {
     
-    call <- wrap_mpdb_call(get_mpdb(kmtype.versions, ...))
+    call <- wrap_mpdb_call(get_mpdb(kmtype.versions, versionid = versionid, ...))
     
     return(single_var_caching(kversions, call,
                               cache = cache))
@@ -157,8 +274,9 @@ get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
   } else if (type == kmtype.main) {
     
     call <- wrap_mpdb_call(get_mpdb(kmtype.main,
-                                           parameters=ids,
-                                           ...))
+                                    parameters=ids,
+                                    versionid = versionid,
+                                    ...))
     return(single_var_caching(paste0(kdatasetname, ids$key), call,
                               cache = cache))
     
@@ -167,8 +285,9 @@ get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
     fun <- wrap_mpdb_call_with_ids(function(ids) {
       
       return(get_mpdb(type = kmtype.meta,
-                             parameters = formatmetaparams(ids),
-                             ...))
+                      parameters = formatmetaparams(ids),
+                      versionid = versionid,
+                      ...))
     })
     
     return(table_caching(kmetadata, fun, ids, id.names = c("party", "date"),
@@ -179,8 +298,9 @@ get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
     get_fun <- wrap_mpdb_call_with_ids(function(ids) {
       
       return(get_mpdb(type = kmtype.text,
-                             parameters = formattextparams(ids),
-                             ...))      
+                      parameters = formattextparams(ids),
+                      versionid = versionid,
+                      ...))      
     })
     
     varname_fun <- function(ids) {
@@ -192,11 +312,6 @@ get_viacache <- function(type, ids = c(), cache = TRUE, ...) {
   }
   
 }
-
-
-## TODO versioning
-## - implement check for updates of cache: is versionid the same as the most current one from the server?
-## - implement updating of entire cache: new versionid, new metadata subset, new texts iff md5 changed
 
 
 #' Empty the current cache
@@ -226,7 +341,7 @@ mp_emptycache <- function() {
 #' @export
 #' @examples
 #' ## mp_coreversions()
-mp_corpusversions <- function(apikey=NULL, cache=TRUE) {
+mp_corpusversions <- function(apikey=NULL) {
   
   versions <- get_mpdb(kmtype.metaversions, apikey=apikey)
   
@@ -234,3 +349,14 @@ mp_corpusversions <- function(apikey=NULL, cache=TRUE) {
 }
 
 
+#' Load a Manifesto Cache
+#' 
+#' TODO document
+#' 
+#' @export
+mp_load_cache <- function(cache = NULL, file = "mp_cache.RData") {
+  if (is.null(cache)) {
+    cache <- load(file)
+  }
+  mp_cache <<- cache
+}
