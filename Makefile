@@ -11,7 +11,7 @@ workflowvignette: vignettes/manifestoRworkflow.Rmd
 vignettes: workflowvignette
 
 doc:
-	R -e "library(devtools); library(roxygen2); document(clean = TRUE, roclets = c('namespace', 'rd'))"
+	R -e "library(devtools); document()"
 # TODO run roxygen2
 
 pack: doc test
