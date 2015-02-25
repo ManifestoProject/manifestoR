@@ -102,7 +102,7 @@ formatids <- function(ids) {
 #' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
 #' ## mp_metadata(wanted)
 mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
-  
+
   # convert ids to parameter list for the api call
   ids <- formatids(ids)  
   
@@ -110,7 +110,7 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
                              ids=ids,
                              cache=cache,
                              apikey=apikey)
-  
+
   if (is.null(metadata$manifesto_id)) {
     metadata$manifesto_id <- rep(NA, times = nrow(metadata))
   }
@@ -156,14 +156,28 @@ is.naorstringna <- function(v) {
 #' ## print(avl)
 mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
   
-  metadata <- as.metaids(ids, apikey=apikey, cache=cache)
+  columns <- c("party", "date", "language", "is_primary_doc",
+               "may_contradict_core_dataset", "annotations")
   
-  availability <- metadata[,c("party", "date", "language", "is_primary_doc",
-                              "may_contradict_core_dataset", "annotations")]
+  metadata <- suppressWarnings(as.metaids(ids, apikey=apikey, cache=cache))
   
+  availability <- select(metadata, one_of(columns))
+
   availability$manifestos <- !is.naorstringna(metadata$manifesto_id)
   availability$originals <- !is.naorstringna(metadata$url_original)
-  
+
+  availability <-
+      ids %>%
+        select(one_of("party", "date")) %>%
+        anti_join(availability, by = c("party", "date")) %>%
+        mutate(manifestos = FALSE,
+               originals = FALSE,
+               annotations  = FALSE,
+               language = NA,
+               is_primary_doc = NA,
+               may_contradict_core_dataset = NA) %>%
+        bind_rows(availability)
+
   availability <- list(query=ids, date=date(), availability=availability)
   class(availability) <- c("ManifestoAvailability", class(availability))
   return(availability)

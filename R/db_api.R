@@ -188,7 +188,7 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     
   # prepare version parameter if needed
   if (!is.null(versionid) && type %in% c(kmtype.meta, kmtype.text)) {
-    parameters <- c(parameters, version = versionid)    
+    parameters <- c(parameters, version = versionid)
   }
   
   # get content from web
@@ -225,7 +225,7 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
         date <- as.numeric(date)
       })      
     }
-    
+
     return(metadata)
   
   } else if (type == kmtype.text) {

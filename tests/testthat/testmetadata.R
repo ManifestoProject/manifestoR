@@ -85,23 +85,17 @@ test_that("querying wrong ids gives warning", {
 })
 
 test_that("availability summary works", {
-  
-#   oldversion <- "20150218100957"
-#   mp_use_corpus_version(oldversion)
 
-#   browser()
-  
   mpds <- mp_maindataset()
   swe <- subset(mpds, countryname == "Sweden")
   avl <- mp_availability(swe)
-  
   
   expect_true("availability" %in% names(avl))
   
   metadata_as_request(swe, avl$availability,
                       expected_names = c("party", "date", "annotations",
                                          "manifestos", "originals"))
-  
+
 })
 
 # ## get documents based on an old core data set version
