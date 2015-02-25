@@ -183,37 +183,88 @@ mp_use_corpus_version <- function(versionid, apikey=NULL) {
   cache_versionid <- getn(kmetaversion, envir = mp_cache)
   
   if (is.null(cache_versionid) || versionid != cache_versionid) {
-  
+
     ## create new cache environment to prevent data loss if update fails
     new_cache <- new.env()
     assign(kmetaversion, versionid, envir = new_cache)
-    
+
     meta_from_cache <- getn(kmetadata, envir = mp_cache)
-    
+    texts_in_cache <- manifestos_in_cache(mp_cache)
+
     if (!is.null(meta_from_cache)) {
-      
+
       if (nrow(meta_from_cache) > 0) {
         ## update metadata
         newmeta <- get_viacache(kmtype.meta,
-                                ids = select(meta_from_cache, one_of("party", "date")),
+                                ids = union(select(meta_from_cache, one_of("party", "date")),
+                                            select(texts_in_cache, one_of("party", "date"))),
                                 versionid = versionid,
                                 cache = FALSE)
-        assign(kmetadata, newmeta, envir = new_cache)        
       } else {
-        assign(kmetadata, meta_from_cache, envir = new_cache)
+        newmeta <- meta_from_cache
       }
-      
-      
-    }    
-    
+      assign(kmetadata, newmeta, envir = new_cache)        
+
+    }
+
     ## update corpus texts
-    
+    if (!is.null(meta_from_cache)) {
+      texts_in_cache <- texts_in_cache %>%
+                  left_join(select(meta_from_cache,
+                                   one_of("party", "date", "md5sum_text")),
+                            by = c("party", "date")) %>%
+                  left_join(select(newmeta,
+                                   one_of("party", "date", "md5sum_text")),
+                            by = c("party", "date")) %>%
+                  mutate(download = (
+                           is.na(md5sum_text.x) | 
+                           is.na(md5sum_text.y) | 
+                           (md5sum_text.x != md5sum_text.y)))
+
+    } else {
+      texts_in_cache <- mutate(texts_in_cache, download = TRUE)
+    }    
+
     ## copy other cache content
-    
+    copy_to_env(setdiff(ls(envir = mp_cache),
+                        c(kmetaversion, kmetadata,
+                          texts_in_cache[-texts_in_cache$download]$vname)),
+                mp_cache, new_cache)
+ 
     mp_load_cache(new_cache)
-    
+
+    ## download documents to write them automatically to new cache
+    nupdated <- length(mp_corpus(select(subset(texts_in_cache, download),
+                                  one_of("party", "date"))))
+    if (nupdated > 0) {
+      message(paste(nupdated, "documents updated"))      
+    }
+
   }
   
+}
+
+manifestos_in_cache <- function(cache_env = mp_cache) {
+
+  re <- paste0(ktextname, "_(\\d+)_(\\d+)_.*")
+  
+  extract_ids <- function(x, repl) {
+    return(as.numeric(gsub(re, repl, x)))
+  }
+  
+  nms <- ls(envir = cache_env)
+  nms <- subset(nms, grepl(re, nms))
+  
+  return(data.frame(vname = nms,
+                    party = extract_ids(nms, "\\1"),
+                    date = extract_ids(nms, "\\2")))
+  
+}
+
+copy_to_env <- function(vars, env1, env2) {
+  for (var in vars) {
+    assign(var, get(var, envir = env1), envir = env2)
+  }
 }
 
 getn <- function(...) {
