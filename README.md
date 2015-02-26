@@ -17,7 +17,7 @@ using `devtools` by running in R:
 
 ```r
 library(devtools)
-install_git("https://<GITLABUSERNAME>:<GITLABPASSWORD>@gitlab.manifesto.wzb.eu/marpor/manifestor.git", branch="deploy")
+install_git("https://<GITLABUSERNAME>:<GITLABPASSWORD>@gitlab.manifesto-project.wzb.eu/marpor/manifestor.git", branch="deploy")
 ```
 
 - Replace `<GITLABUSERNAME>` with your gitlab user name and `<GITLABPASSWORD>` with your gitlab password
