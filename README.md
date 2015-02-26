@@ -21,6 +21,7 @@ install_git("https://<GITLABUSERNAME>:<GITLABPASSWORD>@gitlab.manifesto-project.
 ```
 
 - Replace `<GITLABUSERNAME>` with your gitlab user name and `<GITLABPASSWORD>` with your gitlab password
+  - even better would be if you could (for security reasons) use the account of powerlessbaer (pw has sven)
 - All dependencies will be installed/updated automatically
 - On Windows this probably requires `Rtools` and `git` to to be installed
 
