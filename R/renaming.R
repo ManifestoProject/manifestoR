@@ -51,7 +51,8 @@ if(all(sapply(c("infile", "outfile"), exists))) {
 #' @rdname renamev9
 #' 
 #' @param pattern pattern of file names, defaults to R and R markdown files
-#' @param ... more arguments passed on to list.files
+#' @param recursive passen on to \code{\link{list.files}}
+#' @param ... more arguments passed on to \code{\link{list.files}}
 #' @return success flag
 #' @export
 rename_files_to_v9 <- function(pattern = "*.R((md)|(markdown))?$",

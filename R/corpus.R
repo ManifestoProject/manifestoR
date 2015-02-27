@@ -1,6 +1,6 @@
 #' Manifesto Corpus class
 #' 
-#' A \code{tm} \code{\link{Corpus}} storing \code{\link{ManifestoDocument}s}
+#' A \code{tm} \code{\link[tm]{Corpus}} storing \code{\link{ManifestoDocument}s}
 #' 
 #' @description
 #' Objects of this class are returned by \code{\link{mp_corpus}}.
@@ -10,30 +10,32 @@
 #' \code{\link{ManifestoDocument}}.
 #'  
 #' @name ManifestoCorpus
+#' @param csource a \code{\link{ManifestoSource}}, see \code{\link[tm]{Source}}
 #' @docType class
+#' @examples
+#' \dontrun{corpus <- mp_corpus(subset(mp_maindataset(), countryname == "Russia"))}
 ManifestoCorpus <- function(csource) {
   corpus <- VCorpus(csource)
   class(corpus) <- c("ManifestoCorpus", class(corpus))
   return(corpus)
 }
-#' @method codes ManifestoCorpus
-#' @export
-#' @rdname generics
-codes.ManifestoCorpus <- function(x) {
-  c(unlist(lapply(x, codes)))
-}
 
-#' Manifesto Documents class
+#' Manifesto Document
 #' 
-#' Objects representing Manifestos as parts of Corpora
 #' 
+#'  
 #' @description
-#' \code{ManifestoDocument}s are the central objects of \code{manifestoR}
-#' and subclasses of the \code{\link{Document}} class from the package 
-#' \code{\link{tm}}. Hence they can be and usually are collected in a \code{tm}
-#' \code{\link{Corpus}} to interface easily with text mining and other linguistic
+#' A ManifestoDocument represents a document from the Manifesto Corpus and contains
+#' text, coding and meta information.
+#' ManifestoDocument objects need not be constructed manually but are the content
+#' of the \code{\link{ManifestoCorpus}} objects downloaded from the Manifesto
+#' Corpus Database API via \code{\link{mp_corpus}}. 
+#' 
+#' \code{ManifestoDocument}s subclass the \code{\link[tm]{TextDocument}} class
+#' from the package \code{tm}. Hence they can be and usually are collected in a \code{tm}
+#' \code{\link[tm]{Corpus}} to interface easily with text mining and other linguistic
 #' analysis functions. \code{manifestoR} uses the subclass
-#' \code{\link{ManifestoCorpus}} of \code{tm}s \code{\link{Corpus}}, but
+#' \code{\link{ManifestoCorpus}} of \code{tm}s \code{\link[tm]{Corpus}}, but
 #' \code{ManifestoDocument}s can be stored in any kind of \code{Corpus}.
 #' 
 #' As in \code{tm} any ManifestoDocument has metadata which can be accessed and
@@ -43,14 +45,25 @@ codes.ManifestoCorpus <- function(x) {
 #' (and modified).The CMP category scheme can be found online at
 #' \url{https://manifesto-project.wzb.eu/coding_schemes/1}.
 #' 
+
+#' 
 #' @details
 #' Internally, a ManifestoDocument is a \code{data.frame} with a row for
 #' every quasi-sentence and the columns \code{text} and \code{code}.
 #'  
 #' @name ManifestoDocument
+#' 
+#' @param content data.frame of text and codes for the ManifestoDocument to be constructed
+#' @param id an id to identify the Document
+#' @param meta an object of class \code{\link{ManifestoDocumentMeta}} containing the metadata for this document
+#' 
 #' @docType class
 #' @examples
-#' ## TODO convenience function
+#' \dontrun{
+#' corpus <- mp_corpus(subset(mp_maindataset(), countryname == "New Zealand"))
+#' doc <- corpus[[1]]
+#' print(doc)
+#' }
 ManifestoDocument <- function(content = data.frame(names = c("text", "code")),
                               id = character(0),
                               meta = ManifestoDocumentMeta()) {
@@ -61,22 +74,12 @@ ManifestoDocument <- function(content = data.frame(names = c("text", "code")),
 
 
 
-#' Get the content of a \code{\link{ManifestoDocument}}
-#' 
-#' 
-#' @param x ManifestoDocument
-#' @rdname generics
 #' @method content ManifestoDocument
 #' @export
 content.ManifestoDocument <- function(x) {
   return(as.character(x$content$text))
 }
 
-#' Modify the content of a \code{\link{ManifestoDocument}}
-#' 
-#' @param x ManifestoDocument
-#' @param value new content text (as `character`)
-#' @rdname generics
 #' @method content<- ManifestoDocument
 #' @export
 `content<-.ManifestoDocument` <- function(x, value) {
@@ -85,7 +88,11 @@ content.ManifestoDocument <- function(x) {
 }
 
 
-#' Get the codes of a document or corpus
+#' Access the codes of a Manifesto Document or Corpus
+#' 
+#' With the accessor the codes of a Manifesto Document can be
+#' read and modified. The codes of a Manifesto Corpus can only be read,
+#' modification needs to be done document-wise.
 #' 
 #' @param x document or corpus to get the codes from
 #' @rdname codes
@@ -101,17 +108,21 @@ codes.ManifestoDocument <- function(x) {
   return(as.integer(x$content$code))
 }
 
-#' Modify the codes of a document or corpus
-#' 
-#' @rdname generics
-#' @param x document or corpus
+#' @method codes ManifestoCorpus
+#' @rdname codes
+#' @export
+codes.ManifestoCorpus <- function(x) {
+  c(unlist(lapply(x, codes)))
+}
+
 #' @param value new codes
+#' @rdname codes
 #' @export
 `codes<-` <- function(x, value) {
   UseMethod("codes<-", x)
 }
 
-#' @rdname generics
+#' @rdname codes
 #' @method codes<- ManifestoDocument
 #' @export
 `codes<-.ManifestoDocument` <- function(x, value) {
@@ -119,10 +130,6 @@ codes.ManifestoDocument <- function(x) {
   return(x)
 }
 
-#' Get the metadata of a \code{\link{ManifestoDocument}}
-#' 
-#' @param x ManifestoDocument
-#' @param tag tag of specific metadata to get
 #' @method meta ManifestoDocument
 #' @export
 meta.ManifestoDocument <- function(x, tag=NULL, ...) {
@@ -151,7 +158,7 @@ str.ManifestoDocument <- function(object, ...) {
 #' @export
 subset.ManifestoDocument <- function(x, subset, ...) {
   cpdoc <- x
-  cpdoc$content <- base::subset(cpdoc$content, subset, ...) ## TODO use dplyr here?
+  cpdoc$content <- base::subset(cpdoc$content, subset, ...)
   return(cpdoc)
 }
   
@@ -213,11 +220,6 @@ tail.ManifestoDocument <- function(x, n = 6, ...) {
 
 
 
-#' Modify the metadata of a \code{\link{ManifestoDocument}}
-#' 
-#' @param doc ManifestoDocument
-#' @param tag tag of specific metadata to modify
-#' @param value new value of metadata tag
 #' @method meta<- ManifestoDocument
 #' @export
 `meta<-.ManifestoDocument` <- function(x, tag, ..., value) {
@@ -225,14 +227,16 @@ tail.ManifestoDocument <- function(x, n = 6, ...) {
   return(x)
 }
 
-#' Reader for \code{\link{ManifestoDocumentSource}}
+#' Reader for \code{\link{ManifestoSource}}
 #' 
 #' @details
 #' Used internally for constructing \code{\link{ManifestoCorpus}} objects.
-#' For the general mechanism refer to \code{tm}s \code{\link{Reader}}
+#' For the general mechanism refer to \code{tm}s \code{\link[tm]{Reader}}
 #' documentation.
 #'
 #' @param language is ignored
+#' @param elem a named list with the component \code{content}
+#' @param id a character giving a unique identifier for the created text document
 readManifesto <- function(elem, language, id) {
  doc <- ManifestoDocument(content = elem$content[[1]]$content,
                           meta = elem$content[[1]]$meta,
@@ -242,7 +246,10 @@ readManifesto <- function(elem, language, id) {
 
 #' Manifesto Document Metadata
 #' 
-#' Constructor
+#' @docType class
+#' @name ManifestoDocumentMeta
+#' @param meta a named list with tag-value pairs of document meta information
+#' @param id a character giving a unique identifier for the text document
 ManifestoDocumentMeta <- function(meta = list(), id = character(0)) {
   if (!is.null(id)) {
     meta$id <- id
@@ -259,6 +266,7 @@ ManifestoDocumentMeta <- function(meta = list(), id = character(0)) {
 #'  
 #' @rdname ManifestoSource
 #' @docType class
+#' @param texts texts of the manifesto documents
 ManifestoSource <- function(texts) {
   SimpleSource(length = length(texts),
                reader = readManifesto,
@@ -266,7 +274,7 @@ ManifestoSource <- function(texts) {
                class = c("ManifestoSource"))
 }
 
-#' @rdname ManifestoSource
+#' @method getElem ManifestoSource
 #' @export
 getElem.ManifestoSource <- function(x) {
   list(content = x$content[x$position],

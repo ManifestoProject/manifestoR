@@ -14,7 +14,7 @@
 #' @docType package
 #' @title  Access and process data and documents of the Manifesto Project
 #' @author Jirka Lewandowski \email{jirka.lewandowski@@wzb.eu}
-#' @references \url{http://manifesto-project.wzb.eu/}
+#' @references \url{https://manifesto-project.wzb.eu/}
 #' 
 #' @importFrom utils head tail
 #' @import NLP

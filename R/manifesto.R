@@ -5,18 +5,23 @@
 #'
 #' @param version Specify the version of the dataset you want to access. Use
 #'                "current" to obtain the most recent, or use
-#'                \code{\link{manifesto.listversion()}} for a list of available
+#'                \code{\link{mp_coreversions}} for a list of available
 #'                versions.
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{mp_globalenv} is used.
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
-#' @export
+#'              
+#' @return The Manifesto Project Main Dataset with classes \code{data.frame} and
+#' \code{\link[dplyr]{tbl_df}}
+#'
 #' @examples
-#' ## mpds <- mp_maindataset()
-#' ## head(mpds)
-#' 
+#' \dontrun{
+#' mpds <- mp_maindataset()
+#' head(mpds)
+#' median(subset(mpds, countryname == "Switzerland")$rile, na.rm = TRUE)
+#' }
+#' @export
 mp_maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
   
   if (version == "current") {
@@ -29,21 +34,24 @@ mp_maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
   mpds <- get_viacache(kmtype.main, ids = parameters,
                        cache = cache, apikey = apikey)
   
-  return(mpds)
+  return(tbl_df(mpds))
   
 }
 
 
 #' List the available versions of the Manifesto Project's Main Dataset
 #' 
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{mp_globalenv} is used.
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
-#' @export
+#'
+#' @details
+#' For the available versions of the corpus, see \code{\link{mp_corpusversions}}
+#'
 #' @examples
-#' ## mp_coreversions()
+#' \dontrun{mp_coreversions()}
+#' @export
 mp_coreversions <- function(apikey=NULL, cache=TRUE) {
   
   versions <- get_viacache(kmtype.versions, apikey=apikey, cache=cache)
@@ -52,7 +60,7 @@ mp_coreversions <- function(apikey=NULL, cache=TRUE) {
 }
 
 
-#' Format ids for web API queru
+#' Format ids for web API queries
 #' 
 #' Formats a data.frame of ids such that it can be used for querying
 #' the Manifesto Project Database. That is, it must have non-NA-fields
@@ -85,22 +93,27 @@ formatids <- function(ids) {
 #' 
 #' @details
 #' Meta data contain information on the available documents for a given party
-#' and election date. This information comprises, language, checksums and links
-#' to the text as well as original documents if available.
+#' and election date. This information comprises links to the text as well as
+#' original documents if available, language, versions checksums and more.
 #' 
 #' @param ids list of partys (as ids) and dates of elections, paired. Dates must
 #'            be given either in the \code{date} or the \code{edate} variable,
 #'            formatted in the way they are in the main data set in this package
-#'            (date: as.numeric, YYYYMM, edate: as.Date())
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{mp_globalenv} is used.
+#'            (date: as.numeric, YYYYMM, edate: as.Date()), see \code{\link{mp_maindataset}}
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
-#' @export
+#'              
+#' @return an object of class \code{ManifestoMetadata}, subclassing \code{data.frame}
+#'         as well as \code{\link[dplyr]{tbl_df}} and containing the requested
+#'         metadata in rows per election programme
 #' @examples
-#' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## mp_metadata(wanted)
+#' \dontrun{
+#' wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+#' mp_metadata(wanted)
+#' }
+#' @export
 mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
 
   # convert ids to parameter list for the api call
@@ -114,6 +127,8 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
   if (is.null(metadata$manifesto_id)) {
     metadata$manifesto_id <- rep(NA, times = nrow(metadata))
   }
+  
+  metadata <- tbl_df(metadata)
 
   class(metadata) <- c("ManifestoMetadata", class(metadata))
   
@@ -132,28 +147,26 @@ is.naorstringna <- function(v) {
   return(is.na(v) | v=="NA")
 }
 
-#' Get availability information for election programmes
-#' 
-#' @details
-#' This calls manifest.meta() on the respective ids and hence might add to the
-#' cache!
+#' Availability information for election programmes
 #' 
 #' @param ids Information on which documents to get. This can either be a
 #'            list of partys (as ids) and dates of elections as given to
 #'            \code{\link{mp_metadata}} or a \code{ManifestoMetadata} object
 #'            (\code{data.frame}) as returned by \code{\link{mp_metadata}}.
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{mp_globalenv} is used.
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
 #' @return an object of class \code{\link{ManifestoAvailability}}
-#'         containing availability information
-#' @export
+#'         containing availability information. Accessing \code{$availability}
+#'         on it gives a \code{data.frame} with detailed availability information
+#'         per document
 #' @examples
-#' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## avl <- mp_availability(wanted)
-#' ## print(avl)
+#' \dontrun{
+#' wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+#' mp_availability(wanted)
+#' }
+#' @export
 mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
   
   columns <- c("party", "date", "language", "is_primary_doc",
@@ -186,8 +199,7 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
 
 #' Manifesto Availability Information class
 #' 
-#' Objects returned by \code{\link{mp_availability}}. Use
-#' \code{summary} to display information.
+#' Objects returned by \code{\link{mp_availability}}.
 #' 
 #' @details
 #' ManifestoAvailability objects are lists with a key \code{query}, containing
@@ -198,13 +210,13 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
 #' @name ManifestoAvailability
 #' @docType class
 #' @examples
-#' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## avl <- mp_availability(wanted)
-#' ## summary(avl)
+#' \dontrun{
+#' wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+#' mp_availability(wanted)
+#' }
 NULL
 
-#' Print availability information of a manifesto document query
-#' 
+#' @method print ManifestoAvailability
 #' @export
 print.ManifestoAvailability <- function(x, ...) {
   
@@ -237,25 +249,41 @@ print.ManifestoAvailability <- function(x, ...) {
   
 }
 
-#' Download annotated documents
+#' Get documents from the Manifesto Corpus Database
 #' 
-#' Download annotated documents from the Manifesto Project Corpus Database
+#' Documents are downloaded from the Manifesto Project Corpus Database. If 
+#' CMP coding annotations are available, they are attached to the documents,
+#' otherwise raw texts are provided. The documents are cached in the working
+#' memory to ensure internal consistency, enable offline use and
+#' reduce online traffic.
+#' 
+#' See \code{\link{mp_save_cache}} for ensuring reproducibility by
+#' saving cache and version identifier to the hard drive.
+#' See \code{\link{mp_update_cache}} for updating the locally saved content with
+#' the most recent version from the Manifesto Project Database API.
 #'
 #' @param ids Information on which documents to get. This can either be a
 #'            list of partys (as ids) and dates of elections as given to
 #'            \code{\link{mp_metadata}} or a \code{ManifestoMetadata} object
 #'            (\code{data.frame}) as returned by \code{\link{mp_metadata}}.
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{mp_globalenv} is used.
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
-#' @return an object of \code{tm Corpus}'s subclass \code{ManifestoCorpus}
+#'              
+#' @return an object of \code{\link[tm]{Corpus}}'s subclass
+#' \code{\link{ManifestoCorpus}} holding the available of the requested documents
 #' @export
 #' @examples
-#' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## corpus <- mp_corpus(wanted)
-#' ## summary(corpus)
+#' \dontrun{
+#' wanted <- data.frame(party=c(41320, 41320), date=c(200909, 201309))
+#' mp_corpus(wanted)
+#' 
+#' mp_corpus(subset(mp_maindataset(), countryname == "France"))
+#' 
+#' partially_available <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+#' mp_corpus(partially_available)
+#' }
 mp_corpus <- function(ids, apikey=NULL, cache=TRUE) {
 
   ids <- as.metaids(ids, apikey=apikey, cache=cache)

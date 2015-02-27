@@ -13,17 +13,16 @@
 #' @param vars variable names that should contribute to the linear combination
 #' @param weights weights of the linear combination in the same order as `vars`.
 #' @param link.fun link function: (vectorized) function applied to the sums
-#' (default: none)
 #' @export
 scale_gl <- function(data,
-                       vars = grep("per.*", names(data), value=TRUE),
-                       weights = 1,
-                       link.fun = identity) {
+                     vars = grep("per.*", names(data), value=TRUE),
+                     weights = 1,
+                     link.fun = identity) {
   
   weights <- weights[vars %in% names(data)]
   vars <- vars[vars %in% names(data)]
   link.fun(colSums(t(data[,vars])*weights)) # apply weighting to rows, sum, link
-
+  
 }
 
 #' Logit scaling function
@@ -36,7 +35,6 @@ scale_gl <- function(data,
 #' @param neg variable names that should contribute to the denominator ("negatively")
 #' @param N vector of numbers of quasi sentences to convert percentages to counts
 #' (choose 1 if ) data is already in counts
-#' @export
 scale_logit <- function(data, pos, neg, N = data[,"total"]) {
   abs.data <- data[,union(pos, neg)]*N
   log(scale_gl(abs.data, pos)/ scale_gl(abs.data, neg))
@@ -52,12 +50,13 @@ scale_logit <- function(data, pos, neg, N = data[,"total"]) {
 #' @param data A data.frame with cases to be scaled
 #' @param pos variable names that should contribute positively
 #' @param neg variable names that should contribute negatively
+#' @param ... further parameters passed on to \code{link{scale_gl}}
 #' @export
 scale_bipolar <- function(data, pos, neg, ...) {
   scale_gl(data,
-             vars = c(pos, neg),
-             weights = c(rep(1, length(pos)), rep(-1, length(neg))),
-             ...)
+           vars = c(pos, neg),
+           weights = c(rep(1, length(pos)), rep(-1, length(neg))),
+           ...)
 }
 
 #' Bipolar scaling function creator
@@ -70,15 +69,16 @@ scale_bipolar <- function(data, pos, neg, ...) {
 #' @param neg codes that should contribute negatively
 #' @param base.fun Generic bipolar scaling function to be used (must have arguments pos and neg)
 #' @param var.prefix Prefix used for all variable names
+#' @param ... further arguments to be fixed in \code{base.fun}
 #' @export
 create_scaling <- function(pos, neg,
                            base.fun = scale_bipolar,
                            var.prefix = "per",
                            ...) {
   functional::Curry(base.fun,
-        pos=paste0(var.prefix, pos),
-        neg=paste0(var.prefix, neg),
-        ...)
+                    pos=paste0(var.prefix, pos),
+                    neg=paste0(var.prefix, neg),
+                    ...)
 }
 
 rile_r <- c(104, 201, 203, 305, 401, 402, 407, 414, 505, 601, 603, 605, 606)
@@ -95,13 +95,16 @@ table_to_df <- function(tt, prefix = "per", relative = TRUE) {
   return(df)
 }
 
+#' Construct text scaling functions
+#' 
 #' Make a scaling function applicable to a ManifestoDocument
 #'
 #' @param scalingfun a scaling function, taking a data.frame with variables
 #' named "per..." and returning a scaling measure (such as the rile) in a vector.
 #' @param returndf if this flag is TRUE, a data.frame with category percentage values,
 #' scaling result and, if available party and date is returned by the returned function
-#' @return a function that takes a ManifestoDocument and computes the scaled value
+#' @param scalingname the name of the scale which will be used as a column name when a data.frame is produced
+#' @return \code{document_scaling} returns a function that takes a ManifestoDocument and computes the scaled value
 #' for it
 #' 
 #' @export
@@ -109,10 +112,10 @@ table_to_df <- function(tt, prefix = "per", relative = TRUE) {
 document_scaling <- function(scalingfun, returndf = FALSE, scalingname = "scaling") {
   
   return(function(x) {
-  
+    
     df <- data.frame(party=meta(x, "party"), date=meta(x, "date"))
     df <- bind_cols(df, table_to_df(table(codes(x))))
-
+    
     df[,scalingname] <- scalingfun(df)
     
     if (returndf) {
@@ -126,9 +129,7 @@ document_scaling <- function(scalingfun, returndf = FALSE, scalingname = "scalin
 
 #' Make a scaling function applicable to a ManifestoCorpus
 #'
-#' @param scalingfun a scaling function, taking a data.frame with variables
-#' named "per..." and returning a scaling measure (such as the rile) in a vector.
-#' @return a function that takes a ManifestoCorpus and returns a data.frame with
+#' @return \code{corpus_scaling} returns a function that takes a ManifestoCorpus and returns a data.frame with
 #' the code percentages and the scaling function value (e.g. rile) for each document
 #' in the corpus
 #' 
@@ -137,8 +138,8 @@ document_scaling <- function(scalingfun, returndf = FALSE, scalingname = "scalin
 corpus_scaling <- function(scalingfun, scalingname = "scaling") {
   function(x) {
     df <- data.frame(party = unlist(lapply(content(x), function(doc) { meta(doc, "party")})),
-               date = unlist(lapply(content(x), function(doc) { meta(doc, "date")})),
-               scaling = unlist(lapply(content(x), document_scaling(scalingfun))))
+                     date = unlist(lapply(content(x), function(doc) { meta(doc, "date")})),
+                     scaling = unlist(lapply(content(x), document_scaling(scalingfun))))
     names(df)[3] <- scalingname
     df
   }
@@ -149,7 +150,9 @@ corpus_scaling <- function(scalingfun, scalingname = "scaling") {
 #' Computes the RILE or other bipolar linear scaling measures for each case in a
 #' data.frame or ManifestoCorpus
 #'
-#' @param data A data.frame with cases to be scaled, variables named "per..."
+#' @rdname rile
+#' @param x A data.frame with cases to be scaled, variables named "per..."
+#' @param ... A ManifestoCorpus or ManifestoDocument with annotated texts to be be scaled
 #' @export
 rile <- function(x) { UseMethod("rile", x) }
 #' @rdname rile

@@ -1,6 +1,6 @@
 kmerror.keymissing <- 
     paste("No API key specified. Specify apikey via mp_setapikey()",
-          "or go to http://manifesto-project.wzb.eu to create key and/or",
+          "or go to https://manifesto-project.wzb.eu to create key and/or",
           "account.")
 
 kmurl.apiroot <- "https://manifesto-project.wzb.eu/tools/"
@@ -9,25 +9,26 @@ kmurl.apiroot <- "https://manifesto-project.wzb.eu/tools/"
 #' 
 #' If you do not have an API key for the Manifesto Documents Database,
 #' you can create one via your profile page on 
-#' \url{http://manifesto-project.wzb.eu}.
+#' \url{https://manifesto-project.wzb.eu}.
 #' If you do not have an account, you can register on the webpage.
+#' 
+#' The key is read from the file specified in \code{key.file}. If this
+#' argument is \code{NULL}, the key given in the argument \code{key} is used.  
 #'
 #' @param key new API key
+#' @param key.file file name containing the API key
 #' @export
 mp_setapikey <- function(key = NA, key.file = NULL) {
   if (!is.null(key.file)) {
     tryCatch({
       fl <- file(key.file)
       key <- readLines(fl, 1, warn = FALSE)      
-      # TODO check key?
+      # check key?
     }, finally = { close.connection(fl)})
   }
   assign(kapikey, key, envir = mp_globalenv)
 }
 mp_setapikey(NA)
-# tryCatch({mp_setapikey(key.file = "manifesto_apikey.txt")},
-#          error = function(e) { warning("No key set!") },
-#          finally = {NULL})
 
 toamplist <- function(params) {
   pairs <- paste(names(params), params, sep="=")
@@ -54,13 +55,12 @@ formattextparams <- function(ids) {
 }
 
 separate_missings <- function(robj, request="") {
-  
+
   missings <- robj$missing_items
-  
+
   robj <- robj$items
-  
+
   for (misskey in missings) {
-    
     
     if (request == "metadata") {
         
@@ -94,7 +94,7 @@ separate_missings <- function(robj, request="") {
 #' Format the main data set
 #' 
 #' Creates the format that is visible to the R user
-#' from the internal .csv files (in cache or from the API)
+#' from the internal data.frames files (in cache or from the API)
 #'
 #' @param mpds A data.frame with a main data set version to be formatted
 formatmpds <- function(mpds) {
@@ -102,27 +102,25 @@ formatmpds <- function(mpds) {
   # fix names
   names(mpds) <- tolower(make.names(as.vector(as.matrix(mpds[1,])))) 
   mpds <- mpds[-1,] # names are in first row
-  row.names(mpds) <- NULL # or: paste(mpds$party, mpds$date, sep="-")
-  
-#   print(head(mpds))
-  
+  row.names(mpds) <- NULL # or: paste(mpds$party, mpds$date, sep="-")  
+
   for (name in names(mpds)) {
-    
+
     if (!name %in% c("edate", "countryname", "partyname")) {
       mpds[,name] <- as.numeric(as.character(mpds[,name]))
     }
-    
+
     if (name == "edate") {
       mpds[,name] <- as.Date(as.character(mpds[,name]), format="%d/%m/%Y")
     }
-    
+
   }
-  
+
   return(mpds)
-  
+
 }
 
-#' gets URL and handles Error
+#' Manifesto Project DB API request
 #' 
 #' gets the requested url and passes HTTP header error codes on to raise R
 #' errors with the same text
@@ -151,19 +149,19 @@ mpdb_api_request <- function(file, body) {
 #' 
 #' Internal implementation. For more convenient access and caching use one of 
 #' \code{\link{mp_corpus}}, 
-#' \code{\link{manifesto.originals}}, 
 #' \code{\link{mp_availability}},  
 #' \code{\link{mp_maindataset}}.
 #'
 #' @param type string of \code{"meta", "text", "original", "main", "versions"} 
 #'             to indicate type of content to get
 #' @param parameters content filter parameters specific to type
+#' @param versionid character string specifying the corpus version to use, format
+#'        as returned by \code{\link{mp_corpusversions}} and the API
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
 #'               environment \code{mp_globalenv} is used.
-#' 
 get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
-  
+
   # check api key
   if (is.null(apikey)) {
     apikey <- get(kapikey, envir = mp_globalenv)
@@ -171,8 +169,8 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
   if (is.na(apikey)) {
     stop(kmerror.keymissing)
   }
-  
-  
+
+
   # select URL
   if (type == kmtype.versions) {
     requestfile <- "api_list_core_versions.json"
@@ -185,36 +183,36 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
   } else if (type == kmtype.metaversions) {
     requestfile <- "api_list_metadata_versions.json"
   }
-    
+
   # prepare version parameter if needed
   if (!is.null(versionid) && type %in% c(kmtype.meta, kmtype.text)) {
     parameters <- c(parameters, version = versionid)
   }
-  
+
   # get content from web
   jsonstr <- mpdb_api_request(file=requestfile,
                               body=paste0("api_key=", apikey, "&",
                                           toamplist(parameters)))
-  
+
   # convert to desired format (before caching)
   if (type == kmtype.versions) {
-  
+
     return(data.frame(fromJSON(jsonstr)))
-    
+
   } else if (type == kmtype.metaversions) {
-    
+
     return(fromJSON(jsonstr)$versions)    
-    
+
   } else if (type == kmtype.main) {
-    
+
     mpds <- formatmpds(data.frame(fromJSON(jsonstr)))
   
     return(mpds)
-    
+
   } else if (type == kmtype.meta) {
-      
+
     metadata <- data.frame(separate_missings(fromJSON(jsonstr), request="metadata"))
-    
+
     if (nrow(metadata) > 0) {
       names(metadata)[which(names(metadata)=="party_id")] <- "party"
       names(metadata)[which(names(metadata)=="election_date")] <- "date"
@@ -229,14 +227,11 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     return(metadata)
   
   } else if (type == kmtype.text) {
-    
+
     texts <- separate_missings(fromJSON(jsonstr), request="text")
     names(texts)[which(names(texts)=="key")] <- "manifesto_id"
     
     return(texts)
-      
+
   }
-    
-    
-  
 }

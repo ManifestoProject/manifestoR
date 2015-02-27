@@ -137,19 +137,19 @@ table_caching <- function(varname, fun, ids,
 #' is older than the most recent version available via the Manifesto Project
 #' DB API.
 #' 
-#' \code{mp_update_cache} checks if a new Corpus Version is available and uses
-#' this via: \code{\link{mp_use_corpus_version}}. That is, 
-#' the internal cache of manifestoR will automatically be updated to this version
-#' and all future calls to the API will request for the specified version.
+#' \code{mp_update_cache} checks if a new corpus version is available and loads
+#' the new version via: \code{\link{mp_use_corpus_version}}. That is, 
+#' the internal cache of manifestoR will automatically be updated to newer version
+#' and all future calls to the API will request for the newer version.
 #' 
 #' @details
 #' Note that this versioning applies to the corpus' texts and metadata, and not the
 #' versions of the core dataset. For this see \code{\link{mp_coreversions}}
 #' 
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{mp_globalenv} is used.
-#' @return a list with a boolean \code{update_available} and \code{versionid},
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
+#' @return \code{mp_update_cache} returns a list with a boolean
+#'         \code{update_available} and \code{versionid},
 #'         a character string identifying the most recent online version available
 #' @rdname corpusupdate
 #' @export
@@ -165,15 +165,13 @@ mp_check_for_corpus_update <- function(apikey = NULL) {
 
 #' Use a specific version of the Manifesto Project Corpus
 #' 
-#' @details
-#' The internal cache of manifestoR will automatically be updated to this version
+#' The internal cache of manifestoR will be updated to the specified version
 #' and all future calls to the API will request for the specified version. Note
 #' that this versioning applies to the corpus' texts and metadata, and not the
 #' versions of the core dataset. For this see \code{\link{mp_coreversions}}
 #' 
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{mp_globalenv} is used.
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @param versionid character id of the version to use (as received from API and
 #' \code{\link{mp_corpusversions}})
 #' 
@@ -282,7 +280,7 @@ getn <- function(...) {
 }
 
 #' @rdname corpusupdate
-#' @return \code{mp_update_cache} return the character identifier of the version updated to
+#' @return \code{mp_update_cache} returns the character identifier of the version updated to
 #' @export
 mp_update_cache <- function(apikey=NULL) {
   
@@ -296,12 +294,16 @@ mp_update_cache <- function(apikey=NULL) {
 
 #' Get API results via cache 
 #' 
-#' TODO documentation
+#' @details
+#' This function is internal to manifestoR and not designed for use from
+#' other namespaces
 #' 
-#' @param type type of objects to get (metadata, documents, ...)
+#' @param type type of objects to get (metadata, documents, ...) as a string. Types
+#' are defined as constants in globals.R
 #' @param ids identifiers of objects to get. Depending on the type a data.frame or vector of identifiers.
+#' @param cache whether to use (TRUE) or bypass (FALSE) cache, defaults to TRUE
+#' @param versionid string identifier of version to use
 #' @param ... additional parameters handed over to get_mpdb
-#' 
 get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
     
   if (cache) {
@@ -374,14 +376,9 @@ get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
 }
 
 
-#' Empty the current cache
-#' 
-#' Empty the current cache
-#' 
+#' Empty the manifestoR's cache
+#'  
 #' @export
-#' @examples
-#' ## mp_emptycache()
-#' 
 mp_emptycache <- function() {
   clear_env(mp_cache())
   return()
@@ -395,13 +392,10 @@ mp_emptycache <- function() {
 #' @details
 #' This function always bypasses the cache.
 #' 
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{mp_globalenv} is used.
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @return a character vector with the available version ids
 #' @export
-#' @examples
-#' ## mp_coreversions()
 mp_corpusversions <- function(apikey=NULL) {
   
   versions <- get_mpdb(kmtype.metaversions, apikey=apikey)
@@ -410,10 +404,17 @@ mp_corpusversions <- function(apikey=NULL) {
 }
 
 
-#' Load a Manifesto Cache
+#' Load manifestoR's cache
 #' 
-#' TODO document
+#' Load a cache from a variable or file to manifestoR's current working
+#' environment.
 #' 
+#' @param cache an environment that should function as manifestoR's new cache.
+#' If this is NULL, the environment is loaded from the file specified by argument file.
+#' @param file a file name from where the cache environment should be loaded
+#' 
+#' @examples
+#' \dontrun{mp_load_cache() ## loads cache from file "mp_cache.RData"}
 #' @export
 mp_load_cache <- function(cache = NULL, file = "mp_cache.RData") {
   
@@ -428,10 +429,18 @@ mp_load_cache <- function(cache = NULL, file = "mp_cache.RData") {
   assign("mp_cache", get("mp_cache", envir = tmp_env), envir = mp_globalenv)
 }
 
-#' Save the manifesto Cache
+#' Save manifestoR's cache
 #' 
-#' TODO document
+#' Saves manifestoR's cache to the file system. This function can and should be
+#' used to store downloaded snapshots of the Manifesto Project Corpus Database
+#' to your local hard drive. They can then be loaded via \code{\link{mp_load_cache}}.
+#' Caching data in the file system ensures reproducibility of the scripts and
+#' analyses, enables offline use of the data and reduces unnecessary traffic
+#' and waiting times.
 #' 
+#' @param file a file from which to load the cache environment
+#' @examples
+#' \dontrun{mp_save_cache() ## save to "mp_cache.RData" in current working directory}
 #' @export
 mp_save_cache <- function(file = "mp_cache.RData") {
     
