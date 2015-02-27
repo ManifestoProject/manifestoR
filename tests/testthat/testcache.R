@@ -92,57 +92,24 @@ test_that("saving and loading of cache works", {
 
 test_that("versioning is respected in cache", {
   
-  
-  
+  oldversion <- "20150218100957"
+  suppressWarnings(mp_use_corpus_version(oldversion))
+  avl_old <- suppressWarnings(mp_availability(mp_maindataset()))
+  mp_save_cache()
+
+  mp_update_cache()
+  avl <- suppressWarnings(mp_availability(mp_maindataset()))
+  expect_true(sum(avl$availability$annotations) >
+                sum(avl_old$availability$annotations))
+
+  mp_load_cache()
+  avl_cache <- suppressWarnings(mp_availability(mp_maindataset()))
+  expect_true(sum(avl$availability$annotations) >
+                sum(avl_cache$availability$annotations))
+
+  ## clean up
+  file.remove("mp_cache.RData")
+
 })
 
 ## for more caching tests with metadata see testmetadata.R
- 
-
-# TODO test copying and restoring of cache
-# old version here:
-# 
-# head(mpds)
-# mpds <- mp_maindataset() ## this not
-# 
-# removecache()
-# 
-# manifesto.setcachelocation("altcache")
-# mpds <- mp_maindataset() # again long
-# 
-# lscache()
-# 
-# manifesto.copycache("storedcache")
-# 
-# mp_emptycache()
-# 
-# mpds <- mp_maindataset() # again long
-# 
-# removecache()
-# 
-# manifesto.setcachelocation("storedcache")
-# 
-# mpds <- mp_maindataset() # should be fast and use cache
-# 
-# ## corpus from cache
-# train.sample <- data.frame(party=c(41113,41223,41320,41420,41521,
-#                                    #41113,41223,41320,41420,41521,
-#                                    41113,41320,41420,41521,
-#                                    41113,41320,41420,41521
-# ), date=c(200909,200909,200909,200909,200909,
-#           #201309,201309,201309,201309,201309,
-#           200209,200209,200209,200209,
-#           199809,199809,199809,199809
-# ))
-# mp_emptycache()
-# wanted <- subset(mpds, country==41 & edate > as.Date("2006-01-01"))
-# corp <- mp_corpus(wanted)
-# class(content(corp[[1]])) ## should be character
-# corp <- mp_corpus(wanted)
-# class(content(corp[[1]])) ## should be character
-# 
-# removecache() ## cleanup
-# 
-# 
-# 
-# NULL
