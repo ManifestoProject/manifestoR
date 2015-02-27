@@ -25,13 +25,14 @@ test_that("specifying and updating versions works", {
     
   expect_true(mp_check_for_corpus_update()$update_available)
   
-  ## TODO test corpus content: between this and the next version there should be a change in MD5 sums
-  intermedversion <- "20150224144927"
+  ## test corpus content: between this and the next version there should be a change in MD5 sums
+  intermedversion <- "20150225182659"
   mp_use_corpus_version(intermedversion)
   gercorp <- suppressWarnings(mp_corpus(subset(mp_maindataset(), countryname == "Germany")))
   expect_more_than(length(gercorp), 0)
   
-  mp_update_cache() ## So now we should get 1 updated document
+  
+  expect_message(mp_update_cache(), regexp = "\\d+.*updated") ## now we should get 1 updated document
   expect_equal(get(kmetaversion, envir = mp_cache), mp_check_for_corpus_update()$versionid)
   expect_false(mp_check_for_corpus_update()$update_available)
   germeta <- suppressWarnings(mp_metadata(subset(mp_maindataset(), countryname == "Germany")))
@@ -39,7 +40,26 @@ test_that("specifying and updating versions works", {
   
 })
 
+test_that("downgrading of corpus and metadata works", {
+  
+  
+  mp_update_cache() ## definitely newer than olderversion
+  gercorp <- suppressWarnings(mp_corpus(subset(mp_maindataset(), countryname == "Germany")))
+  avl <- suppressWarnings(mp_availability(mp_maindataset()))
 
-## TODO test downgrading
+  expect_more_than(length(gercorp), 0)
+
+  intermedversion <- "20150225182659"
+  expect_message(mp_use_corpus_version(intermedversion), regexp = "\\d+.*updated")
+  gercorp <- suppressWarnings(mp_corpus(subset(mp_maindataset(), countryname == "Germany")))
+
+  oldversion <- "20150218100957"
+  suppressWarnings(mp_use_corpus_version(oldversion))
+  avl_old <- suppressWarnings(mp_availability(mp_maindataset()))
+
+  expect_true(sum(avl$availability$annotations) >
+              sum(avl_old$availability$annotations))
+
+})
 
 ## TODO test loading cache from file in testcache.R
