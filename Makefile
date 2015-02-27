@@ -35,11 +35,11 @@ withvignettes: vignettes all
 
 pushdeploy:
 	git checkout deploy
-	git merge v0.9
+	git merge master
 	git rm -f --ignore-unmatch man/*
 	make doc
 	git add -f NAMESPACE
 	git add -f man/*
 	git commit -m "Auto-creation of documentation"
 	git push origin deploy	
-	git checkout v0.9
+	git checkout master
