@@ -33,41 +33,11 @@ Development note: To push your current master to the `deploy` branch (and create
 
 R version 3.1 or higher is required.
 
-`manifesoR` depends on the packages `tm`, `httr`, `jsonlite`, `plyr`, which are
+`manifesoR` depends on the packages `tm`, `httr`, `jsonlite`, `dplyr`, `functional` which are
 automatically installed when using `install_git`. If this does not work: use
 
 ```r
-install.packages(c("httr", "tm", "jsonlite", "plyr"))
-```
-
-### From tarball
-
-A tarball of v0.5 is available in Jirka`s ownCloud folder:
-[here](https://cloud.wzb.eu/public.php?service=files&t=8b30d7bd0e9a18062fbeea6cf8f2e3f3).
-The password is manifestoeroe.
-
-To install, download the tar.gz file.
-
-#### Linux and Max OS X
-
-Run the following R command, with the path adapted to your situation:
-
-```r
-install.packages("path/to/manifestoR_<version>.tar.gz", repos=NULL, type="source")
-```
-
-#### Windows
-
-1. Find out where your R.exe is (Usually in `C:/Program Files/R/R-3.0.0/bin/R.exe` or other version number).
-
-2. Open a command line.
-
-3. cd into the directory of your R.exe
-
-4. Issue the following command (with the path adapted to where you downloaded the .tar.gz):
-
-```
-R.exe CMD INSTALL path/to/manifestoR_<version>.tar.gz
+install.packages(c("httr", "tm", "jsonlite", "dplyr", "functional"))
 ```
 
 ### From source repositories

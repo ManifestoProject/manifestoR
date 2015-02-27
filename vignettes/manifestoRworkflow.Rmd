@@ -24,7 +24,7 @@ library(manifestoR)
 library(manifestoR)
 ```
 ```{r eval=FALSE, include=FALSE}
-manifesto.emptycache()
+mp_emptycache()
 ```
 
 # How to connect to the Manifesto Corpus database
@@ -37,15 +37,15 @@ When you have an account, you can create the API key on your profile page.
 For every R session using manifestoR and connecting to the Manifesto Corpus database,
 you need to set the API key in your work environment.
 This can be done by passing either a key or the name of a file containing the
-key to the `manifestodb.setapikey()` function (see documentation for details).
+key to the `mp_setapikey()` function (see documentation for details).
 Thus, your R script using manifestoR usually will start like this:
 
 ```{r eval=FALSE}
 library(manifestoR)
-manifestodb.setapikey(key.file = "manifesto_apikey.txt")
+mp_setapikey(key.file = "manifesto_apikey.txt")
 ```
 ```{r eval=TRUE, include=FALSE}
-manifestodb.setapikey(key.file = "../tests/manifesto_apikey.txt")
+mp_setapikey(key.file = "../tests/manifesto_apikey.txt")
 ```
 
 Note that it is a security risk to store the API key file or a script containing
@@ -53,14 +53,14 @@ the key in public repositories.
 
 # How to download documents and document sets
 
-Downloading documents works via the function `manifesto.corpus(...)`.
+Downloading documents works via the function `mp_corpus(...)`.
 It takes a `data.frame` listing combinations of party ids and election
 dates and returns a `ManifestoCorpus` object, a subtype of the `Corpus` defined
 in the package `tm`:
 
 ```{r warning=FALSE}
 wanted <- data.frame(party=c(41320, 41220), date=c(200909, 200909))
-corpus <- manifesto.corpus(wanted)
+corpus <- mp_corpus(wanted)
 print(corpus)
 head(content(corpus[[1]]))
 ```
@@ -70,9 +70,9 @@ This is because the party with the id 41220 (KPD) did not run for elections
 in September 2009.
 Also, not for every party and election data manifesto documents are availabe in the Manifesto Project Corpus.
 You can check availability of your query beforehand with the function
-`manifesto.availability(...)`.
+`mp_availability(...)`.
 
-The `manifesto.corpus` function also understands several other formats of
+The `mp_corpus` function also understands several other formats of
 input arguments, for details refer to its documentation.
 The party ids (41320 in the example) are the ids as in the Manifesto Project's
 main dataset.
@@ -81,13 +81,13 @@ They can be found in the current dataset documentation at
 or in the main dataset, which is also accessible via manifestoR:
 
 ```{r cache=FALSE}
-mpds <- manifesto.maindataset()
+mpds <- mp_maindataset()
 head(names(mpds)) ## .. and much more
 wanted <- subset(mpds,
                  countryname == "Germany" & # see main dataset codebook
                    pervote > 20.0 &
                    edate > as.Date("1990-01-01"))
-corpus <- manifesto.corpus(wanted)
+corpus <- mp_corpus(wanted)
 print(corpus)
 ```
 
@@ -160,11 +160,11 @@ when the same data is requested for the second time.
 
 ```{r eval=FALSE}
 ## connects to online database, might take some seconds:
-corpus <- manifesto.corpus(wanted)
+corpus <- mp_corpus(wanted)
 
 ## does not connect to online databse, since only already downloaded documents
 ## are requested:
-subcorpus <- manifesto.corpus(wanted[3:7,])
+subcorpus <- mp_corpus(wanted[3:7,])
 ```
 
 This has several advantages:
@@ -179,13 +179,13 @@ By default, the file system location of the cached data is the subfolder
 You can find out and change the cache path from within `manifestoR`:
 
 ```{r eval=TRUE}
-manifesto.getcachelocation()
-manifesto.setcachelocation("~/new-cache/")
-manifesto.getcachelocation()
+# manifesto.getcachelocation()
+# manifesto.setcachelocation("~/new-cache/")
+# manifesto.getcachelocation()
 ```
 
 ```{r eval=TRUE, include=FALSE}
-manifesto.setcachelocation(NULL)
+# manifesto.setcachelocation(NULL)
 ```
 
 When you want to update your local data to the most recent version of the
@@ -193,10 +193,10 @@ Manifesto Project's corpus and database, you can empty the cache to make
 `manifestoR` download the data again the next time you query them.
 
 ```{r eval=FALSE}
-manifesto.emptycache()
+mp_emptycache()
 
 ## connects to online database again
-corpus <- manifesto.corpus(wanted)
+corpus <- mp_corpus(wanted)
 ```
 
 # Saving and exporting documents
@@ -230,5 +230,5 @@ TODO `as.data.frame`
 
 
 ```{r eval=TRUE, include=FALSE}
-manifesto.emptycache()
+mp_emptycache()
 ```

@@ -5,87 +5,62 @@
 #'
 #' @param version Specify the version of the dataset you want to access. Use
 #'                "current" to obtain the most recent, or use
-#'                \code{\link{manifesto.listversion()}} for a list of available
+#'                \code{\link{mp_coreversions}} for a list of available
 #'                versions.
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{manifesto.globalenv} is used.
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
-#' @export
+#'              
+#' @return The Manifesto Project Main Dataset with classes \code{data.frame} and
+#' \code{\link[dplyr]{tbl_df}}
+#'
 #' @examples
-#' ## mpds <- manifesto.maindataset()
-#' ## head(mpds)
-#' 
-manifesto.maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
+#' \dontrun{
+#' mpds <- mp_maindataset()
+#' head(mpds)
+#' median(subset(mpds, countryname == "Switzerland")$rile, na.rm = TRUE)
+#' }
+#' @export
+mp_maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
   
   if (version == "current") {
-    versions <- manifesto.listversions(apikey=apikey, cache=cache)
+    versions <- mp_coreversions(apikey=apikey, cache=cache)
     version <- as.character(versions[nrow(versions), "datasets.id"]) # TODO date in dataset
   }
   
   parameters <- list(key=version)
 
-  mpds <- viacache(manifestodb.get(kmtype.main, parameters=parameters,
-                                   apikey=apikey),
-                   filename=cachefilename(kmtype.main, parameters),
-                   usecache=cache)
+  mpds <- get_viacache(kmtype.main, ids = parameters,
+                       cache = cache, apikey = apikey)
   
-  ## format for accesibility
-  mpds <- formatmpds(mpds)
-  
-  return(mpds)
-  
-}
-
-#' Format the main data set
-#' 
-#' Creates the format that is visible to the R user
-#' from the internal .csv files (in cache or from the API)
-#'
-#' @param mpds A data.frame with a main data set version to be formatted
-formatmpds <- function(mpds) {
-  
-  names(mpds) <- tolower(names(mpds))
-  
-  for (name in names(mpds)) {
-    
-    if (!name %in% c("edate", "countryname", "partyname")) {
-      mpds[,name] <- as.numeric(as.character(mpds[,name]))
-    }
-    
-    if (name == "edate") {
-      mpds[,name] <- as.Date(as.character(mpds[,name]), format="%d/%m/%Y")
-    }
-    
-  }
-  
-  return(mpds)
+  return(tbl_df(mpds))
   
 }
 
 
-#' List the available versions of the Manifesto Project's Main Dataset available
+#' List the available versions of the Manifesto Project's Main Dataset
 #' 
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{manifesto.globalenv} is used.
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
-#' @export
+#'
+#' @details
+#' For the available versions of the corpus, see \code{\link{mp_corpusversions}}
+#'
 #' @examples
-#' ## manifesto.listversions()
-manifesto.listversions <- function(apikey=NULL, cache=TRUE) {
+#' \dontrun{mp_coreversions()}
+#' @export
+mp_coreversions <- function(apikey=NULL, cache=TRUE) {
   
-  versions <- viacache(manifestodb.get(kmtype.versions, apikey=apikey),
-                       filename=cachefilename(kmtype.versions),
-                       usecache=cache)
+  versions <- get_viacache(kmtype.versions, apikey=apikey, cache=cache)
   
   return(versions)
 }
 
 
-#' Format ids for web API queru
+#' Format ids for web API queries
 #' 
 #' Formats a data.frame of ids such that it can be used for querying
 #' the Manifesto Project Database. That is, it must have non-NA-fields
@@ -118,43 +93,43 @@ formatids <- function(ids) {
 #' 
 #' @details
 #' Meta data contain information on the available documents for a given party
-#' and election date. This information comprises, language, checksums and links
-#' to the text as well as original documents if available.
+#' and election date. This information comprises links to the text as well as
+#' original documents if available, language, versions checksums and more.
 #' 
 #' @param ids list of partys (as ids) and dates of elections, paired. Dates must
 #'            be given either in the \code{date} or the \code{edate} variable,
 #'            formatted in the way they are in the main data set in this package
-#'            (date: as.numeric, YYYYMM, edate: as.Date())
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{manifesto.globalenv} is used.
+#'            (date: as.numeric, YYYYMM, edate: as.Date()), see \code{\link{mp_maindataset}}
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
-#' @export
+#'              
+#' @return an object of class \code{ManifestoMetadata}, subclassing \code{data.frame}
+#'         as well as \code{\link[dplyr]{tbl_df}} and containing the requested
+#'         metadata in rows per election programme
 #' @examples
-#' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## manifesto.meta(wanted)
-manifesto.meta <- function(ids, apikey=NULL, cache=TRUE) {
-  
+#' \dontrun{
+#' wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+#' mp_metadata(wanted)
+#' }
+#' @export
+mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
+
   # convert ids to parameter list for the api call
-  ids <- formatids(ids)
+  ids <- formatids(ids)  
   
-  # for mergeintocache() the call has a data.frame with ids as argument
-  call <- function(ids) {
-    ids <- paste(ids$party, ids$date, sep="_")
-    parameters <- as.list(ids)
-    names(parameters) <- rep("keys[]", length(parameters))
-    return(manifestodb.get(type = kmtype.meta,
-                           parameters = parameters,
-                           apikey = apikey))
-    
+  metadata <- get_viacache(kmtype.meta,
+                             ids=ids,
+                             cache=cache,
+                             apikey=apikey)
+
+  if (is.null(metadata$manifesto_id)) {
+    metadata$manifesto_id <- rep(NA, times = nrow(metadata))
   }
   
-  metadata <- mergeintocache(call,
-                             filename=cachefilename(kmtype.meta),
-                             ids=ids,
-                             usecache=cache)
-  
+  metadata <- tbl_df(metadata)
+
   class(metadata) <- c("ManifestoMetadata", class(metadata))
   
   return(metadata)
@@ -163,7 +138,7 @@ manifesto.meta <- function(ids, apikey=NULL, cache=TRUE) {
 
 as.metaids <- function(ids, apikey=NULL, cache=TRUE) {
   if ( !("ManifestoMetadata" %in% class(ids)) ) {
-    ids <- manifesto.meta(ids, apikey=apikey, cache=cache)
+    ids <- mp_metadata(ids, apikey=apikey, cache=cache)
   }
   return(ids)
 }
@@ -172,38 +147,50 @@ is.naorstringna <- function(v) {
   return(is.na(v) | v=="NA")
 }
 
-#' Get availability information for election programmes
-#' 
-#' @details
-#' This calls manifest.meta() on the respective ids and hence might add to the
-#' cache!
+#' Availability information for election programmes
 #' 
 #' @param ids Information on which documents to get. This can either be a
 #'            list of partys (as ids) and dates of elections as given to
-#'            \code{\link{manifesto.meta}} or a \code{ManifestoMetadata} object
-#'            (\code{data.frame}) as returned by \code{\link{manifesto.meta}}.
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{manifesto.globalenv} is used.
+#'            \code{\link{mp_metadata}} or a \code{ManifestoMetadata} object
+#'            (\code{data.frame}) as returned by \code{\link{mp_metadata}}.
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
 #' @return an object of class \code{\link{ManifestoAvailability}}
-#'         containing availability information
-#' @export
+#'         containing availability information. Accessing \code{$availability}
+#'         on it gives a \code{data.frame} with detailed availability information
+#'         per document
 #' @examples
-#' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## avl <- manifesto.availability(wanted)
-#' ## print(avl)
-manifesto.availability <- function(ids, apikey=NULL, cache=TRUE) {
+#' \dontrun{
+#' wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+#' mp_availability(wanted)
+#' }
+#' @export
+mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
   
-  metadata <- as.metaids(ids, apikey=apikey, cache=cache)
+  columns <- c("party", "date", "language", "is_primary_doc",
+               "may_contradict_core_dataset", "annotations")
   
-  availability <- metadata[,c("party", "date", "language", "is_primary_doc",
-                              "may_contradict_core_dataset", "annotations")]
+  metadata <- suppressWarnings(as.metaids(ids, apikey=apikey, cache=cache))
   
+  availability <- select(metadata, one_of(columns))
+
   availability$manifestos <- !is.naorstringna(metadata$manifesto_id)
   availability$originals <- !is.naorstringna(metadata$url_original)
-  
+
+  availability <-
+      ids %>%
+        select(one_of("party", "date")) %>%
+        anti_join(availability, by = c("party", "date")) %>%
+        mutate(manifestos = FALSE,
+               originals = FALSE,
+               annotations  = FALSE,
+               language = NA,
+               is_primary_doc = NA,
+               may_contradict_core_dataset = NA) %>%
+        bind_rows(availability)
+
   availability <- list(query=ids, date=date(), availability=availability)
   class(availability) <- c("ManifestoAvailability", class(availability))
   return(availability)
@@ -212,8 +199,7 @@ manifesto.availability <- function(ids, apikey=NULL, cache=TRUE) {
 
 #' Manifesto Availability Information class
 #' 
-#' Objects returned by \code{\link{manifesto.availability}}. Use
-#' \code{summary} to display information.
+#' Objects returned by \code{\link{mp_availability}}.
 #' 
 #' @details
 #' ManifestoAvailability objects are lists with a key \code{query}, containing
@@ -224,16 +210,17 @@ manifesto.availability <- function(ids, apikey=NULL, cache=TRUE) {
 #' @name ManifestoAvailability
 #' @docType class
 #' @examples
-#' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## avl <- manifesto.availability(wanted)
-#' ## summary(avl)
+#' \dontrun{
+#' wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+#' mp_availability(wanted)
+#' }
 NULL
 
-#' Print availability information of a manifesto document query
-#' 
+#' @method print ManifestoAvailability
 #' @export
-print.ManifestoAvailability <- function(avl) {
+print.ManifestoAvailability <- function(x, ...) {
   
+  avl <- x ## for better readability but S3 consistency of parameters
   decs <- 3
   
   nqueried <- nrow(unique(avl$query)[,c("party", "date")])
@@ -258,69 +245,54 @@ print.ManifestoAvailability <- function(avl) {
                                   " (", Reduce(paste, languages), ")", sep=""))
   
   class(summary) <- c("summaryDefault", "table")
-  return(summary)
+  print(summary)
   
 }
 
-#' Download annotated documents
+#' Get documents from the Manifesto Corpus Database
 #' 
-#' Download annotated documents from the Manifesto Project Corpus Database
+#' Documents are downloaded from the Manifesto Project Corpus Database. If 
+#' CMP coding annotations are available, they are attached to the documents,
+#' otherwise raw texts are provided. The documents are cached in the working
+#' memory to ensure internal consistency, enable offline use and
+#' reduce online traffic.
+#' 
+#' See \code{\link{mp_save_cache}} for ensuring reproducibility by
+#' saving cache and version identifier to the hard drive.
+#' See \code{\link{mp_update_cache}} for updating the locally saved content with
+#' the most recent version from the Manifesto Project Database API.
 #'
 #' @param ids Information on which documents to get. This can either be a
 #'            list of partys (as ids) and dates of elections as given to
-#'            \code{\link{manifesto.meta}} or a \code{ManifestoMetadata} object
-#'            (\code{data.frame}) as returned by \code{\link{manifesto.meta}}.
-#' @param apikey API key to use, defaults to \code{NULL}, which means the key 
-#'               currently stored in the variable \code{apikey} of the
-#'               environment \code{manifesto.globalenv} is used.
+#'            \code{\link{mp_metadata}} or a \code{ManifestoMetadata} object
+#'            (\code{data.frame}) as returned by \code{\link{mp_metadata}}.
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
-#' @return an object of \code{tm Corpus}'s subclass \code{ManifestoCorpus}
+#'              
+#' @return an object of \code{\link[tm]{Corpus}}'s subclass
+#' \code{\link{ManifestoCorpus}} holding the available of the requested documents
 #' @export
 #' @examples
-#' ## wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
-#' ## corpus <- manifesto.corpus(wanted)
-#' ## summary(corpus)
-manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
+#' \dontrun{
+#' wanted <- data.frame(party=c(41320, 41320), date=c(200909, 201309))
+#' mp_corpus(wanted)
+#' 
+#' mp_corpus(subset(mp_maindataset(), countryname == "France"))
+#' 
+#' partially_available <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
+#' mp_corpus(partially_available)
+#' }
+mp_corpus <- function(ids, apikey=NULL, cache=TRUE) {
 
   ids <- as.metaids(ids, apikey=apikey, cache=cache)
 
-  ids <- ids[which(!is.naorstringna(ids$manifesto_id)),]
-  # TODO warn about number of manifesto_ids which are NA ? Or change api?
-
+  ids <- subset(ids, !is.naorstringna(manifesto_id))
+  
   if (nrow(ids) > 0) {
     
-    ids <- ids[order(ids$manifesto_id),]
-    
-    call <- function(ids) {
-      parameters <- as.list(ids$manifesto_id)
-      names(parameters) <- rep("keys[]", length(parameters))
-      
-      texts <- manifestodb.get(type = kmtype.text,
-                              parameters = parameters,
-                               apikey = apikey)
-  
-      ## a list ordering quick fix
-      the.order <- order(texts$manifesto_id)
-      l <- list()
-      for (i in 1:length(the.order)) {
-        l[[i]] <- texts$items[[the.order[i]]]
-      }
-      texts$items <- l
-  
-      for (name in intersect(names(texts), names(ids))) {
-        texts[,name] <- ids[the.order, name]
-      }
-  
-      return(texts)
-  
-    }
-  
-    texts <- mergeintocache(call,
-                            filename=cachefilename(kmtype.text, ids),
-                            ids,
-                            multifile=TRUE,
-                            usecache=cache)
+    texts <- get_viacache(kmtype.text, ids, apikey=apikey, cache=cache)
   
     if (nrow(texts) > 0) {
   
@@ -329,10 +301,12 @@ manifesto.corpus <- function(ids, apikey=NULL, cache=TRUE) {
       the.names <- the.names[which(the.names != "items")]
       
       textToManifestoDocument <- function(idx) {    
-        the.meta <- structure(as.list(texts[idx, the.names]))
+        the.meta <- structure(as.list(left_join(
+          within(texts[idx, the.names], {
+            manifesto_id <- as.integer(manifesto_id)
+          }), ids, by = "manifesto_id")))
         class(the.meta) <- "TextDocumentMeta"
-        
-        items <- texts[idx, "items"][[1]]
+        items <- texts[idx, "items"][[1]][[1]] ## what the hack...
         names(items)[which(names(items)=="content")] <- "text" ## rename from json
         items[which(is.nacode(items$code)),"code"] <- NA
         suppressWarnings( ## string codes might have become factor

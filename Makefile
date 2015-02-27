@@ -1,6 +1,6 @@
 # variables
 pkgname = manifestoR
-pkgversion = 0.6-1
+pkgversion = 0.9-2
 
 # default target
 all: pack check
@@ -11,41 +11,35 @@ workflowvignette: vignettes/manifestoRworkflow.Rmd
 vignettes: workflowvignette
 
 doc:
-	R -e "library(devtools); library(roxygen2); document(clean = TRUE, roclets = c('namespace', 'rd'))"
+	R -e "library(devtools); document()"
 # TODO run roxygen2
 
-pack: doc
+pack: doc test
 	(cd ../; R CMD build $(pkgname))
 
 check:
-	(cd ../; R CMD check $(pkgname)_$(pkgversion).tar.gz --no-tests)
-
+	R -e "library(devtools); check();"
 checktest:
 	(cd ../; R CMD check $(pkgname)_$(pkgversion).tar.gz)
 
 install: all
 	R -e "install.packages('../$(pkgname)_$(pkgversion).tar.gz')"
 	
-test: install cachetest metadatatest corpustest
-
-cachetest: 
-	(cd tests; R -f cache.R)
+test:
+	R -e "library(devtools); library(testthat); test()"
 	
-metadatatest: 
-	(cd tests; R -f metadata.R)
-	
-corpustest:
-	(cd tests; R -f corpus.R)
+scalingtest:
+	(cd tests; R -f scaling.R)
 	
 withvignettes: vignettes all
 
 pushdeploy:
 	git checkout deploy
-	git merge master
+	git merge v0.9
 	git rm -f --ignore-unmatch man/*
 	make doc
 	git add -f NAMESPACE
 	git add -f man/*
 	git commit -m "Auto-creation of documentation"
 	git push origin deploy	
-	git checkout master
+	git checkout v0.9
