@@ -94,13 +94,10 @@ test_that("versioning is respected in cache", {
   
   oldversion <- "20150218100957"
   suppressWarnings(mp_use_corpus_version(oldversion))
-  avl_old <- suppressWarnings(mp_availability(mp_maindataset()))
-  mp_save_cache()
+  mp_save_cache() ## cache is used to store only the version number
 
   mp_update_cache()
   avl <- suppressWarnings(mp_availability(mp_maindataset()))
-  expect_true(sum(avl$availability$annotations) >
-                sum(avl_old$availability$annotations))
 
   mp_load_cache()
   avl_cache <- suppressWarnings(mp_availability(mp_maindataset()))

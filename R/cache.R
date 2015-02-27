@@ -203,6 +203,15 @@ mp_use_corpus_version <- function(versionid, apikey=NULL) {
       } else {
         newmeta <- meta_from_cache
       }
+
+
+      if (!("md5sum_text" %in% names(meta_from_cache))) {
+        meta_from_cache <- mutate(meta_from_cache, md5sum_text = NA)
+      }
+      if (!("md5sum_text" %in% names(newmeta))) {
+        newmeta <- mutate(newmeta, md5sum_text = NA)
+      }
+
       assign(kmetadata, newmeta, envir = new_cache)        
 
     }
