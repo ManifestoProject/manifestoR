@@ -8,7 +8,7 @@ cache_vname <- function(party, date, manifesto_id) {
 
 check_cache_mapping <- function(doc) {
   vname <- cache_vname(meta(doc, "party"), meta(doc, "date"), meta(doc, "manifesto_id"))
-  cachedoc <- get(vname, envir = mp_cache)
+  cachedoc <- get(vname, envir = mp_cache())
   expect_equal(head(cachedoc$items[[1]]$content), head(content(doc)))
 }
 
@@ -36,7 +36,7 @@ test_that("caching of corpus works correctly", {
   ## check that corpus parts are now in cache
   corpids <- mp_metadata(subset(mp_availability(swe)$availability, annotations))
   vnames <- cache_vname(corpids$party, corpids$date, corpids$manifesto_id)
-  expect_true(all(exists(vnames, envir = mp_cache)))
+  expect_true(all(exists(vnames, envir = mp_cache())))
   
   ## check that mapping of ids and texts is the same in corpus and cache
   lapply(content(corpswe), check_cache_mapping)

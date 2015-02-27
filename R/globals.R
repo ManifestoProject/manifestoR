@@ -1,5 +1,8 @@
 mp_globalenv <- new.env()
-mp_cache <- new.env(parent = emptyenv())
+assign("mp_cache", new.env(parent = emptyenv()), envir = mp_globalenv)
+mp_cache <- function() {
+  get("mp_cache", envir = mp_globalenv)
+}
 
 kcachelocation <- "cachelocation"
 kapikey <- "apikey"

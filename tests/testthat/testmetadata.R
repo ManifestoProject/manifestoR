@@ -20,7 +20,7 @@ test_that("simple metadata download works", {
   before_caching <- capture.output(metadata <- mp_metadata(wanted))
   metadata_as_request(wanted, metadata)
   
-  metadatacache <- get(kmetadata, envir = mp_cache)
+  metadatacache <- get(kmetadata, envir = mp_cache())
   metadata_as_request(wanted, metadatacache)
   
   after_caching <- capture.output(metadata <- mp_metadata(wanted))
@@ -33,13 +33,13 @@ test_that("simple metadata download works", {
 
 test_that("metadata download half cache/half new works", {
   
-  oldcache <- get(kmetadata, envir = mp_cache)
+  oldcache <- get(kmetadata, envir = mp_cache())
   
   wanted2 <- data.frame(party=c(41320, 41320), date=c(200909, 200209))
   metadata2 <- mp_metadata(wanted2)
   metadata_as_request(wanted2, metadata2)
   
-  newcache <- get(kmetadata, envir = mp_cache)
+  newcache <- get(kmetadata, envir = mp_cache())
   
   expect_equal(nrow(newcache), nrow(oldcache) +
                  nrow(anti_join(wanted2, oldcache, by = c("party", "date"))))
@@ -61,14 +61,14 @@ test_that("get metadata based on main data set works", {
 
 test_that("disabled cache does not change metadata cache", {
   
-  oldcache <- get(kmetadata, envir = mp_cache)
+  oldcache <- get(kmetadata, envir = mp_cache())
   
   mpds <- mp_maindataset()
   wanted <- subset(mpds, countryname == "Norway")
   newmeta <- mp_metadata(wanted, cache = FALSE)
   metadata_as_request(wanted, newmeta)
   
-  newcache <- get(kmetadata, envir = mp_cache)
+  newcache <- get(kmetadata, envir = mp_cache())
     
   expect_equal(length(base::setdiff(oldcache, newcache)), 0)
   

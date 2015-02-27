@@ -21,11 +21,11 @@ clear_env <- function(env) {
 single_var_caching <- function(varname, call, cache = TRUE) {
   
   if (cache) {
-    if (exists(varname, envir = mp_cache)) {
-      data <- get(varname, envir = mp_cache)
+    if (exists(varname, envir = mp_cache())) {
+      data <- get(varname, envir = mp_cache())
     } else {
       data <- call()
-      assign(varname, data, envir = mp_cache)
+      assign(varname, data, envir = mp_cache())
     }
   } else {
     data <- call()
@@ -41,7 +41,7 @@ write_multivar_to_cache <- function(df, ids) {
   sapply(df$manifesto_id, function(id) {
     
     vname <- ids$cache_varname[which(ids$manifesto_id == id)]
-    assign(vname, subset(df, manifesto_id == id), envir = mp_cache)
+    assign(vname, subset(df, manifesto_id == id), envir = mp_cache())
     
   })
   
@@ -51,7 +51,7 @@ read_multivar_from_cache <- function(varnames) {
   
   Reduce(function(df, id) {
       
-      bind_rows(df, get(id, envir = mp_cache))
+      bind_rows(df, get(id, envir = mp_cache()))
       
     },
     varnames,
@@ -65,7 +65,7 @@ multi_var_caching <- function(ids, get_fun, varname_fun,
   
   ids <- within(ids, {
      cache_varname <- varname_fun(ids)
-     is_cached <- sapply(cache_varname, Curry(exists, envir = mp_cache))
+     is_cached <- sapply(cache_varname, Curry(exists, envir = mp_cache()))
   })
   
   fromcache <- read_multivar_from_cache(subset(ids, is_cached)$cache_varname)
@@ -88,10 +88,10 @@ table_caching <- function(varname, fun, ids,
   if (cache) {
     
     ## load cache, create if !exists
-    if (!exists(varname, envir = mp_cache)) {
-      assign(varname, filter(ids, FALSE), envir = mp_cache)
+    if (!exists(varname, envir = mp_cache())) {
+      assign(varname, filter(ids, FALSE), envir = mp_cache())
     }
-    cachedata <- get(varname, envir = mp_cache)
+    cachedata <- get(varname, envir = mp_cache())
     
     ## check which ids are and are not already in cache
     datatoget <- anti_join(ids, cachedata, by = id.names)
@@ -106,7 +106,7 @@ table_caching <- function(varname, fun, ids,
         
         ## write missings to cache
         cachedata <- bind_rows(cachedata, requested)
-        assign(varname, cachedata, envir = mp_cache)
+        assign(varname, cachedata, envir = mp_cache())
         
         ## return all the requested ids
         data <- bind_rows(requested, datafromcache) 
@@ -155,7 +155,7 @@ table_caching <- function(varname, fun, ids,
 #' @export
 mp_check_for_corpus_update <- function(apikey = NULL) {
   
-  cacheversion <- getn(kmetaversion, envir = mp_cache)
+  cacheversion <- getn(kmetaversion, envir = mp_cache())
   dbversion <- last(mp_corpusversions(apikey = apikey))
   
   return(list(update_available = (is.null(kmetaversion) || (cacheversion != dbversion)),
@@ -180,7 +180,7 @@ mp_check_for_corpus_update <- function(apikey = NULL) {
 #' @export
 mp_use_corpus_version <- function(versionid, apikey=NULL) {
   
-  cache_versionid <- getn(kmetaversion, envir = mp_cache)
+  cache_versionid <- getn(kmetaversion, envir = mp_cache())
   
   if (is.null(cache_versionid) || versionid != cache_versionid) {
 
@@ -188,8 +188,8 @@ mp_use_corpus_version <- function(versionid, apikey=NULL) {
     new_cache <- new.env()
     assign(kmetaversion, versionid, envir = new_cache)
 
-    meta_from_cache <- getn(kmetadata, envir = mp_cache)
-    texts_in_cache <- manifestos_in_cache(mp_cache)
+    meta_from_cache <- getn(kmetadata, envir = mp_cache())
+    texts_in_cache <- manifestos_in_cache(mp_cache())
 
     if (!is.null(meta_from_cache)) {
 
@@ -226,10 +226,10 @@ mp_use_corpus_version <- function(versionid, apikey=NULL) {
     }    
 
     ## copy other cache content
-    copy_to_env(setdiff(ls(envir = mp_cache),
+    copy_to_env(setdiff(ls(envir = mp_cache()),
                         c(kmetaversion, kmetadata,
                           texts_in_cache[-texts_in_cache$download]$vname)),
-                mp_cache, new_cache)
+                mp_cache(), new_cache)
  
     mp_load_cache(new_cache)
 
@@ -244,7 +244,7 @@ mp_use_corpus_version <- function(versionid, apikey=NULL) {
   
 }
 
-manifestos_in_cache <- function(cache_env = mp_cache) {
+manifestos_in_cache <- function(cache_env = mp_cache()) {
 
   re <- paste0(ktextname, "_(\\d+)_(\\d+)_.*")
   
@@ -300,15 +300,15 @@ get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
     if (is.null(versionid)) {
       
       ## check for versionid in cache
-      if (exists(kmetaversion, envir = mp_cache)) {
+      if (exists(kmetaversion, envir = mp_cache())) {
         
-        versionid <- get(kmetaversion, envir = mp_cache)
+        versionid <- get(kmetaversion, envir = mp_cache())
         
       } else {
         
         ## TODO: try to keep the cache content in sync with the stored versionid!
         versionid <- last(mp_corpusversions(...))
-        assign(kmetaversion, versionid, envir = mp_cache)
+        assign(kmetaversion, versionid, envir = mp_cache())
         
       }    
       
@@ -374,7 +374,7 @@ get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
 #' ## mp_emptycache()
 #' 
 mp_emptycache <- function() {
-  clear_env(mp_cache)
+  clear_env(mp_cache())
 }
 
 #' List the available versions of the Manifesto Project's Corpus
@@ -406,8 +406,25 @@ mp_corpusversions <- function(apikey=NULL) {
 #' 
 #' @export
 mp_load_cache <- function(cache = NULL, file = "mp_cache.RData") {
+  
+  tmp_env <- new.env()
+  
   if (is.null(cache)) {
-    cache <- load(file)
+    load(file, envir = tmp_env)
+  } else {
+    assign("mp_cache", cache, envir = tmp_env)
   }
-  mp_cache <<- cache
+  
+  assign("mp_cache", get("mp_cache", envir = tmp_env), envir = mp_globalenv)
+}
+
+#' Save the manifesto Cache
+#' 
+#' TODO document
+#' 
+#' @export
+mp_save_cache <- function(mp_cache = mp_cache(), file = "mp_cache.RData") {
+  
+  save("mp_cache", file = file)
+  
 }
