@@ -42,7 +42,6 @@ test_that("specifying and updating versions works", {
 
 test_that("downgrading of corpus and metadata works", {
   
-  
   mp_update_cache() ## definitely newer than olderversion
   gercorp <- suppressWarnings(mp_corpus(subset(mp_maindataset(), countryname == "Germany")))
   avl <- suppressWarnings(mp_availability(mp_maindataset()))
@@ -61,5 +60,3 @@ test_that("downgrading of corpus and metadata works", {
               sum(avl_old$availability$annotations))
 
 })
-
-## TODO test loading cache from file in testcache.R

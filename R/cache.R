@@ -86,49 +86,49 @@ table_caching <- function(varname, fun, ids,
   ids <- select(ids, one_of(id.names))
   
   if (cache) {
-    
+
     ## load cache, create if !exists
     if (!exists(varname, envir = mp_cache())) {
       assign(varname, filter(ids, FALSE), envir = mp_cache())
     }
     cachedata <- get(varname, envir = mp_cache())
-    
+
     ## check which ids are and are not already in cache
     datatoget <- anti_join(ids, cachedata, by = id.names)
     datafromcache <- semi_join(cachedata, ids, by = id.names)
-    
+
     if (nrow(datatoget) > 0) {
-      
+
       ## get missing ids
       requested <- fun(datatoget)
-      
+
       if (nrow(datatoget) > 0) {
-        
+
         ## write missings to cache
         cachedata <- bind_rows(cachedata, requested)
         assign(varname, cachedata, envir = mp_cache())
-        
+
         ## return all the requested ids
         data <- bind_rows(requested, datafromcache) 
-        
+
       } else { ## only invalid queries
-        
+
         data <- datafromcache
-        
+
       }
  
     } else {
-      
+
       data <- datafromcache
 
     }
-    
+
   } else {
     data <- fun(ids)
   }
   
   return(data)
-  
+
 }
 
 #' Check for Updates of Corpus in Manifesto Project DB
@@ -375,6 +375,7 @@ get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
 #' 
 mp_emptycache <- function() {
   clear_env(mp_cache())
+  return()
 }
 
 #' List the available versions of the Manifesto Project's Corpus
@@ -423,8 +424,8 @@ mp_load_cache <- function(cache = NULL, file = "mp_cache.RData") {
 #' TODO document
 #' 
 #' @export
-mp_save_cache <- function(mp_cache = mp_cache(), file = "mp_cache.RData") {
-  
-  save("mp_cache", file = file)
+mp_save_cache <- function(file = "mp_cache.RData") {
+    
+  save("mp_cache", file = file, envir = mp_globalenv)
   
 }

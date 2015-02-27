@@ -131,7 +131,7 @@ formatmpds <- function(mpds) {
 #' @param body body text of the posted request: should contain the parameters
 #' as specified by the Manifesto Project Database API
 mpdb_api_request <- function(file, body) {
-        
+
   response <- httr::POST(url=paste0(kmurl.apiroot, file),
                          body=body)
   content <- httr::content(response, as="text")
