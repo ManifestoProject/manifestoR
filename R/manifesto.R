@@ -101,6 +101,10 @@ formatids <- function(ids) {
 #'            be given either in the \code{date} or the \code{edate} variable,
 #'            formatted in the way they are in the main data set in this package
 #'            (date: as.numeric, YYYYMM, edate: as.Date()), see \code{\link{mp_maindataset}}
+#'        Alternatively, ids can be a logical expression specifying a subset of
+#'        the Manifesto Project's main dataset. It will be evaluated within the
+#'        data.frame returned by \code{\link}{mp_maindataset()} such that all its
+#'        variables and functions thereof can be used in the expression.
 #' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
 #'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
@@ -111,6 +115,8 @@ formatids <- function(ids) {
 #'         metadata in rows per election programme
 #' @examples
 #' \dontrun{
+#' mp_metadata(party == 21221)
+#' 
 #' wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
 #' mp_metadata(wanted)
 #' }
@@ -179,6 +185,10 @@ is.naorstringna <- function(v) {
 #'            list of partys (as ids) and dates of elections as given to
 #'            \code{\link{mp_metadata}} or a \code{ManifestoMetadata} object
 #'            (\code{data.frame}) as returned by \code{\link{mp_metadata}}.
+#'        Alternatively, ids can be a logical expression specifying a subset of
+#'        the Manifesto Project's main dataset. It will be evaluated within the
+#'        data.frame returned by \code{\link}{mp_maindataset()} such that all its
+#'        variables and functions thereof can be used in the expression.
 #' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
 #'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
@@ -189,6 +199,8 @@ is.naorstringna <- function(v) {
 #'         per document
 #' @examples
 #' \dontrun{
+#' mp_availability(countryname == "New Zealand")
+#' 
 #' wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
 #' mp_availability(wanted)
 #' }
@@ -301,6 +313,10 @@ print.ManifestoAvailability <- function(x, ...) {
 #'            list of partys (as ids) and dates of elections as given to
 #'            \code{\link{mp_metadata}} or a \code{ManifestoMetadata} object
 #'            (\code{data.frame}) as returned by \code{\link{mp_metadata}}.
+#'        Alternatively, ids can be a logical expression specifying a subset of
+#'        the Manifesto Project's main dataset. It will be evaluated within the
+#'        data.frame returned by \code{\link}{mp_maindataset()} such that all its
+#'        variables and functions thereof can be used in the expression.
 #' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
 #'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
@@ -311,6 +327,8 @@ print.ManifestoAvailability <- function(x, ...) {
 #' @export
 #' @examples
 #' \dontrun{
+#' corpus <- mp_corpus(party == 61620 & rile > 10)
+#' 
 #' wanted <- data.frame(party=c(41320, 41320), date=c(200909, 201309))
 #' mp_corpus(wanted)
 #' 
