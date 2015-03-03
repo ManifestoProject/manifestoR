@@ -98,6 +98,20 @@ test_that("availability summary works", {
 
 })
 
+test_that("non-standard evaluation for metadata works", {
+  
+  nse_meta <- mp_metadata(party == 64901, cache = FALSE)
+  metadata_as_request(subset(mp_maindataset(), party == 64901),
+                      nse_meta)
+  
+  nse_avl <- mp_availability(party == 61620, cache = FALSE)
+  metadata_as_request(subset(mp_maindataset(), party == 61620),
+                      nse_avl$availability,
+                      expected_names = c("party", "date", "annotations",
+                                         "manifestos", "originals"))
+  
+})
+
 # ## get documents based on an old core data set version
 # # TODO This test is currently disabled, until the database formats are fixed
 # # mpdsold <- mp_maindataset("MPPI")
