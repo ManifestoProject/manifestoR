@@ -1,13 +1,14 @@
 ---
 title: "The workflow with the manifestoR package"
 author: "Jirka Lewandowski <jirka.lewandowski@wzb.eu>"
-date: "27.08.2014"
+date: "03/03/2015"
 output:
+  pdf_document:
+    toc: yes
+    number_sections: yes
   html_document:
     keep_md: yes
     number_sections: yes
-    toc: yes
-  pdf_document:
     toc: yes
 ---
 
@@ -16,15 +17,8 @@ output:
 
 First of all, load the `manifestoR` package with the usual R syntax:
 
-```{r eval=FALSE}
+```{r}
 library(manifestoR)
-```
-
-```{r eval=TRUE, include=FALSE, echo=TRUE}
-library(manifestoR)
-```
-```{r eval=FALSE, include=FALSE}
-mp_emptycache()
 ```
 
 # How to connect to the Manifesto Corpus database
@@ -33,20 +27,25 @@ To access the data in the Manifesto Corpus, an account for the Manifesto Project
 webpage with an API key is required.
 If you do not yet have an account, you can create one at 
 [](https://manifesto-project.wzb.eu/signup).
-When you have an account, you can create the API key on your profile page.
+If you have an account, you can create and download the API key on your profile page.
+
 For every R session using manifestoR and connecting to the Manifesto Corpus database,
 you need to set the API key in your work environment.
 This can be done by passing either a key or the name of a file containing the
-key to the `mp_setapikey()` function (see documentation for details).
+key to manifestoR's `mp_setapikey()` function (see documentation `?mp_setapikey`
+for details).
 Thus, your R script using manifestoR usually will start like this:
 
 ```{r eval=FALSE}
 library(manifestoR)
-mp_setapikey(key.file = "manifesto_apikey.txt")
+mp_setapikey("manifesto_apikey.txt")
 ```
 ```{r eval=TRUE, include=FALSE}
 mp_setapikey(key.file = "../tests/manifesto_apikey.txt")
 ```
+
+This code presumes that you have stored and downloaded the API key in a file
+name `manifesto_apikey.txt` in your current R working directory.
 
 Note that it is a security risk to store the API key file or a script containing
 the key in public repositories.
@@ -54,23 +53,27 @@ the key in public repositories.
 # How to download documents and document sets
 
 Downloading documents works via the function `mp_corpus(...)`.
-It takes a `data.frame` listing combinations of party ids and election
-dates and returns a `ManifestoCorpus` object, a subtype of the `Corpus` defined
-in the package `tm`:
+It can be called with a logical expression specifying the subset of the Manifesto
+Corpus that you want to download:
 
-```{r warning=FALSE}
-wanted <- data.frame(party=c(41320, 41220), date=c(200909, 200909))
-corpus <- mp_corpus(wanted)
-print(corpus)
-head(content(corpus[[1]]))
+```{r}
+my_corpus <- mp_corpus(countryname == "Austria" & edate > as.Date("2000-01-01"))
 ```
 
-Note that we received only 1 document, while querying for two.
-This is because the party with the id 41220 (KPD) did not run for elections
-in September 2009.
-Also, not for every party and election data manifesto documents are availabe in the Manifesto Project Corpus.
-You can check availability of your query beforehand with the function
-`mp_availability(...)`.
+The variable names in the logical expression can be any column names from the
+Manifesto Project's Main Dataset or your current R environment. The Main Dataset
+itself is available in manifestoR via the funcion `mp_maindataset()`:
+
+```{r}
+mpds <- mp_maindataset()
+print(head(names(mpds)))
+```
+
+Alternatively, you can download election programmes on an individual basis
+by listing combinations of party ids and election dates in a `data.frame`
+and passing it to `mp_corpus(...)`:
+
+and returns a `ManifestoCorpus` object.
 
 The `mp_corpus` function also understands several other formats of
 input arguments, for details refer to its documentation.
@@ -94,10 +97,26 @@ print(corpus)
 Note how you can use subsets of the main data set directly for querying the corpus
 database, since they are already in the right format.
 
+```{r warning=FALSE}
+wanted <- data.frame(party=c(41320, 41220), date=c(200909, 200909))
+corpus <- mp_corpus(wanted)
+print(corpus)
+head(content(corpus[[1]]))
+```
+
+Note that we received only 1 document, while querying for two.
+This is because the party with the id 41220 (KPD) did not run for elections
+in September 2009.
+Also, not for every party and election data manifesto documents are availabe in the Manifesto Project Corpus.
+
+
 Downloaded documents are automatically cached locally. To learn about
 the caching mechanism read the section
 [Understanding manifestoR's caching mechanism](#understanding-manifestors-caching-mechanism)
-below.
+below. TODO
+
+You can check availability of your query beforehand with the function
+`mp_availability(...)`. TODO
 
 # Working with the CMP codings
 
