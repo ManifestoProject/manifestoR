@@ -41,11 +41,7 @@ test_that("corpus and document scaling works", {
 
   scaling_as_expected(corp, rile, "rile")
 #   scaling_as_expected(corp, logit_rile, "logit_rile")
-  scaling_as_expected(corp, planeco, "planeco")
-  scaling_as_expected(corp, markeco, "markeco")
-  scaling_as_expected(corp, intpeace, "intpeace")
-  scaling_as_expected(corp, welfare, "welfare")
-  
+
 })
 
 
