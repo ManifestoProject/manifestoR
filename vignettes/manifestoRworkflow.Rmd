@@ -12,8 +12,9 @@ output:
     toc: yes
 ---
 
+# Downloading documents from the Manifesto Corpus
 
-# Loading the package
+## Loading the package
 
 First of all, load the `manifestoR` package with the usual R syntax:
 
@@ -21,7 +22,7 @@ First of all, load the `manifestoR` package with the usual R syntax:
 library(manifestoR)
 ```
 
-# How to connect to the Manifesto Corpus database
+## Connecting to the Manifesto Project Database API
 
 To access the data in the Manifesto Corpus, an account for the Manifesto Project
 webpage with an API key is required.
@@ -50,7 +51,7 @@ name `manifesto_apikey.txt` in your current R working directory.
 Note that it is a security risk to store the API key file or a script containing
 the key in public repositories.
 
-# How to download documents and document sets
+## (Bulk-)downloading documents
 
 Downloading documents works via the function `mp_corpus(...)`.
 It can be called with a logical expression specifying the subset of the Manifesto
@@ -117,7 +118,9 @@ the caching mechanism read the section
 [Understanding manifestoR's caching mechanism](#understanding-manifestors-caching-mechanism)
 below.
 
-# Working with the CMP codings
+# Processing and analysing the corpus documents
+
+## Working with the CMP codings
 
 The central way for accessing the CMP codings is the accessor method `codes(...)`.
 It can be called on `ManifestoDocument`s and `ManifestoCorpus`s and returns a vector
@@ -141,8 +144,6 @@ length(doc_subcodes)/length(doc)
 
 The CMP coding scheme can be found in the online documentation of the Manifesto
 Project dataset at [https://manifesto-project.wzb.eu/coding_schemes/1]().
-
-# Processing the corpus documents
 
 ## Text mining tools
 
