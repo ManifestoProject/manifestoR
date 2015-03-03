@@ -69,13 +69,14 @@ mp_coreversions <- function(apikey=NULL, cache=TRUE) {
 #' @param ids ids data.frame, information used: party, date, edate
 formatids <- function(ids) {
   
+  
   names(ids) <- tolower(names(ids))
   ids <- ids[,intersect(c("party", "date", "edate"), names(ids))]
   
   suppressWarnings({
     nodate.idxs <- which(is.null(ids$date) | is.na(ids$date))
-    ids$date[nodate.idxs] <- as.numeric(format(ids[nodate.idxs,
-                                                   "edate"], format="%Y%m"))
+    ids$date[nodate.idxs] <- as.numeric(format(ids[nodate.idxs,]$edate,
+                                               format="%Y%m"))
   })
   
   n.before <- nrow(ids)
@@ -116,6 +117,17 @@ formatids <- function(ids) {
 #' @export
 mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
 
+  ## non standard evaluation handling
+  ## one frame up is where the user was if we did not get a data.frame
+
+  id_is_df <- tryCatch(is.data.frame(ids), error = function(e) { FALSE } )
+  
+  if (!id_is_df) {
+    ids <- mp_maindataset()[eval(substitute(ids),
+                                 envir = mp_maindataset(),
+                                 enclos = parent.frame()),]
+  }
+
   # convert ids to parameter list for the api call
   ids <- formatids(ids)  
   
@@ -136,7 +148,21 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
   
 }
 
+## ids must be quoted for this function
 as.metaids <- function(ids, apikey=NULL, cache=TRUE) {
+
+  ## non standard evaluation handling
+  ## two frames up is where the user was, as.metaids is not exported
+  
+  id_is_df <- tryCatch(is.data.frame(eval(ids, envir = parent.frame(n = 2))), error = function(e) { FALSE } )
+
+  if (id_is_df) {
+    ids <- eval(ids, envir = parent.frame(n = 2))
+  } else {
+    ids <- mp_maindataset()[eval(ids, envir = mp_maindataset(),
+                                 enclos = parent.frame(n = 2)),]
+  } 
+
   if ( !("ManifestoMetadata" %in% class(ids)) ) {
     ids <- mp_metadata(ids, apikey=apikey, cache=cache)
   }
@@ -172,7 +198,16 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
   columns <- c("party", "date", "language", "is_primary_doc",
                "may_contradict_core_dataset", "annotations")
   
-  metadata <- suppressWarnings(as.metaids(ids, apikey=apikey, cache=cache))
+  metadata <- suppressWarnings(as.metaids(substitute(ids), apikey=apikey, cache=cache))
+  
+  ## handler for non standard evaluation: convert ids to subset of maindataset
+  ## one frame up is where the user was if we did not get a data.frame
+  id_is_df <- tryCatch(is.data.frame(ids), error = function(e) { FALSE } )
+  if (!id_is_df) {
+    ids <- mp_maindataset()[eval(substitute(ids),
+                                 envir = mp_maindataset(),
+                                 enclos = parent.frame()),]
+  }
   
   availability <- select(metadata, one_of(columns))
 
@@ -286,9 +321,9 @@ print.ManifestoAvailability <- function(x, ...) {
 #' }
 mp_corpus <- function(ids, apikey=NULL, cache=TRUE) {
 
-  ids <- as.metaids(ids, apikey=apikey, cache=cache)
+  ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache)
 
-  ids <- subset(ids, !is.naorstringna(manifesto_id))
+  ids <- base::subset(ids, !is.naorstringna(manifesto_id))
   
   if (nrow(ids) > 0) {
     

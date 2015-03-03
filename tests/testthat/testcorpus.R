@@ -27,6 +27,22 @@ test_that("simple corpus download works", {
   
 })
 
+test_that("non-standard evaluation corpus download works", {
+  
+  partycorp <- mp_corpus(party == 80510)
+  expect_is(partycorp, c("ManifestoCorpus", "Corpus"))
+  expect_equal(length(partycorp), nrow(subset(mp_availability(
+    subset(mp_maindataset(), party == 80510))$availability,
+    manifestos)))  
+  
+  rilecorp <- mp_corpus(rile > 40.0 & edate > as.Date("2000-01-01"))
+  expect_is(rilecorp, c("ManifestoCorpus", "Corpus"))
+  expect_equal(length(rilecorp), nrow(subset(mp_availability(
+    subset(mp_maindataset(), rile > 40.0 & edate > as.Date("2000-01-01")))$availability,
+    manifestos)))
+  
+})
+
 test_that("caching of corpus works correctly", {
   
   mpds <- mp_maindataset()
