@@ -18,7 +18,7 @@ kmurl.apiroot <- "https://manifesto-project.wzb.eu/tools/"
 #' @param key new API key
 #' @param key.file file name containing the API key
 #' @export
-mp_setapikey <- function(key = NA, key.file = NULL) {
+mp_setapikey <- function(key.file = NULL, key = NA) {
   if (!is.null(key.file)) {
     tryCatch({
       fl <- file(key.file)
@@ -28,7 +28,7 @@ mp_setapikey <- function(key = NA, key.file = NULL) {
   }
   assign(kapikey, key, envir = mp_globalenv)
 }
-mp_setapikey(NA)
+mp_setapikey(key = NA)
 
 toamplist <- function(params) {
   pairs <- paste(names(params), params, sep="=")

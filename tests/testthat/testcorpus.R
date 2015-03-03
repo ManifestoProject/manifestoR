@@ -1,4 +1,4 @@
-mp_setapikey(key.file = "../manifesto_apikey.txt")
+mp_setapikey("../manifesto_apikey.txt")
 
 mp_emptycache()
 

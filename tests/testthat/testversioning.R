@@ -1,4 +1,5 @@
-mp_setapikey(key.file = "../manifesto_apikey.txt")
+api_key <- readChar("../manifesto_apikey.txt", nchars = 32)
+mp_setapikey(key = api_key)
 
 mp_emptycache()
 
