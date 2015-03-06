@@ -64,15 +64,15 @@ separate_missings <- function(robj, request="") {
     
     if (request == "metadata") {
         
-#       split <- strsplit(misskey, "_")
-#       party_id <- split[[1]][1]
-#       election_date <- split[[1]][2]
-#       
-#       warning(paste("No ", request, " information for party ", party_id,
-#                     " at election date ", election_date,
-#                     " in the Manifesto Project database! ",
-#                     "Please verify correctness of you query.",
-#                     sep=""))
+      split <- strsplit(misskey, "_")
+      party_id <- split[[1]][1]
+      election_date <- split[[1]][2]
+      
+      warning(paste("No ", request, " information for party ", party_id,
+                    " at election date ", election_date,
+                    " in the Manifesto Project database! ",
+                    "Please verify correctness of you query.",
+                    sep=""))
     } else if (request == "text") {
       
       warning(paste0("No document found with id ", misskey, ". ",
