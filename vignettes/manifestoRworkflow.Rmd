@@ -197,11 +197,11 @@ To save time and network traffic, `manifestoR` caches all downloaded data and
 documents in your computer's working memory and connects to the online database
 only when data is required that has not been downloaded before.
 
-```{r include=FALSE}
+```{r eval=TRUE, include=FALSE}
 mp_emptycache()
 ```
 
-```{r eval=FALSE}
+```{r message=TRUE, warning=FALSE}
 corpus <- mp_corpus(wanted)
 subcorpus <- mp_corpus(wanted[3:7,])
 ```
