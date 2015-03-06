@@ -103,7 +103,7 @@ formatids <- function(ids) {
 #'            (date: as.numeric, YYYYMM, edate: as.Date()), see \code{\link{mp_maindataset}}
 #'        Alternatively, ids can be a logical expression specifying a subset of
 #'        the Manifesto Project's main dataset. It will be evaluated within the
-#'        data.frame returned by \code{\link}{mp_maindataset()} such that all its
+#'        data.frame returned by \code{\link{mp_maindataset}} such that all its
 #'        variables and functions thereof can be used in the expression.
 #' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
 #'        the API key set via \code{\link{mp_setapikey}}.
@@ -187,7 +187,7 @@ is.naorstringna <- function(v) {
 #'            (\code{data.frame}) as returned by \code{\link{mp_metadata}}.
 #'        Alternatively, ids can be a logical expression specifying a subset of
 #'        the Manifesto Project's main dataset. It will be evaluated within the
-#'        data.frame returned by \code{\link}{mp_maindataset()} such that all its
+#'        data.frame returned by \code{\link{mp_maindataset}} such that all its
 #'        variables and functions thereof can be used in the expression.
 #' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
 #'        the API key set via \code{\link{mp_setapikey}}.
@@ -315,7 +315,7 @@ print.ManifestoAvailability <- function(x, ...) {
 #'            (\code{data.frame}) as returned by \code{\link{mp_metadata}}.
 #'        Alternatively, ids can be a logical expression specifying a subset of
 #'        the Manifesto Project's main dataset. It will be evaluated within the
-#'        data.frame returned by \code{\link}{mp_maindataset()} such that all its
+#'        data.frame returned by \code{\link{mp_maindataset}} such that all its
 #'        variables and functions thereof can be used in the expression.
 #' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
 #'        the API key set via \code{\link{mp_setapikey}}.
