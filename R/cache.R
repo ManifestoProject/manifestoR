@@ -158,9 +158,24 @@ mp_check_for_corpus_update <- function(apikey = NULL) {
   cacheversion <- getn(kmetaversion, envir = mp_cache())
   dbversion <- last(mp_corpusversions(apikey = apikey))
   
-  return(list(update_available = (is.null(kmetaversion) || (cacheversion != dbversion)),
+  return(list(update_available = (is.null(cacheversion) || (cacheversion != dbversion)),
               versionid = dbversion))
 
+}
+
+#' @rdname corpusupdate
+#' @return \code{mp_which_corpus_version} returns the current version id of the
+#' corpus and metadata stored in the cache
+#' @export
+mp_which_corpus_version <- function() {
+  
+  cacheversion <- getn(kmetaversion, envir = mp_cache())
+  
+  if (is.null(cacheversion)) {
+    return(NA)
+  } else {
+    return(cacheversion)
+  }
 }
 
 #' Use a specific version of the Manifesto Project Corpus

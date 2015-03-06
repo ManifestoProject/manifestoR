@@ -241,7 +241,8 @@ mp_update_cache()
 
 For more detailed information on the caching mechanism and on how to use and load
 specific snapshots of the Manifesto Corpus, refer to the R documentations of the
-functions mentioned here as well `mp_use_corpus_version`, `mp_corpusversions`
+functions mentioned here as well `mp_use_corpus_version`, `mp_corpusversions`,
+`mp_which_corpus_version`.
 
 
 # Exporting documents

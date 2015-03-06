@@ -15,7 +15,7 @@ test_that("specifying and updating versions works", {
   
   oldversion <- "20150218100957"
   mp_use_corpus_version(oldversion)
-  expect_equal(get(kmetaversion, envir = mp_cache()), oldversion)
+  expect_equal(mp_which_corpus_version(), oldversion)
   
   germeta <- suppressWarnings(mp_metadata(subset(mp_maindataset(), countryname == "Germany")))
   expect_equal(nrow(germeta), 0)
@@ -34,7 +34,7 @@ test_that("specifying and updating versions works", {
   
   
   expect_message(mp_update_cache(), regexp = "\\d+.*updated") ## now we should get 1 updated document
-  expect_equal(get(kmetaversion, envir = mp_cache()), mp_check_for_corpus_update()$versionid)
+  expect_equal(mp_which_corpus_version(), mp_check_for_corpus_update()$versionid)
   expect_false(mp_check_for_corpus_update()$update_available)
   germeta <- suppressWarnings(mp_metadata(subset(mp_maindataset(), countryname == "Germany")))
   expect_more_than(nrow(germeta),0)  
