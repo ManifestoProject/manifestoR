@@ -1,6 +1,6 @@
 # variables
 pkgname = manifestoR
-pkgversion = 0.9-3
+pkgversion = 0.9-4
 
 # default target
 all: pack check
@@ -8,7 +8,7 @@ all: pack check
 doc:
 	R -e "library(devtools); document()"
 	R -e "library(devtools); document()"
-	R -e "library(devtools); install(); builld_vignettes();"
+	R -e "library(devtools); install(); build_vignettes();"
 
 pack: doc test
 	(cd ../; R CMD build $(pkgname))
