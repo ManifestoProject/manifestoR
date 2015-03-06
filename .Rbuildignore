@@ -1,6 +1,7 @@
 notes/
 devel/
 tests/
+vignettes/
 Makefile
 ^.*\.Rproj$
 ^\.Rproj\.user$

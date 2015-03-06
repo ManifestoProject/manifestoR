@@ -11,6 +11,10 @@ output:
     number_sections: yes
     toc: yes
 ---
+<!--
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteIndexEntry{The workflow with the manifestoR package}
+-->
 
 # Downloading documents from the Manifesto Corpus
 
@@ -253,7 +257,7 @@ The function also provides a parameter to include all available metadata in
 the export:
 ```{r}
 doc_df_with_meta <- as.data.frame(doc, with.meta = TRUE)
-print(names(doc_df))
+print(names(doc_df_with_meta))
 ```
 
 Note again that also all functionality provided by `tm`, such as `writeCorpus`
@@ -261,12 +265,15 @@ is available on a `ManifestoCorpus`.
 
 # Additional Information
 
-
-## Contributing to manifestoR
-
-... TODO
-
 ## Contacting the Manifesto Project team
 
-... TODO
+You can get in touch with the Manifesto Project team by e-mailing to
+[manifesto-communication@wzb.eu](mailto:manifesto-communication@wzb.eu).
+We are happy to receive your feedback and answer questions about the Manifesto
+Corpus, including errors or obscurities in the corpus documents as well as bug
+reports, feature requests or (planned) source code contributions for the
+`manifestoR` package.
 
+For general questions about the Project and dataset, please check the
+[Frequently Asked Questions](https://manifesto-project.wzb.eu/questions) section
+on our website first.

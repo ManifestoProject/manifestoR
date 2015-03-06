@@ -19,7 +19,7 @@ Imports:
     functional (>= 0.6)
 Suggests:
     knitr,
-    markdown,
+    rmarkdown,
     testthat
 VignetteBuilder: knitr
 Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R scaling.R renaming.R

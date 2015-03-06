@@ -5,14 +5,10 @@ pkgversion = 0.9-3
 # default target
 all: pack check
 
-workflowvignette: vignettes/manifestoRworkflow.Rmd
-	(cd vignettes; R -e "library(knitr); knit('manifestoRworkflow.Rmd'); library(markdown); markdownToHTML('manifestoRworkflow.md', 'manifestoRworkflow.html')"; pandoc manifestoRworkflow.html -o manifestoRworkflow.pdf)
-
-vignettes: workflowvignette
-
 doc:
 	R -e "library(devtools); document()"
-# TODO run roxygen2
+	R -e "library(devtools); document()"
+	R -e "library(devtools); install(); builld_vignettes();"
 
 pack: doc test
 	(cd ../; R CMD build $(pkgname))
@@ -28,11 +24,6 @@ install: all
 test:
 	R -e "library(devtools); library(testthat); test()"
 	
-scalingtest:
-	(cd tests; R -f scaling.R)
-	
-withvignettes: vignettes all
-
 pushdeploy:
 	git checkout deploy
 	git merge master
@@ -40,6 +31,7 @@ pushdeploy:
 	make doc
 	git add -f NAMESPACE
 	git add -f man/*
+	git add -f inst/doc/*
 	git commit -m "Auto-creation of documentation"
 	git push origin deploy	
 	git checkout master
