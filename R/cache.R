@@ -1,13 +1,13 @@
 wrap_mpdb_call <- function(call) {
   function() {
-    cat("Connecting to Manifesto Project DB API...\n")
+    message("Connecting to Manifesto Project DB API...")
     return(call)
   }
 }
 
 wrap_mpdb_call_with_ids <- function(fun) {
   function(ids) {
-    cat("Connecting to Manifesto Project DB API...\n")
+    message("Connecting to Manifesto Project DB API...")
     return(fun(ids))
   }
 }
