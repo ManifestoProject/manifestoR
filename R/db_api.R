@@ -71,7 +71,6 @@ separate_missings <- function(robj, request="") {
       warning(paste("No ", request, " information for party ", party_id,
                     " at election date ", election_date,
                     " in the Manifesto Project database! ",
-                    "Please verify correctness of you query.",
                     sep=""))
     } else if (request == "text") {
       
