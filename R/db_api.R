@@ -4,6 +4,7 @@ kmerror.keymissing <-
           "account.")
 
 kmurl.apiroot <- "https://manifesto-project.wzb.eu/tools/"
+kmurl.originalsroot <- "https://manifesto-project.wzb.eu"
 
 #' Set the API key for the Manifesto Documents Database.
 #' 

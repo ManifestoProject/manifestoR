@@ -385,3 +385,49 @@ mp_corpus <- function(ids, apikey=NULL, cache=TRUE) {
 is.nacode <- function(x) {
   return(is.na(x) | as.character(x) %in% c("NA", "n.a."))
 }
+
+#' View original documents from the Manifesto Corpus Database
+#' 
+#' Original documents are opened in the system's browser window. All original
+#' documents are stored on the Manifesto Project Website and the URLs opened
+#' are all from this site.
+#' 
+#'
+#' @param ids Information on which originals to view This can either be a
+#'            list of partys (as ids) and dates of elections as given to
+#'            \code{\link{mp_metadata}} or a \code{ManifestoMetadata} object
+#'            (\code{data.frame}) as returned by \code{\link{mp_metadata}}.
+#'        Alternatively, ids can be a logical expression specifying a subset of
+#'        the Manifesto Project's main dataset. It will be evaluated within the
+#'        data.frame returned by \code{\link{mp_maindataset}} such that all its
+#'        variables and functions thereof can be used in the expression.
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
+#' @param cache Boolean flag indicating whether to use locally cached data if
+#'              available. The original documents themselves are not cached locally,
+#'              but the metadata required to find them is.
+#' @param maxn maximum number of documents to open simultaneously in browser,
+#'       defaults to 5.
+#' @examples
+#' \dontrun{
+#' mp_view_originals(party == 41320 & date == 200909)
+#' }
+#' @export
+mp_view_originals <- function(ids, maxn = 5, apikey = NULL, cache = TRUE) {
+  
+  ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache)
+  ids <- subset(ids, !is.na(url_original))
+  
+  if (nrow(ids) > maxn) {
+    warning(paste("Attempt to open more than", maxn,
+                  "URLs in browser prevented. If you are sure that this",
+                  "is what you want, please increase the maxn parameter",
+                  "of mp_view_originals"))
+  } else {
+    for (url in ids$url_original) {
+      browseURL(paste0(kmurl.originalsroot, url))
+    }
+  }
+  
+  
+}
