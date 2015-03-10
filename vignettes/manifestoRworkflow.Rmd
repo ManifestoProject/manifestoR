@@ -55,9 +55,9 @@ name `manifesto_apikey.txt` in your current R working directory.
 Note that it is a security risk to store the API key file or a script containing
 the key in public repositories.
 
-## (Bulk-)downloading documents
+## Downloading documents
 
-Downloading documents works via the function `mp_corpus(...)`.
+(Bulk-)Downloading documents works via the function `mp_corpus(...)`.
 It can be called with a logical expression specifying the subset of the Manifesto
 Corpus that you want to download:
 
@@ -121,6 +121,30 @@ Downloaded documents are automatically cached locally. To learn about
 the caching mechanism read the section
 [Understanding manifestoR's caching mechanism](#understanding-manifestors-caching-mechanism)
 below.
+
+## Viewing original documents
+
+Apart from the machine-readable, annotated documents, the Manifesto Corpus also
+contains original layouted election programmes in PDF format. If available, they
+can be viewed via the function `mp_view_originals(...)`, which takes exactly the
+format of arguments as `mp_corpus(...)` ([see above](#downloading-documents)), e.g.:
+
+```{r eval = FALSE}
+mp_view_originals(party == 41320 & date == 200909)
+```
+
+The original documents are shown in you system's web browser. All URLs opened
+by this function refer only to the Manifesto Project's Website. If you want to
+open more than 5 PDF documents at once, you have to specify the maximum number
+of URLs allows to be opened manually via the parameter `maxn`. Since opening
+URLs in an external browser costs computing resources on your local machine,
+make sure to use only values for `maxn` that do not slow down or make your computer
+unresponsive.
+
+```{r eval = FALSE}
+mp_view_originals(party > 41000 & party < 41999, maxn = 20)
+```
+
 
 # Processing and analysing the corpus documents
 
