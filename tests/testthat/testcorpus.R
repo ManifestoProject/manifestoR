@@ -43,6 +43,18 @@ test_that("non-standard evaluation corpus download works", {
   
 })
 
+test_that("codefilter works", {
+  
+  allowed_codes <- c(503, 103)
+  
+  corp_filtered <- mp_corpus(party == 41320, codefilter = allowed_codes)
+  
+  expect_true(all(lapply(content(corp_filtered), function(doc) {
+    return(all(codes(doc) %in% allowed_codes))
+  })))
+  
+})
+
 test_that("caching of corpus works correctly", {
   
   mpds <- mp_maindataset()
