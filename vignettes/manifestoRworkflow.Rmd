@@ -1,5 +1,5 @@
 ---
-title: "The workflow with the manifestoR package"
+title: "Working with the manifestoR package"
 author: "Jirka Lewandowski <jirka.lewandowski@wzb.eu>"
 date: "03/03/2015"
 output:
@@ -77,9 +77,11 @@ head(content(my_corpus[[1]]))
 meta(my_corpus[[1]])
 ```
 
+For more information on the available metadata per document, refer to the section
+[Using the document metadata](#using-the-document-metadata) below.
 For more information on how to use the text mining functions provided by `tm`
 for the data from the Manifesto Corpus, refer to the section
-[Processing the corpus documents](#processing-the-corpus-documents) below.
+[Processing and analysing the corpus documents](#processing-and-analysing-the-corpus-documents) below.
 
 The variable names in the logical expression used for querying the corpus
 database (`countryname` and `edate` in the example above) can be any column names from the
@@ -119,7 +121,7 @@ mp_availability(party == 41113)
 
 Downloaded documents are automatically cached locally. To learn about
 the caching mechanism read the section
-[Understanding manifestoR's caching mechanism](#understanding-manifestors-caching-mechanism)
+[Efficiency and reproducibility: caching and versioning](#efficiency-and-reproducibility-caching-and-versioning)
 below.
 
 ## Viewing original documents
@@ -147,6 +149,14 @@ mp_view_originals(party > 41000 & party < 41999, maxn = 20)
 
 
 # Processing and analysing the corpus documents
+
+As in `tm`, the textual content of a document is returned by the function `content`:
+
+```{r}
+txt <- content(my_corpus[[2]])
+class(txt)
+head(txt, n = 4)
+```
 
 ## Working with the CMP codings
 
@@ -182,6 +192,7 @@ to the downloaded `ManifestoCorpus`.
 For example, standard natural language processors are available to clean the corpus:
 
 ```{r}
+head(content(my_corpus[[3]]))
 corpus_cleaned <- tm_map(my_corpus, removePunctuation)
 corpus_nostop <- tm_map(corpus_cleaned, removeWords, stopwords("german"))
 head(content(corpus_nostop[[3]]))
@@ -197,12 +208,14 @@ findAssocs(tdm, "stadt", 0.97) ## find correlated terms, see ?tm::findAssocs
 For more information about the functionality provided by the `tm`,
 please refer to its [documentation](http://cran.r-project.org/web/packages/tm/vignettes/tm.pdf).
 
-## Selecting relevants parts of text
+## Selecting relevant parts of text
 
-Since documents contain many quasi-sentences of which potentially only
-specific selections are of interest, `manifestoR` provides a function
-`subset(...)` for subsetting documents easily. It can be used to filter
-quasi-sentences based on codes or the text:
+For applications in which not the entire text of a document is of interest, but
+rather a subset of the quasi-sentences matching certain criteria,
+`manifestoR` provides a function `subset(...)` working just like R's internal
+`subset` function.
+
+It can, for example, be used to filter quasi-sentences based on codes or the text:
 
 ```{r}
 # subsetting based on codes (as example above)
@@ -215,7 +228,69 @@ head(content(doc_subtext), n = 3)
 head(codes(doc_subtext), n = 10)
 ```
 
-# Efficiency and reproducibility: manifestoR's caching mechanism
+Via `tm_map` the filtering operations can also be applied to an entire corpus:
+```{r}
+corp_sub <- tm_map(my_corpus, function(doc) {
+  subset(doc, codes(doc) %in% c(202, 503, 607))
+})
+head(content(corp_sub[[3]]))
+head(codes(corp_sub))
+```
+
+For convenience, it is also possible to filter quasi-sentences with specific
+codes directly when downloading a corpus. For this, the additional argument
+`codefilter` with a list of CMP codes of interest is passed to `mp_corpus`:
+```{r, warning=FALSE}
+corp_sub <- mp_corpus(countryname == "Australia", codefilter = c(103, 104))
+head(content(corp_sub[[1]]))
+head(codes(corp_sub))
+```
+
+## Using the document metadata
+
+Each document in the Manifesto Corpus has meta information about itself attached.
+They can be accessed via the function `meta`:
+```{r}
+meta(doc)
+```
+
+It is possible to access and also modify specific metadata entries:
+```{r}
+meta(doc, "party")
+meta(doc, "manual_edits") <- TRUE
+meta(doc)
+```
+
+Document metadata can also be bulk-downloaded with the function `mp_metadata`,
+taking the same set of parameters as `mp_corpus`:
+```{r warning=FALSE}
+metas <- mp_metadata(countryname == "Spain")
+head(metas)
+```
+
+The field ...
+
+* ... `party` contains the party id from the Manifesto Project Dataset.
+* ... `date` contains the month of the election in the same format as in the
+Manifesto Project Dataset (`YYYYMM`)
+* ... `language` specifies the language of the document as a word.
+* ... `is_primary_doc` is FALSE only in cases where for a single party and
+election date multiple manifestos are available and this is the document not used
+for coding by the Manifesto Project.
+* ... `may_contradict_core_dataset` is TRUE for documents where the CMP codings
+in the corpus documents might be inconsistent with the coding aggregates in the
+Manifesto Project's Main Dataset. This applies to manifestos which have been either
+recoded after they entered the dataset or cases where the dataset entries are
+derived from hand-written coding sheets used prior to the digitalization of the
+Manifesto Project's data workflow, but the documents were digitalized and added
+to the Manifesto Corpus afterwards.
+* ... `annotations` is TRUE whenenver there are CMP codings available for the document.
+
+The other metadata entries have primarily technical functions for communication
+between the `manifestoR` package and the online database.
+
+
+# Efficiency and reproducibility: caching and versioning
 
 To save time and network traffic, `manifestoR` caches all downloaded data and
 documents in your computer's working memory and connects to the online database
@@ -237,7 +312,7 @@ This mechanism also ensures **reproducibility** of your scripts, analyses
 and results: executing your code again will yield the same results, even if
 the Manifesto Project's Database is updated in the meantime.
 Since the cache is only stored in the working memory, however, in order to ensure
-reproducibility across multiple R session, it is advisable to
+reproducibility across R sessions, it is advisable to
 **save the cache to the hard drive** at the end of analyses and load it in the
 beginning:
 
@@ -251,9 +326,25 @@ mp_setapikey("manifesto_apikey.txt")
 mp_load_cache(file = "manifesto_cache.RData")
 ```
 
-This way `manifestoR` always works with the same snapshot of the Project
+This way `manifestoR` always works with the same snapshot of the Manifesto Project
 Database and Corpus, saves a lot of unnecessary online traffic and also enables
 you to continue with your analyses offline.
+
+Each snapshot of the Manifesto Corpus is identified via a timestamp, which is
+stored in the cache together with the data and can be accessed via
+```{r}
+mp_which_corpus_version()
+```
+
+When collaborating on a project with other researchers, it is advisable to use
+the same corpus version for reproducibility of the results.
+`manifestoR` can be set to use a specific version id with the functions
+```{r}
+mp_use_corpus_version("20150306152837")
+```
+
+In order to guarantee reproducibility of **published work**, please also mention
+the corpus version id used for the reported analyses in the publication.
 
 For updating locally cached data to the most recent version of the
 Manifesto Project Corpus, `manifestoR` provides two functions:
@@ -261,6 +352,7 @@ Manifesto Project Corpus, `manifestoR` provides two functions:
 ```{r}
 mp_check_for_corpus_update()
 mp_update_cache()
+mp_check_for_corpus_update()
 ```
 
 For more detailed information on the caching mechanism and on how to use and load
@@ -275,7 +367,10 @@ If required `ManifestoCorpus` as well as `ManifestoDocument` objects can be
 converted to R's internal `data.frame` format and processed further:
 ```{r}
 doc_df <- as.data.frame(doc)
-head(doc_df)
+head(within(doc_df, {
+  ## for pretty printing
+  content <- paste0(substr(content, 1, 60), "...")
+}))
 ```
 
 The function also provides a parameter to include all available metadata in
@@ -284,6 +379,9 @@ the export:
 doc_df_with_meta <- as.data.frame(doc, with.meta = TRUE)
 print(names(doc_df_with_meta))
 ```
+
+For more information on the available metadata per document, refer to the section
+[Using the document metadata](#using-the-document-metadata) above.
 
 Note again that also all functionality provided by `tm`, such as `writeCorpus`
 is available on a `ManifestoCorpus`.
@@ -295,10 +393,13 @@ is available on a `ManifestoCorpus`.
 You can get in touch with the Manifesto Project team by e-mailing to
 [manifesto-communication@wzb.eu](mailto:manifesto-communication@wzb.eu).
 We are happy to receive your feedback and answer questions about the Manifesto
-Corpus, including errors or obscurities in the corpus documents as well as bug
-reports, feature requests or (planned) source code contributions for the
-`manifestoR` package.
-
+Corpus, including errors or obscurities in the corpus documents. In this case
+please make sure to include the party id, election date and the corpus version
+you were working with (accessible via `mp_which_corpus_version`).
 For general questions about the Project and dataset, please check the
 [Frequently Asked Questions](https://manifesto-project.wzb.eu/questions) section
 on our website first.
+
+We also welcome bug reports, feature requests or (planned) source code contributions for the
+`manifestoR` package.
+
