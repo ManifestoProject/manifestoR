@@ -276,7 +276,7 @@ print.ManifestoAvailability <- function(x, ...) {
   ncovereddocs <- nrow(avl$availability[which(avl$availability$annotations),])
   ncoveredorigs <- length(which(unique(avl$availability[which(
                              avl$availability$originals),])$originals))
-  languages <- unique(avl$availability$language)
+  languages <- na.omit(unique(avl$availability$language))
   
   summary <- list('Queried for'=nqueried,
                   'Raw Texts found'=paste(length(which(avl$availability$manifestos)),
