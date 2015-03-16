@@ -358,6 +358,7 @@ mp_corpus <- function(ids, apikey=NULL, cache=TRUE) {
           within(texts[idx, the.names], {
             manifesto_id <- as.integer(manifesto_id)
           }), ids, by = "manifesto_id")))
+        the.meta$kind <- NULL
         class(the.meta) <- "TextDocumentMeta"
         items <- texts[idx, "items"][[1]][[1]] ## what the hack...
         names(items)[which(names(items)=="content")] <- "text" ## rename from json
