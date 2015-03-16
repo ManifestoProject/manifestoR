@@ -109,4 +109,12 @@ test_that("versioning is respected in cache", {
 
 })
 
+test_that("check_for_corpus_update works", {
+  
+  oldversion <- "20150218100957"
+  mp_use_corpus_version(oldversion)
+  expect_true(mp_check_for_corpus_update()$update_available)
+  
+})
+
 ## for more caching tests with metadata see testmetadata.R
