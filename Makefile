@@ -8,14 +8,20 @@ all: pack check
 doc:
 	R -e "library(devtools); document()"
 	R -e "library(devtools); document()"
-	R -e "library(devtools); install(); build_vignettes();"
 
-pack: doc test
+Rmdvignette:
+	sed -i '/VignetteBuilder: R.rsp/c\VignetteBuilder: knitr' DESCRIPTION
+	R -e "library(devtools); install(); build_vignettes();"
+	cp inst/doc/manifestoRworkflow.pdf vignettes/
+	sed -i '/VignetteBuilder: knitr/c\VignetteBuilder: R.rsp' DESCRIPTION
+
+pack: doc Rmdvignette
 	(cd ../; R CMD build $(pkgname))
 
-check:
-	R -e "library(devtools); check();"
-checktest:
+check: pack
+	(cd ../; R CMD check $(pkgname)_$(pkgversion).tar.gz)
+
+checktest: test pack
 	(cd ../; R CMD check $(pkgname)_$(pkgversion).tar.gz)
 
 install: all

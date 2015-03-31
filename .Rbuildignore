@@ -1,6 +1,6 @@
 notes/
 devel/
 tests/
-Makefile
+inst/doc/manifestoRworkflow.R
 ^.*\.Rproj$
 ^\.Rproj\.user$
