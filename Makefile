@@ -1,6 +1,6 @@
 # variables
 pkgname = manifestoR
-pkgversion = 0.9-5
+pkgversion = 0.9-6
 
 # default target
 all: pack check
@@ -21,8 +21,7 @@ pack: doc Rmdvignette
 check: pack
 	(cd ../; R CMD check $(pkgname)_$(pkgversion).tar.gz)
 
-checktest: test pack
-	(cd ../; R CMD check $(pkgname)_$(pkgversion).tar.gz)
+testcheck: test pack check
 
 install: all
 	R -e "install.packages('../$(pkgname)_$(pkgversion).tar.gz')"

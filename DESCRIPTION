@@ -1,11 +1,16 @@
 Package: manifestoR
 Title: Access and process data and documents of the Manifesto Project
-Date: 2015-03-10
-Version: 0.9-5
-Authors@R: c(person("Jirka", "Lewandowski", role = c("aut", "cre"),
-    email = "jirka.lewandowski@wzb.eu"))
-Author: Jirka Lewandowski <jirka.lewandowski@wzb.eu>
-Maintainer: Jirka Lewandowski <jirka.lewandowski@wzb.eu>
+Date: 2015-03-31
+Version: 0.9-6
+Authors@R: c(person("Jirka", "Lewandowski",
+		    role = c("aut", "cre"),
+		    email = "jirka.lewandowski@wzb.eu"),
+	     person("Sven", "Regel",
+		    role = c("ctb"),
+		    email = "sven.regel@wzb.eu"),
+	     person("Pola", "Lehmann",
+		    role = c("ctb"),
+		    email = "pola.lehmann@wzb.eu"))
 Description: Access and process data and documents of the Manifesto Project
 Depends: 
     R (>= 3.1.0),
