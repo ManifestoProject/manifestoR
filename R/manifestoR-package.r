@@ -26,4 +26,4 @@ NULL
 ## cf. http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
 globalVariables(c("one_of", "manifesto_id",
                   "md5sum_text.x", "md5sum_text.y",
-                  "download"))
+                  "download", "url_original"))
