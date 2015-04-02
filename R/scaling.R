@@ -15,7 +15,7 @@
 #' @param link.fun link function: (vectorized) function applied to the sums
 #' @export
 scale_gl <- function(data,
-                     vars = grep("per.*", names(data), value=TRUE),
+                     vars = grep("per[0-9]*", names(data), value=TRUE),
                      weights = 1,
                      link.fun = identity) {
   
