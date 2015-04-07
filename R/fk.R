@@ -27,13 +27,13 @@ franzmann <- function(data,
    }
    
    data <- mutate(data,year=floor(date/100))
-   fkweights <- read.csv("fkweights.csv", sep=",") ## fkweights are in the same structure as the main dataset with var-weights having the same variable names as vars
+   fkweights <- read.csv("R/fkweights.csv", sep=",") ## fkweights are in the same structure as the main dataset with var-weights having the same variable names as vars
    
    weights <- select(data,one_of("country","year")) %>% left_join(fkweights) # check again whether left_join is the correct join
    wweights <- weights %>% ungroup %>% select(one_of(vars))
-   
+   browser()
    ## don't know why that works / I do not fully understand how the weighting matrix is used in the scale_gl function, but it outputs something 
-   fkscores <- scale_gl(data,vars=vars,weights=t(wweights))
+   fkscores <- scale_gl(data,vars=vars,weights=wweights)
    
    if (smoothing == TRUE) {
       
