@@ -21,12 +21,10 @@ scale_gl <- function(data,
   
   weights <- weights[vars %in% names(data)]
   vars <- vars[vars %in% names(data)]
-  if (is.matrix(weights) || is.data.frame(weights)) {
-    summation <- diag(data[,vars]*t(weights))
-  } else {
-    summation <- colSums(t(data[,vars])*weights)
+  if (!(is.matrix(weights) || is.data.frame(weights))) {
+    weights <- matrix(weights, ncol = ncol(data), nrow = nrow(data))
   }
-  link.fun(summation) # apply weighting to rows, sum, link
+  link.fun(rowSums(data[,vars]*weights)) # apply weighting to rows, sum, link
   
 }
 
