@@ -15,13 +15,18 @@
 #' @param link.fun link function: (vectorized) function applied to the sums
 #' @export
 scale_gl <- function(data,
-                     vars = grep("per.*", names(data), value=TRUE),
+                     vars = grep("per\\d{3}$", names(data), value=TRUE),
                      weights = 1,
                      link.fun = identity) {
   
   weights <- weights[vars %in% names(data)]
   vars <- vars[vars %in% names(data)]
-  link.fun(colSums(t(data[,vars])*weights)) # apply weighting to rows, sum, link
+  if (is.matrix(weights) || is.data.frame(weights)) {
+    summation <- diag(data[,vars]*t(weights))
+  } else {
+    summation <- colSums(t(data[,vars])*weights)
+  }
+  link.fun(summation) # apply weighting to rows, sum, link
   
 }
 
