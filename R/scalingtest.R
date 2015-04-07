@@ -27,7 +27,19 @@ westeurope$vanilla <- vanilla(westeurope, invert=0)
 
 # re-aggregate to common coding scheme
 
-# use base values (franzmann kaiser)
+# franzmann kaiser
+sample <- mpds %>% filter(country==41, date==199809) ## crashes if you use a country or election which has no weights, better error checking.
+vars <- grep("per\\d{3}$", names(sample), value=TRUE)
+fk <- franzmann(sample,vars=vars,basevalues=FALSE,smoothing=FALSE)
+s <- cbind(sample,fk)
+franzmann(sample,vars=vars,basevalues=TRUE,smoothing=FALSE)
+franzmann(sample,vars=vars,basevalues=FALSE,smoothing=TRUE) # does not work yet
+franzmann(sample,vars=vars,basevalues=TRUE,smoothing=TRUE) # does not work yet
+
+
+
+###
+
 
 
 

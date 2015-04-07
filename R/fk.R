@@ -25,13 +25,13 @@ franzmann <- function(data,
          mutate_each_(funs(base=.-min(., na.rm=TRUE)), vars)
       
    }
-   
+
    data <- mutate(data,year=floor(date/100))
    fkweights <- read.csv("R/fkweights.csv", sep=",") ## fkweights are in the same structure as the main dataset with var-weights having the same variable names as vars
    
    weights <- select(data,one_of("country","year")) %>% left_join(fkweights) # check again whether left_join is the correct join
    wweights <- weights %>% ungroup %>% select(one_of(vars))
-   browser()
+
    ## don't know why that works / I do not fully understand how the weighting matrix is used in the scale_gl function, but it outputs something 
    fkscores <- scale_gl(data,vars=vars,weights=wweights)
    
@@ -46,6 +46,7 @@ franzmann <- function(data,
    # maybe better to put the smoothing procedure in an extra function
    #fkscores <- smooth_scores(data,fkscores)  
    # does not work properly yet
+   # how to deal with "holes" (if party drops out of parliament and then enters later, sorting by party date, does not reflect this...)
 
    combined <- cbind(data,fkscores)
    
@@ -64,14 +65,4 @@ franzmann <- function(data,
    
    return(fkscores)
 }
-###
-
-sample <- mpds %>% filter(country==41, date==199809) ## crashes if you use a country or election which has no weights, better error checking.
-vars <- names(select(sample, matches("per[0-9]"), -matches("per[0-9]{4,4}")))
-fk <- franzmann(sample,vars=vars,basevalues=FALSE,smoothing=FALSE)
-s <- cbind(sample,fk)
-franzmann(sample,vars=vars,basevalues=TRUE,smoothing=FALSE)
-franzmann(sample,vars=vars,basevalues=FALSE,smoothing=TRUE) # does not work yet
-franzmann(sample,vars=vars,basevalues=TRUE,smoothing=TRUE) # does not work yet
-
 
