@@ -18,20 +18,18 @@ franzmann <- function(data,
                       smoothing=TRUE) {
    
    if (basevalues == TRUE) {
-      ## calculates positional scores = saliency scores - base value (. - min(.))
+      ## calculates positional scores = saliency scores - base value // pos scores = (x - min(x)) where x is saliency score
       data <- data %>%
          group_by(country,date) %>%
          #select(one_of(vars)) %>%
          mutate_each_(funs(base=.-min(., na.rm=TRUE)), vars)
       
-      #data <- left_join(data,base)
-      data
    }
    
    data <- mutate(data,year=floor(date/100))
-   fkweights <- read.csv("R/fkweights.csv", sep=",") ## weights need to have same variable names as vars
+   fkweights <- read.csv("fkweights.csv", sep=",") ## fkweights are in the same structure as the main dataset with var-weights having the same variable names as vars
    
-   weights <- select(data,one_of("country","year")) %>% left_join(fkweights) # check again whether left_join is the right join
+   weights <- select(data,one_of("country","year")) %>% left_join(fkweights) # check again whether left_join is the correct join
    wweights <- weights %>% ungroup %>% select(one_of(vars))
    
    ## don't know why that works / I do not fully understand how the weighting matrix is used in the scale_gl function, but it outputs something 
@@ -61,6 +59,7 @@ franzmann <- function(data,
          p_lead = lead(fkscores)
          ) %>%
       transmute(fk=((lag(w)*p_lag + w*p + lead(w)*p_lead)/3))
+   fkscores <- ungroup(fkscores)
    }
    
    return(fkscores)
@@ -69,7 +68,8 @@ franzmann <- function(data,
 
 sample <- mpds %>% filter(country==41, date==199809) ## crashes if you use a country or election which has no weights, better error checking.
 vars <- names(select(sample, matches("per[0-9]"), -matches("per[0-9]{4,4}")))
-franzmann(sample,vars=vars,basevalues=FALSE,smoothing=FALSE)
+fk <- franzmann(sample,vars=vars,basevalues=FALSE,smoothing=FALSE)
+s <- cbind(sample,fk)
 franzmann(sample,vars=vars,basevalues=TRUE,smoothing=FALSE)
 franzmann(sample,vars=vars,basevalues=FALSE,smoothing=TRUE) # does not work yet
 franzmann(sample,vars=vars,basevalues=TRUE,smoothing=TRUE) # does not work yet
