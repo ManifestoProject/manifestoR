@@ -33,7 +33,7 @@ franzmann <- function(data,
    wweights <- weights %>% ungroup %>% select(one_of(vars))
 
    ## don't know why that works / I do not fully understand how the weighting matrix is used in the scale_gl function, but it outputs something 
-   fkscores <- scale_gl(data,vars=vars,weights=wweights)
+   fkscores <- (scale_gl(data,vars=vars,weights=wweights)/scale_gl(data,vars=vars,weights=1))
    
    if (smoothing == TRUE) {
       
