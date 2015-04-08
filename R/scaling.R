@@ -18,8 +18,8 @@ scale_gl <- function(data,
                      vars = grep("per\\d{3}$", names(data), value=TRUE),
                      weights = 1,
                      link.fun = identity) {
-  
-  weights <- weights[vars %in% names(data)]
+
+#  weights <- weights[vars %in% names(data)]
   vars <- vars[vars %in% names(data)]
   if (is.matrix(weights) || is.data.frame(weights)) {
       weights <- t(weights)
