@@ -19,12 +19,33 @@ scale_gl <- function(data,
                      weights = 1,
                      link.fun = identity) {
   
-  weights <- weights[vars %in% names(data)]
-  vars <- vars[vars %in% names(data)]
-  if (!(is.matrix(weights) || is.data.frame(weights))) {
-    weights <- matrix(weights, ncol = ncol(data), nrow = nrow(data))
+  data <- data[,vars[vars %in% names(data)]]
+  
+  if (!(is.null(names(weights)))) {
+    weights <- weights[vars[vars %in% names(data)]]
+  } else if (length(weights) > 1) {
+    weights <- weights[vars %in% names(data)]
   }
-  link.fun(rowSums(data[,vars]*weights)) # apply weighting to rows, sum, link
+  if (is.matrix(weights)) {
+    if (ncol(weights) != ncol(data) || nrow(weights) != nrow(data)) {
+      stop("Size of weights matrix does not equal size of data matrix; cannot apply weighting for scaling")
+    }
+  } else {
+    if (is.list(weights)) {
+      weights <- as.data.frame(weights, ncol = ncol(data), nrow = nrow(data))
+      ## error when sizes does not match?
+    } else {
+      weights <- matrix(weights, ncol = ncol(data), nrow = nrow(data))
+    }
+    weights <- as.data.frame(weights)
+    names(weights) <- names(data)
+  }
+  
+  vars <- vars[vars %in% names(data)]
+  data <- data[,vars]
+  weights <- weights[,vars]
+    
+  link.fun(rowSums(data*weights)) # apply weighting to rows, sum, link
   
 }
 
