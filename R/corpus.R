@@ -95,38 +95,39 @@ content.ManifestoDocument <- function(x) {
 #' modification needs to be done document-wise.
 #' 
 #' @param x document or corpus to get the codes from
+#' @param layer layer of codings to access, defaults to cmp_code, alternative: eu_code
 #' @rdname codes
 #' @export
-codes <- function(x) {
+codes <- function(x, layer = "cmp_code") {
   UseMethod("codes", x)
 }
 
 #' @rdname codes
 #' @method codes ManifestoDocument
 #' @export
-codes.ManifestoDocument <- function(x) {
-  return(as.integer(x$content$cmp_code))
+codes.ManifestoDocument <- function(x, layer = "cmp_code") {
+  return(as.integer(x$content[,layer]))
 }
 
 #' @method codes ManifestoCorpus
 #' @rdname codes
 #' @export
-codes.ManifestoCorpus <- function(x) {
-  c(unlist(lapply(x, codes)))
+codes.ManifestoCorpus <- function(x, layer = "cmp_code") {
+  c(unlist(lapply(x, codes, layer)))
 }
 
 #' @param value new codes
 #' @rdname codes
 #' @export
-`codes<-` <- function(x, value) {
+`codes<-` <- function(x, layer = "cmp_code", value) {
   UseMethod("codes<-", x)
 }
 
 #' @rdname codes
 #' @method codes<- ManifestoDocument
 #' @export
-`codes<-.ManifestoDocument` <- function(x, value) {
-  x$content$cmp_code <- value
+`codes<-.ManifestoDocument` <- function(x, layer = "cmp_code", value) {
+  x$content[,layer] <- value
   return(x)
 }
 

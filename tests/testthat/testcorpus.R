@@ -43,6 +43,36 @@ test_that("non-standard evaluation corpus download works", {
   
 })
 
+test_that("getting codes works", {
+
+  eu_corp <- mp_corpus(party == 15328 & date == 200705)
+  eu_doc <- eu_corp[[1]]
+
+
+  ## getting
+
+  expect_is(codes(eu_doc), "integer")
+  expect_equal(codes(eu_doc), codes(eu_doc, "cmp_code"))
+  expect_is(codes(eu_doc, "eu_code"), "integer")
+  expect_false(all(na.omit(codes(eu_doc, "eu_code")) == 0L))
+
+
+  ## modifying
+
+  the_codes <- codes(eu_doc)
+  codes(eu_doc) <- rev(codes(eu_doc))
+  expect_equal(codes(eu_doc), rev(the_codes))
+  codes(eu_doc) <- 5
+  expect_true(all(codes(eu_doc) == 5))
+
+  the_codes <- codes(eu_doc, "eu_code")
+  codes(eu_doc, "eu_code") <- rev(codes(eu_doc, "eu_code"))
+  expect_equal(codes(eu_doc, "eu_code"), rev(the_codes))
+  codes(eu_doc, "eu_code") <- 5
+  expect_true(all(codes(eu_doc, "eu_code") == 5))
+
+})
+
 test_that("codefilter works", {
   
   allowed_codes <- c(503, 103)
