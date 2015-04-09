@@ -18,35 +18,65 @@ scale_gl <- function(data,
                      vars = grep("per\\d{3}$", names(data), value=TRUE),
                      weights = 1,
                      link.fun = identity) {
-  
+
   data <- data[,vars[vars %in% names(data)]]
-  
-  if (!(is.null(names(weights)))) {
-    weights <- weights[vars[vars %in% names(data)]]
-  } else if (length(weights) > 1) {
-    weights <- weights[vars %in% names(data)]
-  }
+
   if (is.matrix(weights)) {
+
+    if (is.data.frame(weights)) {
+      weights <- weights[vars[vars %in% names(data)]]
+    } else {
+      weights <- as.data.frame(weights)
+      names(weights) <- names(data)
+    }
+
     if (ncol(weights) != ncol(data) || nrow(weights) != nrow(data)) {
       stop("Size of weights matrix does not equal size of data matrix; cannot apply weighting for scaling")
     }
+
   } else {
-    if (is.list(weights)) {
-      weights <- as.data.frame(weights, ncol = ncol(data), nrow = nrow(data))
-      ## error when sizes does not match?
-    } else {
-      weights <- matrix(weights, ncol = ncol(data), nrow = nrow(data))
+
+    if (!(is.null(names(weights)))) {
+      weights <- weights[vars[vars %in% names(data)]]
+    } else if (length(weights) > 1) {
+      weights <- weights[vars %in% names(data)]
     }
+
+    if (is.list(weights)) {
+      weights <- as.data.frame(weights)
+      if (nrow(weights) == 1 && nrow(data) > 1) {
+        weights <- rep(weights, nrow(data))
+      }
+    } else {
+      weights <- matrix(weights, ncol = ncol(data), nrow = nrow(data), byrow = TRUE)
+    }
+
     weights <- as.data.frame(weights)
     names(weights) <- names(data)
   }
-  
+
   vars <- vars[vars %in% names(data)]
   data <- data[,vars]
   weights <- weights[,vars]
-    
+
   link.fun(rowSums(data*weights)) # apply weighting to rows, sum, link
-  
+
+}
+
+#' Replicates cases in a data.frame
+#' 
+#' @param x data.frame to replicate
+#' @param times number of replications
+#' @param ... unused
+#' @return data.frame with cases replicated
+#' 
+#' @method rep data.frame
+rep.data.frame <- function(x, times = 1, ...) {
+  if (times == 1) {
+    return(x)
+  } else {
+    return(rbind(x, rep.data.frame(x, times = times - 1, ...)))
+  }
 }
 
 #' Logit scaling function
