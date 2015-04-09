@@ -366,9 +366,15 @@ mp_corpus <- function(ids, apikey=NULL, cache=TRUE, codefilter = NULL) {
         items <- texts[idx, "items"][[1]][[1]] ## what the hack...
         names(items)[which(names(items)=="content")] <- "text" ## rename from json
         items[which(is.nacode(items$code)),"code"] <- NA
-        suppressWarnings( ## string codes might have become factor
+        if ("eu_code" %in% names(items)) {
+          items[which(is.nacode(items$code)),"eu_code"] <- NA          
+        }
+        suppressWarnings({ ## string codes might have become factor
           items[,"code"] <- as.integer(as.character(items[,"code"]))
-        ) 
+          if ("eu_code" %in% names(items)) {
+            items[,"eu_code"] <- as.integer(as.character(items[,"eu_code"]))
+          }
+        }) 
         
         
         elem <- structure(list(content=items, meta=the.meta))
