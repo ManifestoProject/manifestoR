@@ -64,7 +64,7 @@ ManifestoCorpus <- function(csource) {
 #' doc <- corpus[[1]]
 #' print(doc)
 #' }
-ManifestoDocument <- function(content = data.frame(names = c("text", "code")),
+ManifestoDocument <- function(content = data.frame(names = c("text", "cmp_code")),
                               id = character(0),
                               meta = ManifestoDocumentMeta()) {
   structure(list(content = content,
@@ -105,7 +105,7 @@ codes <- function(x) {
 #' @method codes ManifestoDocument
 #' @export
 codes.ManifestoDocument <- function(x) {
-  return(as.integer(x$content$code))
+  return(as.integer(x$content$cmp_code))
 }
 
 #' @method codes ManifestoCorpus
@@ -126,7 +126,7 @@ codes.ManifestoCorpus <- function(x) {
 #' @method codes<- ManifestoDocument
 #' @export
 `codes<-.ManifestoDocument` <- function(x, value) {
-  x$content$code <- value
+  x$content$cmp_code <- value
   return(x)
 }
 
