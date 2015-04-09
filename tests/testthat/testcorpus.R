@@ -83,6 +83,15 @@ test_that("codefilter works", {
     return(all(codes(doc) %in% allowed_codes))
   })))
   
+  ## eu_codes
+  allowed_codes <- c(108)
+  corp_filtered <- mp_corpus(party == 15328,
+                             codefilter = allowed_codes,
+                             codefilter_layer = "eu_code")
+  expect_true(all(lapply(content(corp_filtered), function(doc) {
+    return(all(codes(doc, "eu_code") %in% allowed_codes))
+  })))
+  
 })
 
 test_that("caching of corpus works correctly", {

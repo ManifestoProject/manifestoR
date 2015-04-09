@@ -324,6 +324,7 @@ print.ManifestoAvailability <- function(x, ...) {
 #' @param codefilter A vector of CMP codes to filter the documents: only quasi-sentences
 #'        with the codes specified in \code{codefilter} are returned. If \code{NULL},
 #'        no filtering is applied
+#' @param codefilter_layer layer to which the codefilter should apply, defaults to cmp_code
 #'              
 #' @return an object of \code{\link[tm]{Corpus}}'s subclass
 #' \code{\link{ManifestoCorpus}} holding the available of the requested documents
@@ -340,7 +341,11 @@ print.ManifestoAvailability <- function(x, ...) {
 #' partially_available <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
 #' mp_corpus(partially_available)
 #' }
-mp_corpus <- function(ids, apikey=NULL, cache=TRUE, codefilter = NULL) {
+mp_corpus <- function(ids,
+                      apikey=NULL,
+                      cache=TRUE,
+                      codefilter = NULL,
+                      codefilter_layer = "cmp_code") {
 
   ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache)
 
@@ -393,7 +398,7 @@ mp_corpus <- function(ids, apikey=NULL, cache=TRUE, codefilter = NULL) {
   ## codefilter
   if (!is.null(codefilter)) {
     corpus <- tm_map(corpus, function(doc) {
-                                return(subset(doc, codes(doc) %in% codefilter))
+          return(subset(doc, codes(doc, codefilter_layer) %in% codefilter))
       })
   }
   
