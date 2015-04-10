@@ -138,17 +138,6 @@ create_scaling <- function(pos, neg,
 rile_r <- c(104, 201, 203, 305, 401, 402, 407, 414, 505, 601, 603, 605, 606)
 rile_l <- c(103, 105, 106, 107, 202, 403, 404, 406, 412, 413, 504, 506, 701)
 
-table_to_df <- function(tt, prefix = "per", relative = TRUE) {
-  df <- as.data.frame(t(as.matrix(tt)))
-  names(df) <- paste0(prefix, names(df))
-  if (relative) {
-    n <- sum(df[1,])
-    df[1,] <- df[1,]/n * 100
-    df$total <- n
-  }
-  return(df)
-}
-
 #' Construct text scaling functions
 #' 
 #' Make a scaling function applicable to a ManifestoDocument
@@ -158,26 +147,29 @@ table_to_df <- function(tt, prefix = "per", relative = TRUE) {
 #' @param returndf if this flag is TRUE, a data.frame with category percentage values,
 #' scaling result and, if available party and date is returned by the returned function
 #' @param scalingname the name of the scale which will be used as a column name when a data.frame is produced
+#' @param ... arguments passed on to \code{\link{count_codes}}
 #' @return \code{document_scaling} returns a function that takes a ManifestoDocument and computes the scaled value
 #' for it
 #' 
 #' @export
 #' @rdname corpus_scaling
-document_scaling <- function(scalingfun, returndf = FALSE, scalingname = "scaling") {
+document_scaling <- function(scalingfun, returndf = FALSE, scalingname = "scaling", ...) {
   
+  count_codes_loc <- functional::Curry(count_codes, ...)
+
   return(function(x) {
-    
+
     df <- data.frame(party=meta(x, "party"), date=meta(x, "date"))
-    df <- bind_cols(df, table_to_df(table(codes(x))))
-    
+    df <- bind_cols(df, count_codes_loc(x))
+
     df[,scalingname] <- scalingfun(df)
-    
+
     if (returndf) {
       return(df)
     } else {
       return(df[1,scalingname])
     }
-    
+
   })
 }
 
