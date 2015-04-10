@@ -22,7 +22,8 @@ franzmann <- function(data,
       data <- data %>%
          group_by(country,date) %>%
          #select(one_of(vars)) %>%
-         mutate_each_(funs(base=.-min(., na.rm=TRUE)), vars)
+         mutate_each_(funs(base=.-min(., na.rm=TRUE)), vars) %>%
+         ungroup()
       
    }
 
@@ -37,32 +38,86 @@ franzmann <- function(data,
    
    if (smoothing == TRUE) {
       
-   ## smoothing procedure
-   # smoothed score p_smoothed(t) = [ w(t-1)*p(t-1) + w(t)*p(t) + (w+1)*p(t+1) ] / 3
-   # w(t) = leglen(t) / [leglen(t-1) + leglen(t) + leglen(t+1)]
-   # leglen is the length of the electoral period in days
- 
-   
-   # maybe better to put the smoothing procedure in an extra function
-   #fkscores <- smooth_scores(data,fkscores)  
-   # does not work properly yet
-   # how to deal with "holes" (if party drops out of parliament and then enters later, sorting by party date, does not reflect this...)
-
    combined <- cbind(data,fkscores)
    
-   fkscores <- combined %>% group_by(party) %>% select(one_of("country","edate","date","fkscores")) %>% arrange(date) %>%
-      mutate(
-         leadedate = lead(edate),
-         leglength = as.numeric(difftime(leadedate,edate,units="days")),
-         w = leglength/(lag(leglength) + leglength + lead(leglength)),
-         p_lag = lag(fkscores), 
-         p = fkscores,
-         p_lead = lead(fkscores)
-         ) %>%
-      transmute(fk=((lag(w)*p_lag + w*p + lead(w)*p_lead)/3))
-   fkscores <- ungroup(fkscores)
+   fkscores <- smooth_scores(data=combined,score="fkscores")
+   
    }
    
    return(fkscores)
 }
 
+smooth_scores <- function(data,score) {
+   
+   ## smoothing procedure
+   # smoothed score p_smoothed(t) = [ w(t-1)*p(t-1) + w(t)*p(t) + (w+1)*p(t+1) ] / 3
+   # w(t) = leglen(t) / [leglen(t-1) + leglen(t) + leglen(t+1)]/3
+   # leglen is the length of the electoral period in days
+
+      # how to deal with "holes" (if party drops out of parliament and then enters later, sorting by party date, does not reflect this...)
+
+   ## check if score is in data
+   if (!score %in% names(data)) {
+      stop("score not found in data")   
+   }
+   
+   if (!"party" %in% names(data)) {
+      stop("no party variable found in data")
+   }
+   if (!"edate" %in% names(data)) {
+      stop("no date variable found in data")
+   }
+   if (!("Date" %in% class(data$edate))) {
+      stop("variable date is not a date")
+   }
+
+   data[,"festername"] <- data[,score]
+   data$n <- c(1:nrow(data))
+   smoothed <- data %>% 
+      group_by(party) %>% 
+      select(one_of("country","edate","festername","n")) %>% 
+      arrange(edate) %>%
+      mutate(
+         leadedate = lead(edate),
+         leglength = as.numeric(difftime(leadedate,edate,units="days")),
+         #w_lag = lag(leglength)/((lag(leglength) + leglength + lead(leglength)/3)),
+         w = leglength/((lag(leglength) + leglength + lead(leglength)/3)),
+         #w_lead = lead(leglength)/(lag(leglength) + leglength + lead(leglength)),
+         p_lag = lag(festername), 
+         p = festername ,
+         p_lead = lead(festername)
+      )
+      smoothed <- mutate(smoothed, smooth=(lag(w)*p_lag + w*p + lead(w)*p_lead)/3) %>%
+      ungroup() %>% arrange(n) %>%
+      select(smooth)
+   
+   return(smoothed)
+}
+
+### simple linear rescaling of positions
+rescale <- function(pos,newmin=-1,newmax=1,oldmin=min(pos),oldmax=max(pos)) {
+   
+   if(newmin>newmax & oldmin>oldmax) {
+      stop("newmin > newmax or oldmin > oldmax")
+   }
+   
+   if(!is.numeric(c(pos,newmin, newmax, oldmin, oldmax))) {
+      stop("input variables are not numbers")
+   }
+   
+   oldcenter <- (oldmax + oldmin)/2
+   oldrange <- oldmax - oldmin
+   newcenter <- (newmax + newmin)/2
+   newrange <- newmax - newmin
+   
+   # shift center to zero
+   newpos <- pos - oldcenter
+   
+   # stretch
+   newpos <- newpos*newrange/oldrange
+   
+   # shift to new mean
+   newpos <- newpos + newcenter
+
+      return(newpos)
+}
