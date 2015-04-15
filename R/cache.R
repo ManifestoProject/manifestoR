@@ -192,7 +192,7 @@ mp_which_corpus_version <- function() {
 #' 
 #' @export
 mp_use_corpus_version <- function(versionid, apikey=NULL) {
-  
+
   cache_versionid <- getn(kmetaversion, envir = mp_cache())
   
   if (is.null(cache_versionid) || versionid != cache_versionid) {
@@ -250,7 +250,7 @@ mp_use_corpus_version <- function(versionid, apikey=NULL) {
     ## copy other cache content
     copy_to_env(setdiff(ls(envir = mp_cache()),
                         c(kmetaversion, kmetadata,
-                          texts_in_cache[-texts_in_cache$download]$vname)),
+                          as.character(texts_in_cache[!texts_in_cache$download,]$vname))),
                 mp_cache(), new_cache)
  
     mp_load_cache(new_cache)
