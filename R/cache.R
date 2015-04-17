@@ -248,10 +248,12 @@ mp_use_corpus_version <- function(versionid, apikey=NULL) {
     }    
 
     ## copy other cache content
-    copy_to_env(setdiff(ls(envir = mp_cache()),
-                        c(kmetaversion, kmetadata,
-                          as.character(texts_in_cache[!texts_in_cache$download,]$vname))),
-                mp_cache(), new_cache)
+    to_copy <- setdiff(ls(envir = mp_cache()),
+                       c(kmetaversion, kmetadata,
+                         as.character(texts_in_cache[texts_in_cache$download,]$vname)))
+    copy_to_env(to_copy,
+                mp_cache(),
+                new_cache)
  
     mp_load_cache(new_cache)
 
