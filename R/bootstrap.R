@@ -20,7 +20,7 @@
 #' @export
 mp_bootstrap <- function(data,
                          fun = rile,
-                         col_filter = "per(\\d{3,4}|uncod)",
+                         col_filter = "per(\\d{3,4}|(uncod))",
                          statistics = list(sd),
                          N = 1000,
                          ...) {  
