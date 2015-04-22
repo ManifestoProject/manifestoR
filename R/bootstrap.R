@@ -1,76 +1,64 @@
 #' Compute bootstrap distributions for scaling functions
 #' 
-#' TODO
-#' 
-#' TODO reference Benoit
+#' Bootstrapping of distributions of scaling functions as described by
+#' Benoit, Mikhaylov, and Laver 2009. Given a dataset with percentages of CMP
+#' categories, for each case the distribution of categories is resampled from
+#' a multinomial distribution and the scaling function computed for the resampled
+#' values. Arbitrary statistics of the resulting bootstrap distribution can be
+#' returned, such as standard deviation, quantiles, etc.
 #'
-#' @param data A data.frame with cases to be scaled and bootstrap 
-#' @param fun name of a function of a data row the bootstraped distribution of which is of interest
+#' @param data A data.frame with cases to be scaled and bootstrapped
+#' @param fun function of a data row the bootstraped distribution of which is of interest
 #' @param col_filter Regular expression matching the column names that should be
 #' permuted for the resampling (usually and by default ther per variables)
-#' @param statistics List of statistics to be computed from the bootstrap
-#' distribution; defaults to standard deviation (\code{\link{sd}}). Must be characters,
-#' calling the functions with the given names or numbers resulting in quantile
-#' computations. Note that if both characters and numbers are mixed, they must
-#' be combined in a list and not a vector to prevent R's automatic conversion in vectors.
+#' @param statistics A list (!) of statistics to be computed from the bootstrap
+#' distribution; defaults to standard deviation (\code{\link{sd}}). Must be
+#' functions or numbers, where numbers are interpreted as quantiles.
 #' @param N number of resamples to use for bootstrap distribution
+#' @param ... more arguments passed on to \code{fun}
+#' @references Kenneth Benoit, Slava Mikhaylov, and Michael Laver. 2009. "Treating Words as Data with Error: Uncertainty in Text Statements of Policy Positions." American Journal of Political Science 53(2, April): 495-513.
 #' @export
 mp_bootstrap <- function(data,
-                         fun_name = "rile",
+                         fun = rile,
                          col_filter = "per(\\d{3,4}|uncod)",
-                         statistics = list("sd"),
+                         statistics = list(sd),
                          N = 1000,
-                         ...) {
-  
+                         ...) {  
+
+  ## deparse arguments for conversion and naming
+  stat_names <- sapply(substitute(statistics)[-1], as.character)
+  quantiles <- sapply(statistics, is.numeric)
+  stat_names[quantiles] <- paste0("q", stat_names[quantiles])
+  stat_funs <- statistics
+  stat_funs[quantiles] <- lapply(statistics[quantiles],
+                                    function(q) {
+                                      functional::Curry(quantile, probs = q)
+                                    })
+  fun_name <- as.character(substitute(fun))
+
+  ## how to bootstrap a single row
   bootstrap_row <- function(row) {
-    
+
     total <- row$total
-    row <- select(row, matches(col_filter))
-    
-    bootstrap_distribution <- do.call(fun_name,
-                                      list(resample_row(row, N, total), ...))
-    
-#     df$sd <- sd(bootstrap_distribution)
-    bind_cols(single_col_df(fun_name, do.call(fun_name, list(row), ...)),
-              bind_cols(lapply(statistics, function(stat) {
-                if (is.numeric(stat)) {
-                  stat_fun <- functional::Curry(quantile, probs = stat)
-                  stat <- paste0("q", format(stat, digits = 3, scientific = FALSE))
-                } else if (is.function(stat)) {
-                  stat_fun <- stat
-                  stat <- "anonymous_function"
-                } else {
-                  stat_fun <- stat
-                }
-                single_col_df(stat, do.call(stat_fun, list(bootstrap_distribution)))
-              })))
-    
-#     return(df)
+    row_permute <- select(row, matches(col_filter)) %>% mutate(rowid=1)
+    row_dontpermute <- select(row, -matches(col_filter)) %>% mutate(rowid=1)
+    bootstrap_distribution <- do.call(
+        fun,
+        list(right_join(row_dontpermute, by = c("rowid"),
+                       as.data.frame(t(rmultinom(N, total, row_permute[1,])))/total * 100),
+             ...))
+
+    df <- bind_cols(data.frame(do.call(fun, list(row, ...))),
+                    as.data.frame(lapply(stat_funs, do.call, list(bootstrap_distribution))))
+    names(df) <- c(fun_name, stat_names)
+
+    return(df)
   }
-  
-#   bind_cols(data,
-            bind_rows(lapply(1:nrow(data),
-                             function(idx) {
-                               bootstrap_row(data[idx,])
-                             } ))
-#   )
-  
-}
 
-resample_row <- function(row, N, total) {
-  if(nrow(row) > 1) {
-    warning("resample_row called on more than one row, this creates an invalid distribution!")
-  }
-  df <- as.data.frame(t(rmultinom(N, total, row[1,])))/total * 100 ## pers
-  
-}
+  ## do the bootstrapping for all rows
+  bind_rows(lapply(1:nrow(data),
+                   function(idx) {
+                      bootstrap_row(data[idx,])
+                   } ))
 
-single_col_df <- function(colname, values) {
-  
-  df <- data.frame(value = values)
-  names(df) <- colname
-  
-  return(df)
-  
 }
-
