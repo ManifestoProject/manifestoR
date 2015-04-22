@@ -88,10 +88,12 @@ rep.data.frame <- function(x, times = 1, ...) {
 #' @param pos variable names that should contribute to the numerator ("positively")
 #' @param neg variable names that should contribute to the denominator ("negatively")
 #' @param N vector of numbers of quasi sentences to convert percentages to counts
+#' @param zero_offset Constant to be added to prevent 0/0 and log(0); defaults to 0.5 (smaller than any possible non-zero count)
 #' (choose 1 if ) data is already in counts
-scale_logit <- function(data, pos, neg, N = data[,"total"]) {
-  abs.data <- data[,union(pos, neg)]*unlist(N)
-  log(scale_gl(abs.data, pos)/ scale_gl(abs.data, neg))
+scale_logit <- function(data, pos, neg, N = data[,"total"], zero_offset = 0.5) {
+  abs.data <- data[,intersect(union(pos, neg), names(data))]*unlist(N)
+  log( (scale_gl(abs.data, pos) + zero_offset) /
+       (scale_gl(abs.data, neg) + zero_offset) )
 }
 
 #' Bipolar linear scaling function
@@ -212,10 +214,14 @@ rile.ManifestoDocument <- document_scaling(rile.default, scalingname = "rile")
 rile.ManifestoCorpus <- corpus_scaling(rile.default, scalingname = "rile")
 
 #' @rdname rile
+#' @export
 logit_rile <- function(x) { UseMethod("logit_rile", x) }
 #' @rdname rile
+#' @export
 logit_rile.default <- create_scaling(pos=rile_r, neg=rile_l, base.fun=scale_logit)
 #' @rdname rile
+#' @export
 logit_rile.ManifestoDocument <- document_scaling(logit_rile.default, scalingname = "logit_rile")
 #' @rdname rile
+#' @export
 logit_rile.ManifestoCorpus <- corpus_scaling(logit_rile.default, scalingname = "logit_rile")
