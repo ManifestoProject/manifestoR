@@ -90,7 +90,7 @@ rep.data.frame <- function(x, times = 1, ...) {
 #' @param N vector of numbers of quasi sentences to convert percentages to counts
 #' (choose 1 if ) data is already in counts
 scale_logit <- function(data, pos, neg, N = data[,"total"]) {
-  abs.data <- data[,union(pos, neg)]*N
+  abs.data <- data[,union(pos, neg)]*unlist(N)
   log(scale_gl(abs.data, pos)/ scale_gl(abs.data, neg))
 }
 
