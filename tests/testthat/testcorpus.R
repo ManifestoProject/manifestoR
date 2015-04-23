@@ -163,13 +163,17 @@ test_that("corpus to data.frame works", {
   corpdf <- as.data.frame(corpus)
   expect_is(corpdf, "data.frame")
   expect_more_than(nrow(corpdf), 100)
-  expect_true(all(c("content", "code") %in% names(corpdf)))
+  expect_true(all(c("text", "cmp_code") %in% names(corpdf)))
   expect_false("party" %in% names(corpdf))
   
   corpmetadf <- as.data.frame(corpus, with.meta = TRUE)
   expect_is(corpmetadf, "data.frame")
   expect_equal(nrow(corpmetadf), nrow(corpdf))
-  expect_true(all(c("content", "code", "party", "language") %in% names(corpmetadf)))
+  expect_true(all(c("text", "cmp_code", "party", "language") %in% names(corpmetadf)))
+
+  codes(corpus[[1]], "my_code") <- "X"
+  corpdf <- as.data.frame(corpus)
+  expect_true(all(c("text", "cmp_code", "my_code") %in% names(corpdf)))
   
   
 })

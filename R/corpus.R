@@ -179,8 +179,7 @@ as.data.frame.ManifestoDocument <- function(x,
                                             with.meta = FALSE,
                                             ...) {
     
-  dftotal <- data.frame(content = content(x),
-                        code = codes(x),
+  dftotal <- data.frame(x$content,
                         pos = 1:length(x),
                         row.names = row.names,
                         stringsAsFactors = stringsAsFactors,
