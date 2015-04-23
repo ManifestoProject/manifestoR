@@ -106,7 +106,7 @@ codes <- function(x, layer = "cmp_code") {
 #' @method codes ManifestoDocument
 #' @export
 codes.ManifestoDocument <- function(x, layer = "cmp_code") {
-  return(as.integer(x$content[,layer]))
+  return(x$content[,layer])
 }
 
 #' @method codes ManifestoCorpus

@@ -86,7 +86,7 @@ formatids <- function(ids) {
     warning(paste(n.before - n.after, "rows were ommitted from querying the database,",
                   "because they are NULL or NA."))
   }
-  
+
   return(ids)
 }
 
@@ -142,9 +142,23 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
                              cache=cache,
                              apikey=apikey)
 
-  if (is.null(metadata$manifesto_id)) {
-    metadata$manifesto_id <- rep(NA, times = nrow(metadata))
-  }
+  ## type conversion for certain metadata entries
+  metadata <- within(metadata, {
+    if (exists("manifesto_id")) {
+      manifesto_id <- as.integer(manifesto_id)
+    } else {
+      manifesto_id <- NA
+    }
+    if (exists("is_primary_doc")) {
+      is_primary_doc <- as.logical(is_primary_doc)
+    }
+    if (exists("may_contradict_core_dataset")) {
+      may_contradict_core_dataset <- as.logical(may_contradict_core_dataset)
+    }
+    if (exists("has_eu_code")) {
+      has_eu_code <- as.logical(has_eu_code)
+    }
+  })
   
   metadata <- tbl_df(metadata)
 

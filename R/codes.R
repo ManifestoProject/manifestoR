@@ -44,7 +44,7 @@ aggregate_cee_codes.ManifestoCorpus <- function(x) {
 #'
 #' @export
 count_codes <- function(doc,
-                        with_eu_codes = as.logical(meta(doc, "has_eu_code")),
+                        with_eu_codes = meta(doc, "has_eu_code"),
                         prefix = "per",
                         relative = TRUE) {
 
