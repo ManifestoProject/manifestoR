@@ -131,6 +131,13 @@ codes.ManifestoCorpus <- function(x, layer = "cmp_code") {
   return(x)
 }
 
+#' \code{codelayers} gives a list of the names of the coding layers present in the ManifestoDocument
+#' @rdname codes
+#' @export
+code_layers <- function(x) {
+  names(x$content)[-1]
+}
+
 #' @method meta ManifestoDocument
 #' @export
 meta.ManifestoDocument <- function(x, tag=NULL, ...) {

@@ -50,7 +50,7 @@ test_that("getting codes works", {
 
 
   ## getting
-
+  expect_equal(code_layers(eu_doc), c("cmp_code", "eu_code"))
   expect_is(codes(eu_doc), "integer")
   expect_equal(codes(eu_doc), codes(eu_doc, "cmp_code"))
   expect_is(codes(eu_doc, "eu_code"), "integer")
@@ -70,6 +70,12 @@ test_that("getting codes works", {
   expect_equal(codes(eu_doc, "eu_code"), rev(the_codes))
   codes(eu_doc, "eu_code") <- 5
   expect_true(all(codes(eu_doc, "eu_code") == 5))
+  
+  ## custom code layer
+  codes(eu_doc, "my_code") <- rep_len(c("A", "B"), length.out = length(eu_doc))
+  expect_equal(code_layers(eu_doc), c("cmp_code", "eu_code", "my_code"))
+  expect_equal(codes(eu_doc, "my_code")[1:2], c("A", "B"))
+  
 
 })
 
