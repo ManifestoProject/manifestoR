@@ -183,6 +183,35 @@ length(doc_subcodes)/length(doc)
 The CMP coding scheme can be found in the online documentation of the Manifesto
 Project dataset at [https://manifesto-project.wzb.eu/coding_schemes/1]().
 
+## Working with additional layers of codings
+
+Besides the main layer of CMP codings, you can create, store and access additional
+layers of codings in `ManifestoDocument`s by passing a name of the coding layer 
+as additional argument to the function `codes()`:
+
+```{r}
+## assigning a dummy code of alternating As and Bs
+codes(doc, "my_code") <- rep_len(c("A", "B"), length.out = length(doc))
+head(codes(doc, "my_code"))
+```
+
+You can view the names of the coding layers stored in a `ManifestoDocument` with
+the function `code_layers()`:
+```{r}
+code_layers(doc)
+```
+
+Note that certain documents downloaded from the Manifesto Corpus Database already
+have a second layer of codes named `eu_code`. These are codes that have been assigned
+to quasi-sentences by CMP coders additionally to the main CMP code to indicate
+policy statements that should or should not be implemented on the level of the
+European union. The documents that were coded in this way are marked in the
+corpus' metadata with the flag `has_eu_code`
+(see below [Using the document metadata](#using-the-document-metadata)).
+Note that, since these codes also have been used for computing the `per` and `rile`
+variables in the Manifesto Project Main Dataset, they are also used in `manifestoR`s
+`count_codes` and `rile` functions (see below [Scaling texts](#scaling-texts)) if the respective metadata flag is present.
+
 ## Text mining tools
 
 Since the Manifesto Corpus uses the infrastructure of the `tm` package, all
@@ -285,6 +314,7 @@ derived from hand-written coding sheets used prior to the digitalization of the
 Manifesto Project's data workflow, but the documents were digitalized and added
 to the Manifesto Corpus afterwards.
 * ... `annotations` is TRUE whenenver there are CMP codings available for the document.
+* ... `has_eu_code` marks document in which the additional coding layer `eu_code` is present. These codes have been assigned to quasi-sentences by CMP coders additionally to the main CMP code to indicate policy statements that should or should not be implemented on the level of the European union.
 
 The other metadata entries have primarily technical functions for communication
 between the `manifestoR` package and the online database.
@@ -369,7 +399,7 @@ converted to R's internal `data.frame` format and processed further:
 doc_df <- as.data.frame(doc)
 head(within(doc_df, {
   ## for pretty printing
-  content <- paste0(substr(content, 1, 60), "...")
+  text <- paste0(substr(text, 1, 60), "...")
 }))
 ```
 
@@ -385,6 +415,10 @@ For more information on the available metadata per document, refer to the sectio
 
 Note again that also all functionality provided by `tm`, such as `writeCorpus`
 is available on a `ManifestoCorpus`.
+
+# Scaling texts
+
+TODO
 
 # Additional Information
 
