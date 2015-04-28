@@ -466,6 +466,14 @@ mp_view_originals <- function(ids, maxn = 5, apikey = NULL, cache = TRUE) {
       browseURL(paste0(kmurl.originalsroot, url))
     }
   }
-  
-  
+
+}
+
+#' Print Manifesto Corpus citation information
+#'
+#' @export
+mp_cite <- function() {
+  message(paste0(kcitemessage, "\n\n",
+                 "You're currently using corpus version ",
+                    getn(kmetaversion, envir = mp_cache()), "."))
 }
