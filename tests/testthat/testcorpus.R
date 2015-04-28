@@ -122,7 +122,7 @@ test_that("requesting an empty corpus works", {
   
   ## requesting only a not available document
   meta.spd04 <- data.frame(party=c(41320), date=c(200409)) ## this does not exist
-  expect_warning(corp.spd04 <- mp_corpus(meta.spd04))
+  corp.spd04 <- mp_corpus(meta.spd04)
   expect_equal(length(corp.spd04), 0)
   
 })
