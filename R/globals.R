@@ -23,7 +23,7 @@ kmtype.main <- "main"
 kmtype.versions <- "versions"
 kmtype.metaversions <- "metaversions"
 
-kcitation <- "Lehmann, Pola / Merz, Nicolas, Regel / Sven, Werner / Annika (2015): Manifesto Corpus. Berlin: WZB Social Science Center."
+kcitation <- "Lehmann, Pola / Merz, Nicolas / Regel, Sven / Werner, Annika (2015): Manifesto Corpus. Berlin: WZB Berlin Social Science Center."
 kcitemessage <- paste0("When publishing work using the Manifesto Corpus, please ",
                        "make sure to give the identification number of the corpus version ",
                        "used for your analysis and to reference\n\n",
