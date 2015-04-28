@@ -435,5 +435,6 @@ For general questions about the Project and dataset, please check the
 on our website first.
 
 We also welcome bug reports, feature requests or (planned) source code contributions for the
-`manifestoR` package.
+`manifestoR` package. For all of these, best refer to our repository on github:
+[https://github.com/ManifestoProject/manifestoR](https://github.com/ManifestoProject/manifestoR).
 
