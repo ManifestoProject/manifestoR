@@ -22,3 +22,13 @@ kmtype.original <- "original"
 kmtype.main <- "main"
 kmtype.versions <- "versions"
 kmtype.metaversions <- "metaversions"
+
+kcitation <- "THE Manifesto Project"
+kcitemessage <- paste0("When publishing work using the Manifesto Corpus, please ",
+                       "make sure to give the identification number of the corpus version ",
+                       "used for your analysis and to reference\n\n",
+                       kcitation)
+
+message(paste0(kcitemessage, "\n\n",
+               "You can print citation and version information with ",
+               "the function mp_cite()."))
