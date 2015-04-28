@@ -19,7 +19,7 @@ scale_gl <- function(data,
                      weights = 1,
                      link.fun = identity) {
 
-  data <- data[,vars[vars %in% names(data)]]
+  data <- select(data, one_of(vars[vars %in% names(data)]))
 
   if (is.matrix(weights)) {
 
@@ -56,8 +56,8 @@ scale_gl <- function(data,
   }
 
   vars <- vars[vars %in% names(data)]
-  data <- data[,vars]
-  weights <- weights[,vars]
+  data <- select(data, one_of(vars))
+  weights <- select(weights, one_of(vars))
 
   link.fun(rowSums(data*weights)) # apply weighting to rows, sum, link
 

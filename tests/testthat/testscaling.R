@@ -19,6 +19,21 @@ test_that("rile computation from corpus equals dataset value", {
   
 })
 
+test_that("rile computation for pathological data points works", {
+
+  mpds_onevar <- subset(mpds, country == 32 & date == 201302 & party > 32900)
+
+  corpus_riles <- rile(mp_corpus(mpds_onevar))
+  joint_riles <- left_join(corpus_riles,
+                           select(mpds_onevar, one_of("party", "date", "rile")),
+                           by = c("party", "date"))
+
+  expect_equal(joint_riles$rile.x,
+               joint_riles$rile.y,
+               tolerance = 0.1)
+
+})
+
 test_that("scaling works for different formats of weights", {
   
   testdata <- data.frame(per101 = c(0.5, 0.0, 1.0),
