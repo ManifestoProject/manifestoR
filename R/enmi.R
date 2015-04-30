@@ -1,3 +1,2 @@
-### effective number of manifesto issues
-
-zac greene
+## effective number of manifesto issues
+# zac greene
