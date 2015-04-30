@@ -3,10 +3,10 @@
 #' Computes scores based on the Franzmann & Kaiser Method (see article..) 
 #' issue structures are not calculated from scratch but taken as given from f&k
 #'
-#' @param a dataframe or matrix
-#' @param variable names that should be used for the scaling (this can be used to scale positions on dimensions other than the left-right)
-#' @param base values
-#' @param smoothing
+#' @param data a dataframe or matrix
+#' @param vars variable names that should be used for the scaling (this can be used to scale positions on dimensions other than the left-right)
+#' @param basevalues flag for transforming data to be relative to the minimum
+#' @param smoothing flag for using smoothing
 #' @export
 franzmann <- function(data,
                       vars = grep("per\\d{3}$", names(data), value=TRUE),
@@ -97,9 +97,9 @@ smooth_scores <- function(data,score) {
 #'
 #' @references Gabel, M. J., & Huber, J. D. (2000). Putting Parties in Their Place: Inferring Party Left-Right Ideological Positions from Party Manifestos Data. American Journal of Political Science, 44(1), 94-103.
 #'
-#' @param a dataframe or matrix
-#' @param variable names that should be used for the scaling (usually the variables per101,per102,...)
-#' @param invert scores (to change the direction of the dimension to facilitate comparison with other indices) (default is FALSE)
+#' @param data a dataframe or matrix
+#' @param vars variable names that should be used for the scaling (usually the variables per101,per102,...)
+#' @param invert invert scores (to change the direction of the dimension to facilitate comparison with other indices) (default is FALSE)
 #' @export
 vanilla <- function(data,
                     vars = grep("per\\d{3}$", names(data), value=TRUE),
@@ -109,40 +109,3 @@ vanilla <- function(data,
   if (invert==TRUE) vanilla.scores <- vanilla.scores*-1
   return(vanilla.scores)
 }
-  
-#' Simple linear rescaling of values
-#' 
-#' @param indicates the minimum of the new scale (default is -1)
-#' @param indicates the maximum of the new scale (default is +1) 
-#' @param indicates the minimum of the existing scale. Can be used to rescale from a known theoretical scale (e.g. -100). If left empty the empirical minimum is used. 
-#' @param indicates the maximum of the existing. See above.
-#' 
-rescale <- function(pos,newmin=-1,newmax=1,oldmin=min(pos),oldmax=max(pos)) {
-   
-   if(newmin>newmax & oldmin>oldmax) {
-      stop("newmin > newmax or oldmin > oldmax")
-   }
-   
-   if(!is.numeric(c(pos,newmin, newmax, oldmin, oldmax))) {
-      stop("input variables are not numbers")
-   }
-   
-   oldcenter <- (oldmax + oldmin)/2
-   oldrange <- oldmax - oldmin
-   newcenter <- (newmax + newmin)/2
-   newrange <- newmax - newmin
-   
-   # shift center to zero
-   newpos <- pos - oldcenter
-   
-   # stretch
-   newpos <- newpos*newrange/oldrange
-   
-   # shift to new mean
-   newpos <- newpos + newcenter
-
-   return(newpos)
-}
-
-
-

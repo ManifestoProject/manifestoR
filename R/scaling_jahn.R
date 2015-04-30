@@ -1,40 +1,16 @@
-# nur core möglich. for lr plus unendlich viele regressionen und abwägungen nötig
-
 #' LR Scores by Jahn
 #' 
-#' Computes scores based on a multidemsional scaling.. 
-#' X categories are derived deductively. Scores 
+#' Computes scores based on a multidemsional scaling.
+#' categories are derived deductively. 
 #' Factor scores using the regression method are then considered as party positions on this dominant dimension. 
 #'
-#' @param a dataframe or matrix
-#' @param variable names that should be used for the scaling (usually the variables per101,per102,...)
-#' @param invert scores
-#' 
-#' mds to get stimulus scores and then gl_scaling function
-# 
-# nur core möglich. for lr plus unendlich viele regressionen und abwägungen nötig
-
-#' LR Scores by Jahn
-#' 
-#' Computes scores based on a multidemsional scaling.. 
-#' X categories are derived deductively. Scores 
-#' Factor scores using the regression method are then considered as party positions on this dominant dimension. 
-#'
-#' @param a dataframe or matrix
-#' @param variable names that should be used for the scaling (usually the variables per101,per102,...)
-#' @param invert scores
-#' 
-# mds to get stimulus scores and then gl_scaling function
-# 
-
-
+#' @param data a dataframe or matrix
+#' @param vars variable names that should be used for the scaling (usually the variables per101,per102,...)
+#' @param dims number of dimensions
 lrcore <- function(data,
                    vars, 
-                   dims=1,
-                   minpervote=2) {
-  if (!minpervote==is.numeric | minpervote < 0 | minpervote > 99.9999) {
-    stop("a problem with the pervotes")
-  }
+                   dims=1) {
+
   # calculate distances
   
   # check if vars are in data
@@ -45,7 +21,7 @@ lrcore <- function(data,
   ced <- cmdscale(distances, k = dims, eig = FALSE, add = FALSE, x.ret = FALSE)
   mdsweights <- ced[,1]
   
-  scale_gl(data, vars,weights=mdsweights)
+  scale_gl(data, vars, weights=mdsweights)
   return(lrcorescores)
 }
 # 

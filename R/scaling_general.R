@@ -120,7 +120,7 @@ scale_bipolar <- function(data, pos, neg, ...) {
 #' 
 #' Computes scores based on the ratio scaling suggested by Kim and Fording (1998) and by Laver & Garry (2000).
 #'
-#' @param a dataframe or matrix
+#' @param data a dataframe or matrix
 #' @param pos codes that should contribute positively
 #' @param neg codes that should contribute negatively
 #' @param ... further parameters passed on to \code{link{scale_gl}}
@@ -244,7 +244,14 @@ logit_rile.ManifestoDocument <- document_scaling(logit_rile.default, scalingname
 logit_rile.ManifestoCorpus <- corpus_scaling(logit_rile.default, scalingname = "logit_rile")
 
 
-### simple linear rescaling of positions
+#' Simple linear rescaling of positions
+#' 
+#' @param pos position data to be rescaled
+#' @param newmin indicates the minimum of the new scale (default is -1)
+#' @param newmax indicates the maximum of the new scale (default is +1) 
+#' @param oldmin indicates the minimum of the existing scale. Can be used to rescale from a known theoretical scale (e.g. -100). If left empty the empirical minimum is used. 
+#' @param oldmax indicates the maximum of the existing. See above.
+#' @export
 rescale <- function(pos,newmin=-1,newmax=1,oldmin=min(pos),oldmax=max(pos)) {
   
   if(newmin>newmax & oldmin>oldmax) {
@@ -271,6 +278,5 @@ rescale <- function(pos,newmin=-1,newmax=1,oldmin=min(pos),oldmax=max(pos)) {
   
   return(newpos)
 }
-
 
 
