@@ -117,6 +117,21 @@ scale_bipolar <- function(data, pos, neg, ...) {
            ...)
 }
 
+#' Ratio Scaling 
+#' 
+#' Computes scores based on the ratio scaling suggested by Kim and Fording (1998) and by Laver & Garry (2000).
+#'
+#' @param a dataframe or matrix
+#' @param pos codes that should contribute positively
+#' @param neg codes that should contribute negatively
+#' @references Kim, H., & Fording, R. C. (1998). Voter ideology in western democracies, 1946–1989. European Journal of Political Research, 33(1), 73–97.
+#' @references Laver, M., & Garry, J. (2000). Estimating Policy Positions from Political Texts. American Journal of Political Science, 44(3), 619–634.
+
+scale_ratio <- function(data, pos, neg) {
+   scale_gl(data, vars = c(pos, neg), weights = c(rep(1, length(pos)), rep(-1, length(neg))), ..) /
+      scale_gl(data, vars = c(pos, neg), weights = c(rep(1, length(pos)), rep(1, length(neg))), ...)
+}
+
 #' Bipolar scaling function creator
 #' 
 #' Convenience function to create a bipolar scaling function
