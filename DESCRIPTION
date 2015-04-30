@@ -1,7 +1,7 @@
 Package: manifestoR
 Title: Access and process data and documents of the Manifesto Project
-Date: 2015-03-31
-Version: 0.9-6
+Date: 2015-04-28
+Version: 0.9-11
 Authors@R: c(person("Jirka", "Lewandowski",
 		    role = c("aut", "cre"),
 		    email = "jirka.lewandowski@wzb.eu"),
@@ -28,7 +28,9 @@ Suggests:
     testthat,
     R.rsp
 VignetteBuilder: R.rsp
-Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R codes.R scaling.R renaming.R
+Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R
+    codes.R scaling.R renaming.R bootstrap.R
 License: GPL (>= 3)
-URL: http://manifesto-project.wzb.eu/
+URL: https://github.com/ManifestoProject/manifestoR, https://manifesto-project.wzb.eu/
+BugReports: https://github.com/ManifestoProject/manifestoR/issues
 LazyData: true

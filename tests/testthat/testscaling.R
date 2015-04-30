@@ -3,7 +3,7 @@ mp_setapikey(key.file = "../manifesto_apikey.txt")
 
 mpds <- mp_maindataset()
 
-test_that("rile computation from dataset equals dataset value", {
+test_that("rile computation from corpus equals dataset value", {
   
   mpds.blg <- subset(mpds, countryname=="Bulgaria" &
                            edate > as.Date("2000-01-01"))
@@ -17,6 +17,21 @@ test_that("rile computation from dataset equals dataset value", {
                joint_riles$rile.y,
                tolerance = 0.1)
   
+})
+
+test_that("rile computation for pathological data points works", {
+
+  mpds_onevar <- subset(mpds, country == 32 & date == 201302 & party > 32900)
+
+  corpus_riles <- rile(mp_corpus(mpds_onevar))
+  joint_riles <- left_join(corpus_riles,
+                           select(mpds_onevar, one_of("party", "date", "rile")),
+                           by = c("party", "date"))
+
+  expect_equal(joint_riles$rile.x,
+               joint_riles$rile.y,
+               tolerance = 0.1)
+
 })
 
 test_that("scaling works for different formats of weights", {
@@ -99,13 +114,24 @@ test_that("corpus and document scaling works", {
   corp <- mp_corpus(mpds.fr)
 
   scaling_as_expected(corp, rile, "rile")
-#   scaling_as_expected(corp, logit_rile, "logit_rile")
+  scaling_as_expected(corp, logit_rile, "logit_rile")
+
+})
+
+test_that("logit_rile scaling works", {
+
+  mpds.fr <- subset(mp_maindataset(), countryname == "France")
+
+  logit_scaled <- logit_rile(mpds.fr)
+  expect_is(logit_scaled, "numeric")
+  expect_false(any(is.na(logit_scaled)))
+
+  corp <- mp_corpus(mpds.fr)
+
+  scaling_as_expected(corp, logit_rile, "logit_rile")
 
 })
 
 
 ## TODO more tests, of other functions
 
-# comparedf$logit.rile <- logit.rile(mpds.fr)
-
-# print(comparedf$logit.rile)

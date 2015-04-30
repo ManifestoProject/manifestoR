@@ -43,6 +43,42 @@ test_that("non-standard evaluation corpus download works", {
   
 })
 
+test_that("getting codes works", {
+
+  eu_corp <- mp_corpus(party == 15328 & date == 200705)
+  eu_doc <- eu_corp[[1]]
+
+
+  ## getting
+  expect_equal(code_layers(eu_doc), c("cmp_code", "eu_code"))
+  expect_is(codes(eu_doc), "integer")
+  expect_equal(codes(eu_doc), codes(eu_doc, "cmp_code"))
+  expect_is(codes(eu_doc, "eu_code"), "integer")
+  expect_false(all(na.omit(codes(eu_doc, "eu_code")) == 0L))
+
+
+  ## modifying
+
+  the_codes <- codes(eu_doc)
+  codes(eu_doc) <- rev(codes(eu_doc))
+  expect_equal(codes(eu_doc), rev(the_codes))
+  codes(eu_doc) <- 5
+  expect_true(all(codes(eu_doc) == 5))
+
+  the_codes <- codes(eu_doc, "eu_code")
+  codes(eu_doc, "eu_code") <- rev(codes(eu_doc, "eu_code"))
+  expect_equal(codes(eu_doc, "eu_code"), rev(the_codes))
+  codes(eu_doc, "eu_code") <- 5
+  expect_true(all(codes(eu_doc, "eu_code") == 5))
+  
+  ## custom code layer
+  codes(eu_doc, "my_code") <- rep_len(c("A", "B"), length.out = length(eu_doc))
+  expect_equal(code_layers(eu_doc), c("cmp_code", "eu_code", "my_code"))
+  expect_equal(codes(eu_doc, "my_code")[1:2], c("A", "B"))
+  
+
+})
+
 test_that("codefilter works", {
   
   allowed_codes <- c(503, 103)
@@ -51,6 +87,15 @@ test_that("codefilter works", {
   
   expect_true(all(lapply(content(corp_filtered), function(doc) {
     return(all(codes(doc) %in% allowed_codes))
+  })))
+  
+  ## eu_codes
+  allowed_codes <- c(108)
+  corp_filtered <- mp_corpus(party == 15328,
+                             codefilter = allowed_codes,
+                             codefilter_layer = "eu_code")
+  expect_true(all(lapply(content(corp_filtered), function(doc) {
+    return(all(codes(doc, "eu_code") %in% allowed_codes))
   })))
   
 })
@@ -77,7 +122,7 @@ test_that("requesting an empty corpus works", {
   
   ## requesting only a not available document
   meta.spd04 <- data.frame(party=c(41320), date=c(200409)) ## this does not exist
-  expect_warning(corp.spd04 <- mp_corpus(meta.spd04))
+  corp.spd04 <- mp_corpus(meta.spd04)
   expect_equal(length(corp.spd04), 0)
   
 })
@@ -118,13 +163,17 @@ test_that("corpus to data.frame works", {
   corpdf <- as.data.frame(corpus)
   expect_is(corpdf, "data.frame")
   expect_more_than(nrow(corpdf), 100)
-  expect_true(all(c("content", "code") %in% names(corpdf)))
+  expect_true(all(c("text", "cmp_code") %in% names(corpdf)))
   expect_false("party" %in% names(corpdf))
   
   corpmetadf <- as.data.frame(corpus, with.meta = TRUE)
   expect_is(corpmetadf, "data.frame")
   expect_equal(nrow(corpmetadf), nrow(corpdf))
-  expect_true(all(c("content", "code", "party", "language") %in% names(corpmetadf)))
+  expect_true(all(c("text", "cmp_code", "party", "language") %in% names(corpmetadf)))
+
+  codes(corpus[[1]], "my_code") <- "X"
+  corpdf <- as.data.frame(corpus)
+  expect_true(all(c("text", "cmp_code", "my_code") %in% names(corpdf)))
   
   
 })

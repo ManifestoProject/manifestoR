@@ -13,7 +13,6 @@ metadata_as_request <- function(request,
   
 }
 
-## first get documents via ids
 test_that("simple metadata download works", {
   
   wanted <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
@@ -74,15 +73,15 @@ test_that("disabled cache does not change metadata cache", {
   
 })
 
-test_that("querying wrong ids gives warning", {
-  
-  wantedfail <- data.frame(party=c(41320, 41320), date=c(200909, 200409))
-  wantedwork <- data.frame(party=c(41320), date=c(200909))
-  
-  expect_warning(metadatafail <- mp_metadata(wantedfail))  
-  metadata_as_request(wantedwork, metadatafail)
-  
-})
+# test_that("querying wrong ids gives warning", {
+#   
+#   wantedfail <- data.frame(party=c(41320, 41320), date=c(200909, 200409))
+#   wantedwork <- data.frame(party=c(41320), date=c(200909))
+#   
+#   expect_warning(metadatafail <- mp_metadata(wantedfail))  
+#   metadata_as_request(wantedwork, metadatafail)
+#   
+# })
 
 test_that("availability summary works", {
 

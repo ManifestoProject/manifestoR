@@ -86,7 +86,7 @@ formatids <- function(ids) {
     warning(paste(n.before - n.after, "rows were ommitted from querying the database,",
                   "because they are NULL or NA."))
   }
-  
+
   return(ids)
 }
 
@@ -142,9 +142,23 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
                              cache=cache,
                              apikey=apikey)
 
-  if (is.null(metadata$manifesto_id)) {
-    metadata$manifesto_id <- rep(NA, times = nrow(metadata))
-  }
+  ## type conversion for certain metadata entries
+  metadata <- within(metadata, {
+    if (exists("manifesto_id")) {
+      manifesto_id <- as.integer(manifesto_id)
+    } else {
+      manifesto_id <- NA
+    }
+    if (exists("is_primary_doc")) {
+      is_primary_doc <- as.logical(is_primary_doc)
+    }
+    if (exists("may_contradict_core_dataset")) {
+      may_contradict_core_dataset <- as.logical(may_contradict_core_dataset)
+    }
+    if (exists("has_eu_code")) {
+      has_eu_code <- as.logical(has_eu_code)
+    }
+  })
   
   metadata <- tbl_df(metadata)
 
@@ -324,6 +338,7 @@ print.ManifestoAvailability <- function(x, ...) {
 #' @param codefilter A vector of CMP codes to filter the documents: only quasi-sentences
 #'        with the codes specified in \code{codefilter} are returned. If \code{NULL},
 #'        no filtering is applied
+#' @param codefilter_layer layer to which the codefilter should apply, defaults to cmp_code
 #'              
 #' @return an object of \code{\link[tm]{Corpus}}'s subclass
 #' \code{\link{ManifestoCorpus}} holding the available of the requested documents
@@ -340,7 +355,11 @@ print.ManifestoAvailability <- function(x, ...) {
 #' partially_available <- data.frame(party=c(41320, 41320), date=c(200909, 200509))
 #' mp_corpus(partially_available)
 #' }
-mp_corpus <- function(ids, apikey=NULL, cache=TRUE, codefilter = NULL) {
+mp_corpus <- function(ids,
+                      apikey=NULL,
+                      cache=TRUE,
+                      codefilter = NULL,
+                      codefilter_layer = "cmp_code") {
 
   ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache)
 
@@ -365,10 +384,17 @@ mp_corpus <- function(ids, apikey=NULL, cache=TRUE, codefilter = NULL) {
         class(the.meta) <- "TextDocumentMeta"
         items <- texts[idx, "items"][[1]][[1]] ## what the hack...
         names(items)[which(names(items)=="content")] <- "text" ## rename from json
-        items[which(is.nacode(items$code)),"code"] <- NA
-        suppressWarnings( ## string codes might have become factor
-          items[,"code"] <- as.integer(as.character(items[,"code"]))
-        ) 
+        names(items)[which(names(items)=="code")] <- "cmp_code"
+        items[which(is.nacode(items$cmp_code)),"cmp_code"] <- NA
+        if ("eu_code" %in% names(items)) {
+          items[which(is.nacode(items$eu_code)),"eu_code"] <- NA 
+        }
+        suppressWarnings({ ## string codes might have become factor
+          items[,"cmp_code"] <- as.integer(as.character(items[,"cmp_code"]))
+          if ("eu_code" %in% names(items)) {
+            items[,"eu_code"] <- as.integer(as.character(items[,"eu_code"]))
+          }
+        }) 
         
         
         elem <- structure(list(content=items, meta=the.meta))
@@ -386,7 +412,7 @@ mp_corpus <- function(ids, apikey=NULL, cache=TRUE, codefilter = NULL) {
   ## codefilter
   if (!is.null(codefilter)) {
     corpus <- tm_map(corpus, function(doc) {
-                                return(subset(doc, codes(doc) %in% codefilter))
+          return(subset(doc, codes(doc, codefilter_layer) %in% codefilter))
       })
   }
   
@@ -440,6 +466,14 @@ mp_view_originals <- function(ids, maxn = 5, apikey = NULL, cache = TRUE) {
       browseURL(paste0(kmurl.originalsroot, url))
     }
   }
-  
-  
+
+}
+
+#' Print Manifesto Corpus citation information
+#'
+#' @export
+mp_cite <- function() {
+  message(paste0(kcitemessage, "\n\n",
+                 "You're currently using corpus version ",
+                    getn(kmetaversion, envir = mp_cache()), "."))
 }

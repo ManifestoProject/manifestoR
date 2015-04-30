@@ -1,13 +1,21 @@
-wrap_mpdb_call <- function(call) {
+wrap_mpdb_call <- function(call, version = NULL) {
+  message <- "Connecting to Manifesto Project DB API..."
+  if (!is.null(version)) {
+    message <- paste(message, "corpus version:", version)
+  }
   function() {
-    cat("Connecting to Manifesto Project DB API...\n")
+    cat(message, "\n")
     return(call)
   }
 }
 
-wrap_mpdb_call_with_ids <- function(fun) {
+wrap_mpdb_call_with_ids <- function(fun, version = NULL) {
+  message <- "Connecting to Manifesto Project DB API..."
+  if (!is.null(version)) {
+    message <- paste(message, "corpus version:", version)
+  }
   function(ids) {
-    cat("Connecting to Manifesto Project DB API...\n")
+    cat(message, "\n")
     return(fun(ids))
   }
 }
@@ -192,7 +200,7 @@ mp_which_corpus_version <- function() {
 #' 
 #' @export
 mp_use_corpus_version <- function(versionid, apikey=NULL) {
-  
+
   cache_versionid <- getn(kmetaversion, envir = mp_cache())
   
   if (is.null(cache_versionid) || versionid != cache_versionid) {
@@ -248,10 +256,12 @@ mp_use_corpus_version <- function(versionid, apikey=NULL) {
     }    
 
     ## copy other cache content
-    copy_to_env(setdiff(ls(envir = mp_cache()),
-                        c(kmetaversion, kmetadata,
-                          texts_in_cache[-texts_in_cache$download]$vname)),
-                mp_cache(), new_cache)
+    to_copy <- setdiff(ls(envir = mp_cache()),
+                       c(kmetaversion, kmetadata,
+                         as.character(texts_in_cache[texts_in_cache$download,]$vname)))
+    copy_to_env(to_copy,
+                mp_cache(),
+                new_cache)
  
     mp_load_cache(new_cache)
 
@@ -353,7 +363,8 @@ get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
     call <- wrap_mpdb_call(get_mpdb(kmtype.main,
                                     parameters=ids,
                                     versionid = versionid,
-                                    ...))
+                                    ...),
+                           version = versionid)
     return(single_var_caching(paste0(kdatasetname, ids$key), call,
                               cache = cache))
     
@@ -365,7 +376,8 @@ get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
                       parameters = formatmetaparams(ids),
                       versionid = versionid,
                       ...))
-    })
+    },
+    version = versionid)
     
     return(table_caching(kmetadata, fun, ids, id.names = c("party", "date"),
                          cache = cache))
@@ -378,7 +390,8 @@ get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
                       parameters = formattextparams(ids),
                       versionid = versionid,
                       ...))      
-    })
+    },
+    version = versionid)
     
     varname_fun <- function(ids) {
       paste(ktextname, ids$party, ids$date, ids$manifesto_id, sep = "_")

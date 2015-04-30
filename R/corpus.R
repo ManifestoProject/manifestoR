@@ -64,7 +64,7 @@ ManifestoCorpus <- function(csource) {
 #' doc <- corpus[[1]]
 #' print(doc)
 #' }
-ManifestoDocument <- function(content = data.frame(names = c("text", "code")),
+ManifestoDocument <- function(content = data.frame(names = c("text", "cmp_code")),
                               id = character(0),
                               meta = ManifestoDocumentMeta()) {
   structure(list(content = content,
@@ -95,39 +95,47 @@ content.ManifestoDocument <- function(x) {
 #' modification needs to be done document-wise.
 #' 
 #' @param x document or corpus to get the codes from
+#' @param layer layer of codings to access, defaults to cmp_code, alternative: eu_code
 #' @rdname codes
 #' @export
-codes <- function(x) {
+codes <- function(x, layer = "cmp_code") {
   UseMethod("codes", x)
 }
 
 #' @rdname codes
 #' @method codes ManifestoDocument
 #' @export
-codes.ManifestoDocument <- function(x) {
-  return(as.integer(x$content$code))
+codes.ManifestoDocument <- function(x, layer = "cmp_code") {
+  return(x$content[,layer])
 }
 
 #' @method codes ManifestoCorpus
 #' @rdname codes
 #' @export
-codes.ManifestoCorpus <- function(x) {
-  c(unlist(lapply(x, codes)))
+codes.ManifestoCorpus <- function(x, layer = "cmp_code") {
+  c(unlist(lapply(x, codes, layer)))
 }
 
 #' @param value new codes
 #' @rdname codes
 #' @export
-`codes<-` <- function(x, value) {
+`codes<-` <- function(x, layer = "cmp_code", value) {
   UseMethod("codes<-", x)
 }
 
 #' @rdname codes
 #' @method codes<- ManifestoDocument
 #' @export
-`codes<-.ManifestoDocument` <- function(x, value) {
-  x$content$code <- value
+`codes<-.ManifestoDocument` <- function(x, layer = "cmp_code", value) {
+  x$content[,layer] <- value
   return(x)
+}
+
+#' \code{codelayers} gives a list of the names of the coding layers present in the ManifestoDocument
+#' @rdname codes
+#' @export
+code_layers <- function(x) {
+  names(x$content)[-1]
 }
 
 #' @method meta ManifestoDocument
@@ -171,8 +179,7 @@ as.data.frame.ManifestoDocument <- function(x,
                                             with.meta = FALSE,
                                             ...) {
     
-  dftotal <- data.frame(content = content(x),
-                        code = codes(x),
+  dftotal <- data.frame(x$content,
                         pos = 1:length(x),
                         row.names = row.names,
                         stringsAsFactors = stringsAsFactors,
