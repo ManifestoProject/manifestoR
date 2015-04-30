@@ -418,6 +418,16 @@ is available on a `ManifestoCorpus`.
 
 # Scaling texts
 
+## Using manifestoR's scaling functions
+
+TODO
+
+## Writing custom scaling functions
+
+TODO
+
+## Bootstrapping scaling function distributions and standard errors
+
 TODO
 
 # Additional Information
