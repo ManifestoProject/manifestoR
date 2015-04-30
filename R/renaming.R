@@ -11,6 +11,10 @@ gsubx <- function(x, pattern, replacement, ...) {
 #' @return success flag
 #' @export
 rename_to_v9 <- function(infile, outfile = infile) {
+
+  .Deprecated(new ="", package = "manifestoR",
+              msg = "renaming functions in manifestoR where only used for internal purposes and are no longer maintained")
+
   fl <- file(infile)
   content <- readLines(fl)
   close(fl)
@@ -26,7 +30,7 @@ rename_to_v9 <- function(infile, outfile = infile) {
     gsubx("manifesto.meta", "mp_metadata", fixed = TRUE) %>%
     gsubx("manifesto.availability", "mp_availability", fixed = TRUE) %>%
     gsubx("manifesto.corpus", "mp_corpus", fixed = TRUE) %>%
-    gsubx("gl.scaling", "scale_gl", fixed = TRUE) %>%
+    gsubx("gl.scaling", "scale_weighted", fixed = TRUE) %>%
     gsubx("logit.scaling", "scale_logit", fixed = TRUE) %>%
     gsubx("bipolar.scaling", "scale_bipolar", fixed = TRUE) %>%
     gsubx("create.scaling", "create_scaling", fixed = TRUE)
@@ -39,12 +43,6 @@ rename_to_v9 <- function(infile, outfile = infile) {
     
 }
 
-## for MPDB-Tools
-if(all(sapply(c("infile", "outfile"), exists))) {
-  
-  rename_to_v9(infile, outfile)
-  
-}
 
 #' Rename function names to to manifestoR v0.9
 #' 

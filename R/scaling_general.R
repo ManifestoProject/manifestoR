@@ -119,31 +119,6 @@ scale_ratio <- function(data, pos, neg, ...) {
       scale_bipolar(data, pos = pos, neg = c(), ...)
 }
 
-#' Bipolar scaling function creator
-#' 
-#' Convenience function to create a bipolar scaling function
-#' by fixing the arguments
-#' pos and neg of \code{\link{scale_bipolar}}
-#'
-#' @param pos codes that should contribute positively
-#' @param neg codes that should contribute negatively
-#' @param base.fun Generic bipolar scaling function to be used (must have arguments pos and neg)
-#' @param var.prefix Prefix used for all variable names
-#' @param ... further arguments to be fixed in \code{base.fun}
-#' @export
-create_scaling <- function(pos, neg,
-                           base.fun = scale_bipolar,
-                           var.prefix = "per",
-                           ...) {
-  functional::Curry(base.fun,
-                    pos=paste0(var.prefix, pos),
-                    neg=paste0(var.prefix, neg),
-                    ...)
-}
-
-rile_r <- c(104, 201, 203, 305, 401, 402, 407, 414, 505, 601, 603, 605, 606)
-rile_l <- c(103, 105, 106, 107, 202, 403, 404, 406, 412, 413, 504, 506, 701)
-
 #' Construct text scaling functions
 #' 
 #' Make a scaling function applicable to a ManifestoDocument
@@ -197,6 +172,8 @@ corpus_scaling <- function(scalingfun, scalingname = "scaling") {
   }
 }
 
+rile_r <- c(104, 201, 203, 305, 401, 402, 407, 414, 505, 601, 603, 605, 606)
+rile_l <- c(103, 105, 106, 107, 202, 403, 404, 406, 412, 413, 504, 506, 701)
 #' RILE
 #' 
 #' Computes the RILE or other bipolar linear scaling measures for each case in a
@@ -209,7 +186,9 @@ corpus_scaling <- function(scalingfun, scalingname = "scaling") {
 rile <- function(x) { UseMethod("rile", x) }
 #' @rdname rile
 #' @export
-rile.default <- create_scaling(pos=rile_r, neg=rile_l)
+rile.default <- functional::Curry(scale_bipolar,
+                                  pos=paste0("per", rile_r),
+                                  neg=paste0("per", rile_l))
 #' @rdname rile
 #' @export
 rile.ManifestoDocument <- document_scaling(rile.default, scalingname = "rile")
@@ -222,7 +201,9 @@ rile.ManifestoCorpus <- corpus_scaling(rile.default, scalingname = "rile")
 logit_rile <- function(x) { UseMethod("logit_rile", x) }
 #' @rdname rile
 #' @export
-logit_rile.default <- create_scaling(pos=rile_r, neg=rile_l, base.fun=scale_logit)
+logit_rile.default <- functional::Curry(scale_logit,
+                                        pos=paste0("per", rile_r),
+                                        neg=paste0("per", rile_l))
 #' @rdname rile
 #' @export
 logit_rile.ManifestoDocument <- document_scaling(logit_rile.default, scalingname = "logit_rile")
