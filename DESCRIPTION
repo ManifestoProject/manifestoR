@@ -24,17 +24,15 @@ Imports:
     utils,
     httr (>= 0.3),
     jsonlite (>= 0.9.12),
-    functional (>= 0.6),
-    psych,
-    proxy
+    functional (>= 0.6)
 Suggests:
     knitr,
     rmarkdown,
     testthat,
     R.rsp
-VignetteBuilder: knitr
+VignetteBuilder: R.rsp
 Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R
-    codes.R scaling_general.R scaling_rile.R scaling_functions.R scaling_jahn.R
+    codes.R scaling_general.R scaling_rile.R scaling_functions.R
     scaling_bootstrap.R renaming.R
 License: GPL (>= 3)
 URL: https://github.com/ManifestoProject/manifestoR, https://manifesto-project.wzb.eu/

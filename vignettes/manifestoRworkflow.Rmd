@@ -210,7 +210,7 @@ corpus' metadata with the flag `has_eu_code`
 (see below [Using the document metadata](#using-the-document-metadata)).
 Note that, since these codes also have been used for computing the `per` and `rile`
 variables in the Manifesto Project Main Dataset, they are also used in `manifestoR`s
-`count_codes` and `rile` functions (see below [Scaling texts](#scaling-texts)) if the respective metadata flag is present.
+`count_codes` and `rile` functions.
 
 ## Text mining tools
 
@@ -415,20 +415,6 @@ For more information on the available metadata per document, refer to the sectio
 
 Note again that also all functionality provided by `tm`, such as `writeCorpus`
 is available on a `ManifestoCorpus`.
-
-# Scaling texts
-
-## Using manifestoR's scaling functions
-
-TODO
-
-## Writing custom scaling functions
-
-TODO
-
-## Bootstrapping scaling function distributions and standard errors
-
-TODO
 
 # Additional Information
 

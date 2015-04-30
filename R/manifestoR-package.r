@@ -15,8 +15,6 @@
 #' @references \url{https://manifesto-project.wzb.eu/}
 #' 
 #' @importFrom utils head tail
-#' @importFrom proxy simil
-#' @importFrom psych fa
 #' @import NLP
 #' @import dplyr
 #' @import functional
