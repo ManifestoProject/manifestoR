@@ -24,7 +24,6 @@ franzmann <- function(data,
          #select(one_of(vars)) %>%
          mutate_each_(funs(base=.-min(., na.rm=TRUE)), vars) %>%
          ungroup()
-      
    }
 
    data <- mutate(data,year=floor(date/100))
@@ -37,14 +36,12 @@ franzmann <- function(data,
    fkscores <- (scale_gl(data,vars=vars,weights=wweights)/scale_gl(data,vars=vars,weights=1))
    
    if (smoothing == TRUE) {
-      
-   combined <- cbind(data,fkscores)
-   
-   fkscores <- smooth_scores(data=combined,score="fkscores")
-   
+      combined <- cbind(data,fkscores)
+      fkscores <- smooth_scores(data=combined,score="fkscores")
    }
    
    return(fkscores)
+
 }
 
 smooth_scores <- function(data,score) {
@@ -95,6 +92,14 @@ smooth_scores <- function(data,score) {
 }
 
 ### simple linear rescaling of positions
+#' Simple linear rescaling of values
+#' 
+#'  
+#' @param indicates the minimum of the new scale (default is -1)
+#' @param indicates the maximum of the new scale (default is +1) 
+#' @param indicates the minimum of the existing scale. Can be used to rescale from a known theoretical scale (e.g. -100). If left empty the empirical minimum is used. 
+#' @param indicates the maximum of the existing. See above.
+#' 
 rescale <- function(pos,newmin=-1,newmax=1,oldmin=min(pos),oldmax=max(pos)) {
    
    if(newmin>newmax & oldmin>oldmax) {
@@ -119,5 +124,5 @@ rescale <- function(pos,newmin=-1,newmax=1,oldmin=min(pos),oldmax=max(pos)) {
    # shift to new mean
    newpos <- newpos + newcenter
 
-      return(newpos)
+   return(newpos)
 }
