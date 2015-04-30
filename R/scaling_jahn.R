@@ -21,7 +21,7 @@ lrcore <- function(data,
   ced <- cmdscale(distances, k = dims, eig = FALSE, add = FALSE, x.ret = FALSE)
   mdsweights <- ced[,1]
   
-  scale_gl(data, vars, weights=mdsweights)
+  scale_weighted(data, vars, weights=mdsweights)
   return(lrcorescores)
 }
 # 

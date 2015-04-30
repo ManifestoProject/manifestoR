@@ -30,8 +30,8 @@ franzmann <- function(data,
    weights <- select(data,one_of("country","year")) %>% left_join(fkweights) # check again whether left_join is the correct join
    wweights <- weights %>% ungroup %>% select(one_of(vars))
 
-   ## don't know why that works / I do not fully understand how the weighting matrix is used in the scale_gl function, but it outputs something 
-   fkscores <- (scale_gl(data,vars=vars,weights=wweights)/scale_gl(data,vars=vars,weights=1))
+   ## don't know why that works / I do not fully understand how the weighting matrix is used in the scale_weighted function, but it outputs something 
+   fkscores <- (scale_weighted(data,vars=vars,weights=wweights)/scale_weighted(data,vars=vars,weights=1))
    
    if (smoothing == TRUE) {
       combined <- cbind(data,fkscores)

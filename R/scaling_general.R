@@ -1,23 +1,22 @@
-#' Generalized linear scaling function
+#' Scaling functions
 #' 
-#' Computes the scaling position for the cases
-#' in the data.frame data according to the logic of a generalized linear model:
-#' the values of the variables are weighted,
-#' summed up, and the link function is applied.
+#' \code{scale_weighted} scales the data as a weighted sum of the variable values
+#' 
+#' @param data A data.frame with cases to be scaled
+#' @param vars variable names that should contribute to the linear combination;
+#' defaults to all CMP category percentage variables in the Manifesto Project's Main Dataset
 #' 
 #' @details
 #' If variable names used for the definition of the scale
 #' are not present in the data frame they are assumed to be 0.
-#'
-#' @param data A data.frame with cases to be scaled
-#' @param vars variable names that should contribute to the linear combination
+#' \code{scale_weighted} scales the data as a weighted sum of the category percentages
+#' 
 #' @param weights weights of the linear combination in the same order as `vars`.
-#' @param link.fun link function: (vectorized) function applied to the sums
 #' @export
-scale_gl <- function(data,
+#' @rdname scale
+scale_weighted <- function(data,
                      vars = grep("per\\d{3}$", names(data), value=TRUE),
-                     weights = 1,
-                     link.fun = identity) {
+                     weights = 1) {
 
   data <- select(data, one_of(vars[vars %in% names(data)]))
 
@@ -59,7 +58,7 @@ scale_gl <- function(data,
   data <- select(data, one_of(vars))
   weights <- select(weights, one_of(vars))
 
-  link.fun(rowSums(data*weights)) # apply weighting to rows, sum, link
+  rowSums(data*weights) # apply weighting to rows, sum
 
 }
 
@@ -79,57 +78,45 @@ rep.data.frame <- function(x, times = 1, ...) {
   }
 }
 
-#' Logit scaling function
-#' 
-#' Computes the scaling position for the cases
-#' in the data.frame data according to logit scaling as described by Lowe et al. (2011).
+
+#' \code{scale_logit} scales the data on a logit scale as described by Lowe et al. (2011).
 #'
-#' @param data A data.frame with cases to be scaled
 #' @param pos variable names that should contribute to the numerator ("positively")
 #' @param neg variable names that should contribute to the denominator ("negatively")
 #' @param N vector of numbers of quasi sentences to convert percentages to counts
 #' @param zero_offset Constant to be added to prevent 0/0 and log(0); defaults to 0.5 (smaller than any possible non-zero count)
 #' (choose 1 if ) data is already in counts
+#' @param ... further parameters passed on to \code{\link{scale_weighted}}
 #' @references Lowe, W., Benoit, K., Mikhaylov, S., & Laver, M. (2011). Scaling Policy Preferences from Coded Political Texts. Legislative Studies Quarterly, 36(1), 123-155. 
-scale_logit <- function(data, pos, neg, N = data[,"total"], zero_offset = 0.5) {
+#' @rdname scale
+scale_logit <- function(data, pos, neg, N = data[,"total"], zero_offset = 0.5, ...) {
   abs.data <- data[,intersect(union(pos, neg), names(data))]*unlist(N)
-  log( (scale_gl(abs.data, pos) + zero_offset) /
-       (scale_gl(abs.data, neg) + zero_offset) )
+  log( (scale_weighted(abs.data, pos) + zero_offset) /
+       (scale_weighted(abs.data, neg) + zero_offset) )
 }
 
-#' Bipolar linear scaling function
-#' 
-#' Computes the scaling position for the cases
-#' in the data.frame data by adding up the variable
-#' values in pos and substracting the variable
-#' values in neg.
+#' \code{scale_bipolar} scales the data by adding up the variable
+#' values in pos and substracting the variable values in neg.
 #'
-#' @param data A data.frame with cases to be scaled
-#' @param pos variable names that should contribute positively
-#' @param neg variable names that should contribute negatively
-#' @param ... further parameters passed on to \code{link{scale_gl}}
+#' @rdname scale
 #' @export
 scale_bipolar <- function(data, pos, neg, ...) {
-  scale_gl(data,
+  scale_weighted(data,
            vars = c(pos, neg),
            weights = c(rep(1, length(pos)), rep(-1, length(neg))),
            ...)
 }
 
-#' Ratio Scaling 
-#' 
-#' Computes scores based on the ratio scaling suggested by Kim and Fording (1998) and by Laver & Garry (2000).
+#' \code{scale_ratio} scales the data taking the ratio of the sum of the variable
+#' values in pos and the sum of the variable values in neg as suggested by Kim and Fording (1998) and by Laver & Garry (2000).
 #'
-#' @param data a dataframe or matrix
-#' @param pos codes that should contribute positively
-#' @param neg codes that should contribute negatively
-#' @param ... further parameters passed on to \code{link{scale_gl}}
 #' @references Kim, H., & Fording, R. C. (1998). Voter ideology in western democracies, 1946-1989. European Journal of Political Research, 33(1), 73-97.
 #' @references Laver, M., & Garry, J. (2000). Estimating Policy Positions from Political Texts. American Journal of Political Science, 44(3), 619-634.
+#' @rdname scale
 #' @export
 scale_ratio <- function(data, pos, neg, ...) {
-   scale_gl(data, vars = c(pos, neg), weights = c(rep(1, length(pos)), rep(-1, length(neg))), ...) /
-      scale_gl(data, vars = c(pos, neg), weights = c(rep(1, length(pos)), rep(1, length(neg))), ...)
+   scale_bipolar(data, pos = pos, neg = c(), ...) /
+      scale_bipolar(data, pos = pos, neg = c(), ...)
 }
 
 #' Bipolar scaling function creator

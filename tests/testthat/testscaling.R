@@ -42,27 +42,27 @@ test_that("scaling works for different formats of weights", {
                          pervote = c(0.3, 0.7, 0.2))
   
   ## if weights is a scalar
-  expect_equal(scale_gl(testdata,
+  expect_equal(scale_weighted(testdata,
                         weights = 1),
                c(1, 1, 1))
   
   ## if weights is an unnamed vector
-  expect_equal(scale_gl(testdata,
+  expect_equal(scale_weighted(testdata,
                         weights = c(1, -1, 0)),
                c(0.5, -1.0, 1.0))
   
   ## if weights is a named list
-  expect_equal(scale_gl(testdata,
+  expect_equal(scale_weighted(testdata,
                         weights = list(per404 = 0.5, per666 = -0.5, per101 = 0.0)),
                c(-0.25, 0.5, 0.0))
   
   ## if weights is an unnamed list
-  expect_equal(scale_gl(testdata,
+  expect_equal(scale_weighted(testdata,
                         weights = list(0.5, -0.5, 0.0)),
                c(0.25, -0.5, 0.5))
   
   ## if weights is a matrix of correct dimensions
-  expect_equal(scale_gl(testdata,
+  expect_equal(scale_weighted(testdata,
                         weights = matrix(c(1, 2, 3,
                                            4, 5, 6,
                                            7, 8, 9),
@@ -71,21 +71,21 @@ test_that("scaling works for different formats of weights", {
                c(2, 5, 7))
   
   ## if weights is a matrix of incorrect dimensions
-  expect_error(scale_gl(testdata,
+  expect_error(scale_weighted(testdata,
                         weights = matrix(c(1, 2, 3,
                                            7, 8, 9),
                                          nrow = 2,
                                          byrow = TRUE)))
                
   ## if weights is a data.frame with only pers
-  expect_equal(scale_gl(testdata,
+  expect_equal(scale_weighted(testdata,
                         weights = data.frame(per404 = c(1, 0.5, 0.0),
                                              per666 = c(1, -0.5, 0.0),
                                              per101 = c(1, 0.0, 0.0))),
                c(1, 0.5, 0))
   
   ## if weights is a data.frame with more variables
-  expect_equal(scale_gl(testdata,
+  expect_equal(scale_weighted(testdata,
                         weights = data.frame(per404 = c(1, 0.5, 0.0),
                                              project = c("C", "M", "P"),
                                              per666 = c(1, -0.5, 0.0),
