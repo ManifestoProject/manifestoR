@@ -1,3 +1,62 @@
+#' Scaling annotated manifesto documents
+#'
+#' Since scaling functions such as \code{\link{scale_weighted}} only apply to
+#' data.frames with code percentages, the function \code{mp_scale} makes them
+#' applies them to a \code{ManifestoCorpus} or \code{ManifestoDocument}.
+#'
+#' @param data \code{ManifestoDocument} or \code{ManifestoCorpus} with coding
+#' annotations or a data.frame with category percentages
+#' @param scalingfun a scaling function, i.e. a function that takes a data.frame with
+#' category percentages and returns scaled positions, e.g. \code{\link{scale_weighted}}.
+#' @param ... further arguments passed on to the scaling function \code{scalingfun},
+#' or \code{\link{count_codes}}
+#' @export
+mp_scale <- function(data,
+                     scalingfun = rile,
+                     scalingname = as.character(substitute(scalingfun)),
+                     ...) {
+  UseMethod("mp_scale", data)
+}
+
+#' @method mp_scale default
+mp_scale.default <- function(data,
+                             scalingfun = rile,
+                             scalingname = as.character(substitute(scalingfun)),
+                             ...) {
+  scalingfun(data, ...)
+}
+
+#' @method mp_scale ManifestoDocument
+mp_scale.ManifestoDocument <- function(data,
+        scalingfun = rile,
+        scalingname = as.character(substitute(scalingfun)),
+        ...) {
+
+  do.call(document_scaling(scalingfun,
+                           returndf = FALSE,
+                           scalingname = scalingname),
+          list(data, ...))
+
+}
+
+#' @method mp_scale ManifestoCorpus
+mp_scale.ManifestoCorpus <- function(data,
+        scalingfun = rile,
+        scalingname = as.character(substitute(scalingfun)),
+        ...) {
+
+    do.call(corpus_scaling(scalingfun,
+                           scalingname = scalingname),
+            list(data, ...))
+
+}
+
+default_list <- function(the_names, default_val = 0L) {
+  ll <- as.list(rep(default_val, times = length(the_names)))
+  names(ll) <- the_names
+  return(ll)
+}
+
 #' Scaling functions
 #' 
 #' \code{scale_weighted} scales the data as a weighted sum of the variable values
@@ -12,6 +71,7 @@
 #' \code{scale_weighted} scales the data as a weighted sum of the category percentages
 #' 
 #' @param weights weights of the linear combination in the same order as `vars`.
+#' @seealso mp_scale
 #' @export
 #' @rdname scale
 scale_weighted <- function(data,
@@ -36,7 +96,8 @@ scale_weighted <- function(data,
   } else {
 
     if (!(is.null(names(weights)))) {
-      weights <- weights[vars[vars %in% names(data)]]
+      weights <- weights[names(weights) %in% names(data)]
+      weights <- c(weights, default_list(setdiff(names(data), names(weights))))
     } else if (length(weights) > 1) {
       weights <- weights[vars %in% names(data)]
     }
@@ -51,7 +112,9 @@ scale_weighted <- function(data,
     }
 
     weights <- as.data.frame(weights)
-    names(weights) <- names(data)
+    if (is.null(names(weights))) {
+      names(weights) <- names(data)      
+    }
   }
 
   vars <- vars[vars %in% names(data)]
@@ -119,21 +182,15 @@ scale_ratio <- function(data, pos, neg, ...) {
       scale_bipolar(data, pos = pos, neg = c(), ...)
 }
 
-#' Construct text scaling functions
-#' 
-#' Make a scaling function applicable to a ManifestoDocument
+#' \code{document_scaling} creates a function applicable to
+#' a \code{ManifestoDocument} from the scaling function
 #'
-#' @param scalingfun a scaling function, taking a data.frame with variables
-#' named "per..." and returning a scaling measure (such as the rile) in a vector.
 #' @param returndf if this flag is TRUE, a data.frame with category percentage values,
 #' scaling result and, if available party and date is returned by the returned function
 #' @param scalingname the name of the scale which will be used as a column name when a data.frame is produced
-#' @param ... arguments passed on to \code{\link{count_codes}}
-#' @return \code{document_scaling} returns a function that takes a ManifestoDocument and computes the scaled value
-#' for it
 #' 
 #' @export
-#' @rdname corpus_scaling
+#' @rdname mp_scale
 document_scaling <- function(scalingfun, returndf = FALSE, scalingname = "scaling", ...) {
   
   count_codes_loc <- functional::Curry(count_codes, ...)
@@ -154,19 +211,19 @@ document_scaling <- function(scalingfun, returndf = FALSE, scalingname = "scalin
   })
 }
 
-#' Make a scaling function applicable to a ManifestoCorpus
-#'
-#' @return \code{corpus_scaling} returns a function that takes a ManifestoCorpus and returns a data.frame with
-#' the code percentages and the scaling function value (e.g. rile) for each document
-#' in the corpus
+#' \code{corpus_scaling} creates a function applicable to
+#' a \code{ManifestoCorpus} from the scaling function
 #' 
 #' @export
-#' @rdname corpus_scaling
-corpus_scaling <- function(scalingfun, scalingname = "scaling") {
+#' @rdname mp_scale
+corpus_scaling <- function(scalingfun, scalingname = "scaling", ...) {
+  
+  doc_scale_loc <- document_scaling(scalingfun, ...)
+  
   function(x) {
     df <- data.frame(party = unlist(lapply(content(x), function(doc) { meta(doc, "party")})),
                      date = unlist(lapply(content(x), function(doc) { meta(doc, "date")})),
-                     scaling = unlist(lapply(content(x), document_scaling(scalingfun))))
+                     scaling = unlist(lapply(content(x), doc_scale_loc)))
     names(df)[3] <- scalingname
     df
   }

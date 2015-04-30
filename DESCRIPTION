@@ -32,7 +32,7 @@ Suggests:
     rmarkdown,
     testthat,
     R.rsp
-VignetteBuilder: R.rsp
+VignetteBuilder: knitr
 Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R
     codes.R scaling_general.R scaling_functions.R scaling_jahn.R renaming.R
     scaling_bootstrap.R 
