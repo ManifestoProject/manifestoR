@@ -21,7 +21,9 @@ Imports:
     utils,
     httr (>= 0.3),
     jsonlite (>= 0.9.12),
-    functional (>= 0.6)
+    functional (>= 0.6),
+    psych,
+    proxy
 Suggests:
     knitr,
     rmarkdown,

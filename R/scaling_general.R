@@ -90,8 +90,7 @@ rep.data.frame <- function(x, times = 1, ...) {
 #' @param N vector of numbers of quasi sentences to convert percentages to counts
 #' @param zero_offset Constant to be added to prevent 0/0 and log(0); defaults to 0.5 (smaller than any possible non-zero count)
 #' (choose 1 if ) data is already in counts
-#' @references Lowe, W., Benoit, K., Mikhaylov, S., & Laver, M. (2011). Scaling Policy Preferences from Coded Political Texts. Legislative Studies Quarterly, 36(1), 123–155. 
-
+#' @references Lowe, W., Benoit, K., Mikhaylov, S., & Laver, M. (2011). Scaling Policy Preferences from Coded Political Texts. Legislative Studies Quarterly, 36(1), 123-155. 
 scale_logit <- function(data, pos, neg, N = data[,"total"], zero_offset = 0.5) {
   abs.data <- data[,intersect(union(pos, neg), names(data))]*unlist(N)
   log( (scale_gl(abs.data, pos) + zero_offset) /
@@ -124,11 +123,12 @@ scale_bipolar <- function(data, pos, neg, ...) {
 #' @param a dataframe or matrix
 #' @param pos codes that should contribute positively
 #' @param neg codes that should contribute negatively
-#' @references Kim, H., & Fording, R. C. (1998). Voter ideology in western democracies, 1946–1989. European Journal of Political Research, 33(1), 73–97.
-#' @references Laver, M., & Garry, J. (2000). Estimating Policy Positions from Political Texts. American Journal of Political Science, 44(3), 619–634.
-
-scale_ratio <- function(data, pos, neg) {
-   scale_gl(data, vars = c(pos, neg), weights = c(rep(1, length(pos)), rep(-1, length(neg))), ..) /
+#' @param ... further parameters passed on to \code{link{scale_gl}}
+#' @references Kim, H., & Fording, R. C. (1998). Voter ideology in western democracies, 1946-1989. European Journal of Political Research, 33(1), 73-97.
+#' @references Laver, M., & Garry, J. (2000). Estimating Policy Positions from Political Texts. American Journal of Political Science, 44(3), 619-634.
+#' @export
+scale_ratio <- function(data, pos, neg, ...) {
+   scale_gl(data, vars = c(pos, neg), weights = c(rep(1, length(pos)), rep(-1, length(neg))), ...) /
       scale_gl(data, vars = c(pos, neg), weights = c(rep(1, length(pos)), rep(1, length(neg))), ...)
 }
 

@@ -16,7 +16,7 @@
 #' functions or numbers, where numbers are interpreted as quantiles.
 #' @param N number of resamples to use for bootstrap distribution
 #' @param ... more arguments passed on to \code{fun}
-#' @references Benoit, K., Laver, M., & Mikhaylov, S. (2009). Treating Words as Data with Error: Uncertainty in Text Statements of Policy Positions. American Journal of Political Science, 53(2), 495–513. http://doi.org/10.1111/j.1540-5907.2009.00383.x
+#' @references Benoit, K., Laver, M., & Mikhaylov, S. (2009). Treating Words as Data with Error: Uncertainty in Text Statements of Policy Positions. American Journal of Political Science, 53(2), 495-513. http://doi.org/10.1111/j.1540-5907.2009.00383.x
 #' @export
 mp_bootstrap <- function(data,
                          fun = rile,

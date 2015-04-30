@@ -15,6 +15,8 @@
 #' @references \url{https://manifesto-project.wzb.eu/}
 #' 
 #' @importFrom utils head tail
+#' @importFrom proxy simil
+#' @importFrom psych fa
 #' @import NLP
 #' @import dplyr
 #' @import functional
@@ -24,6 +26,9 @@ NULL
 
 ## A fix to let CRAN check NOTEs diasappear for non-standard-evaluation used
 ## cf. http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
-globalVariables(c("one_of", "manifesto_id",
-                  "md5sum_text.x", "md5sum_text.y",
-                  "download", "url_original"))
+globalVariables(c("one_of", ".", # dplyr
+                  "manifesto_id", "country", "party", "edate", # general dataset
+                  "md5sum_text.x", "md5sum_text.y", # & metadata
+                  "download", "url_original",
+                  "leadedate", "leglength", "festername", "w", "p", # scaling
+                  "p_lead", "p_lag", "lrcorescores"))
