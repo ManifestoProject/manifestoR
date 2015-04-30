@@ -82,7 +82,7 @@ rep.data.frame <- function(x, times = 1, ...) {
 #' Logit scaling function
 #' 
 #' Computes the scaling position for the cases
-#' in the data.frame data according to logit scaling as in Lowe 2013
+#' in the data.frame data according to logit scaling as described by Lowe et al. (2011).
 #'
 #' @param data A data.frame with cases to be scaled
 #' @param pos variable names that should contribute to the numerator ("positively")
@@ -90,6 +90,8 @@ rep.data.frame <- function(x, times = 1, ...) {
 #' @param N vector of numbers of quasi sentences to convert percentages to counts
 #' @param zero_offset Constant to be added to prevent 0/0 and log(0); defaults to 0.5 (smaller than any possible non-zero count)
 #' (choose 1 if ) data is already in counts
+#' @references Lowe, W., Benoit, K., Mikhaylov, S., & Laver, M. (2011). Scaling Policy Preferences from Coded Political Texts. Legislative Studies Quarterly, 36(1), 123–155. 
+
 scale_logit <- function(data, pos, neg, N = data[,"total"], zero_offset = 0.5) {
   abs.data <- data[,intersect(union(pos, neg), names(data))]*unlist(N)
   log( (scale_gl(abs.data, pos) + zero_offset) /
@@ -232,7 +234,7 @@ logit_rile.ManifestoCorpus <- corpus_scaling(logit_rile.default, scalingname = "
 #' Computes scores based on the Vanilla method suggested by Gabel & Huber. 
 #' A factor analysis identifies the dominant dimension in the data. 
 #' Factor scores using the regression method are then considered as party positions on this dominant dimension. 
-#' Gabel, M. J., & Huber, J. D. (2000). Putting Parties in Their Place: Inferring Party Left-Right Ideological Positions from Party Manifestos Data. American Journal of Political Science, 44(1), 94–103.
+#' @references Gabel, M. J., & Huber, J. D. (2000). Putting Parties in Their Place: Inferring Party Left-Right Ideological Positions from Party Manifestos Data. American Journal of Political Science, 44(1), 94–103.
 #'
 #' @param a dataframe or matrix
 #' @param variable names that should be used for the scaling (usually the variables per101,per102,...)
@@ -246,3 +248,7 @@ vanilla <- function(data,
    if (invert==TRUE) vanilla.scores <- vanilla.scores*-1
    return(vanilla.scores)
 }
+
+
+
+
