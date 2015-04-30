@@ -115,6 +115,9 @@ test_that("corpus and document scaling works", {
 
   scaling_as_expected(corp, rile, "rile")
   scaling_as_expected(corp, logit_rile, "logit_rile")
+  
+  ## expect a "deprecated warning" when old format is used
+  expect_warning(rile(corp))
 
 })
 

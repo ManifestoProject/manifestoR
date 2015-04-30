@@ -248,10 +248,18 @@ rile.default <- functional::Curry(scale_bipolar,
                                   neg=paste0("per", rile_l))
 #' @rdname rile
 #' @export
-rile.ManifestoDocument <- document_scaling(rile.default, scalingname = "rile")
+rile.ManifestoDocument <- function(x) {
+  .Deprecated("mp_scale(doc, scalingfun = rile)")
+  f <- document_scaling(rile.default, scalingname = "rile")
+  f(x)
+}
 #' @rdname rile
 #' @export
-rile.ManifestoCorpus <- corpus_scaling(rile.default, scalingname = "rile")
+rile.ManifestoCorpus <- function(x) {
+  .Deprecated("mp_scale(corpus, scalingfun = rile)")
+  f <- corpus_scaling(rile.default, scalingname = "rile")
+  f(x)
+}
 
 #' @rdname rile
 #' @export
@@ -263,10 +271,18 @@ logit_rile.default <- functional::Curry(scale_logit,
                                         neg=paste0("per", rile_l))
 #' @rdname rile
 #' @export
-logit_rile.ManifestoDocument <- document_scaling(logit_rile.default, scalingname = "logit_rile")
+logit_rile.ManifestoDocument <- function(x) {
+  .Deprecated("mp_scale(doc, scalingfun = logit_rile)")
+  f <- document_scaling(logit_rile.default, scalingname = "logit_rile")
+  f(x)
+}
 #' @rdname rile
 #' @export
-logit_rile.ManifestoCorpus <- corpus_scaling(logit_rile.default, scalingname = "logit_rile")
+logit_rile.ManifestoCorpus <- function(x) {
+  .Deprecated("mp_scale(corpus, scalingfun = logit_rile)")
+  f <- corpus_scaling(logit_rile.default, scalingname = "logit_rile")
+  f(x)
+}
 
 
 #' Simple linear rescaling of positions
