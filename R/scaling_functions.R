@@ -1,19 +1,15 @@
-### Franzmann & Kaiser scaling
-
 #' Left-Right Scores based on Franzmann & Kaiser Method
 #' 
 #' Computes scores based on the Franzmann & Kaiser Method (see article..) 
 #' issue structures are not calculated from scratch but taken as given from f&k
-#' 
 #'
 #' @param a dataframe or matrix
 #' @param variable names that should be used for the scaling (this can be used to scale positions on dimensions other than the left-right)
 #' @param base values
 #' @param smoothing
-#' 
-
+#' @export
 franzmann <- function(data,
-                      vars = grep("per[0-9]+", names(data), value=TRUE),
+                      vars = grep("per\\d{3}$", names(data), value=TRUE),
                       basevalues=TRUE,
                       smoothing=TRUE) {
    
@@ -28,7 +24,9 @@ franzmann <- function(data,
    }
 
    data <- mutate(data,year=floor(date/100))
-   fkweights <- read.csv("R/fkweights.csv", sep=",") ## fkweights are in the same structure as the main dataset with var-weights having the same variable names as vars
+   fkweights <- read.csv(
+     system.file("extdata", "fkweights.csv", package = "manifestoR"),
+     sep=",") ## fkweights are in the same structure as the main dataset with var-weights having the same variable names as vars
    
    weights <- select(data,one_of("country","year")) %>% left_join(fkweights) # check again whether left_join is the correct join
    wweights <- weights %>% ungroup %>% select(one_of(vars))
@@ -94,30 +92,25 @@ smooth_scores <- function(data,score) {
    return(smoothed)
 }
 
-### simple linear rescaling of positions
-rescale <- function(pos,newmin=-1,newmax=1,oldmin=min(pos),oldmax=max(pos)) {
-   
-   if(newmin>newmax & oldmin>oldmax) {
-      stop("newmin > newmax or oldmin > oldmax")
-   }
-   
-   if(!is.numeric(c(pos,newmin, newmax, oldmin, oldmax))) {
-      stop("input variables are not numbers")
-   }
-   
-   oldcenter <- (oldmax + oldmin)/2
-   oldrange <- oldmax - oldmin
-   newcenter <- (newmax + newmin)/2
-   newrange <- newmax - newmin
-   
-   # shift center to zero
-   newpos <- pos - oldcenter
-   
-   # stretch
-   newpos <- newpos*newrange/oldrange
-   
-   # shift to new mean
-   newpos <- newpos + newcenter
-
-      return(newpos)
+#' Vanilla Scaling by Gabel & Huber
+#' 
+#' Computes scores based on the Vanilla method suggested by Gabel & Huber. 
+#' A factor analysis identifies the dominant dimension in the data. 
+#' Factor scores using the regression method are then considered as party positions on this dominant dimension. 
+#' @references Gabel, M. J., & Huber, J. D. (2000). Putting Parties in Their Place: Inferring Party Left-Right Ideological Positions from Party Manifestos Data. American Journal of Political Science, 44(1), 94–103.
+#'
+#' @param a dataframe or matrix
+#' @param variable names that should be used for the scaling (usually the variables per101,per102,...)
+#' @param invert scores (to change the direction of the dimension to facilitate comparison with other indices) (default is FALSE)
+#' @export
+vanilla <- function(data,
+                    vars = grep("per\\d{3}$", names(data), value=TRUE),
+                    invert=FALSE) {
+  fa.results <- fa(data[,vars],1,scores="regression")
+  vanilla.scores <- fa.results$scores[,1] 
+  if (invert==TRUE) vanilla.scores <- vanilla.scores*-1
+  return(vanilla.scores)
 }
+
+
+

@@ -29,7 +29,8 @@ Suggests:
     R.rsp
 VignetteBuilder: R.rsp
 Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R
-    codes.R scaling.R renaming.R bootstrap.R
+    codes.R scaling_general.R scaling_functions.R scaling_jahn.R renaming.R
+    scaling_bootstrap.R 
 License: GPL (>= 3)
 URL: https://github.com/ManifestoProject/manifestoR, https://manifesto-project.wzb.eu/
 BugReports: https://github.com/ManifestoProject/manifestoR/issues
