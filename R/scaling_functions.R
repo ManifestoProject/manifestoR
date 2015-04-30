@@ -4,45 +4,50 @@
 #' issue structures are not calculated from scratch but taken as given from f&k
 #'
 #' @param data a dataframe or matrix
-#' @param vars variable names that should be used for the scaling (this can be used to scale positions on dimensions other than the left-right)
 #' @param basevalues flag for transforming data to be relative to the minimum
 #' @param smoothing flag for using smoothing
 #' @export
 franzmann <- function(data,
-                      vars = grep("per\\d{3}$", names(data), value=TRUE),
-                      basevalues=TRUE,
-                      smoothing=TRUE) {
+                      basevalues = TRUE,
+                      smoothing = TRUE) {
    
-   if (basevalues == TRUE) {
+   vars <- grep("per\\d{3}$", names(data), value = TRUE)
+
+   if(!("country" %in% names(data)) & ("party" %in% names(data))) {
+     data <- mutate(data, country = as.integer(substr(party, 1, 2)))
+   }
+
+   if (basevalues) {
       ## calculates positional scores = saliency scores - base value // pos scores = (x - min(x)) where x is saliency score
       data <- data %>%
-         group_by(country,date) %>%
+         group_by(country, date) %>%
          #select(one_of(vars)) %>%
          mutate_each_(funs(base=.-min(., na.rm=TRUE)), vars) %>%
          ungroup()
    }
 
-   data <- mutate(data,year=floor(date/100))
+   data <- mutate(data, year = floor(date/100))
    fkweights <- read.csv(
      system.file("extdata", "fkweights.csv", package = "manifestoR"),
      sep=",") ## fkweights are in the same structure as the main dataset with var-weights having the same variable names as vars
    
-   weights <- select(data,one_of("country","year")) %>% left_join(fkweights) # check again whether left_join is the correct join
-   wweights <- weights %>% ungroup %>% select(one_of(vars))
+   weights <- select(data,one_of("country","year")) %>% left_join(fkweights)
+   wweights <- weights %>% ungroup() %>% select(one_of(vars))
 
    ## don't know why that works / I do not fully understand how the weighting matrix is used in the scale_weighted function, but it outputs something 
-   fkscores <- (scale_weighted(data,vars=vars,weights=wweights)/scale_weighted(data,vars=vars,weights=1))
+   fkscores <- (scale_weighted(data, vars = vars, weights = wweights) /
+                  scale_weighted(data, vars = vars, weights = 1))
    
-   if (smoothing == TRUE) {
-      combined <- cbind(data,fkscores)
-      fkscores <- smooth_scores(data=combined,score="fkscores")
+   if (smoothing) {
+      combined <- cbind(data, fkscores)
+      fkscores <- smooth_scores(data = combined, score = "fkscores")
    }
    
    return(fkscores)
 
 }
 
-smooth_scores <- function(data,score) {
+smooth_scores <- function(data, score) {
    
    ## smoothing procedure
    # smoothed score p_smoothed(t) = [ w(t-1)*p(t-1) + w(t)*p(t) + (w+1)*p(t+1) ] / 3
@@ -74,19 +79,15 @@ smooth_scores <- function(data,score) {
       arrange(edate) %>%
       mutate(
          leadedate = lead(edate),
-         leglength = as.numeric(difftime(leadedate,edate,units="days")),
-         #w_lag = lag(leglength)/((lag(leglength) + leglength + lead(leglength)/3)),
+         leglength = as.numeric(difftime(leadedate, edate, units="days")),
          w = leglength/((lag(leglength) + leglength + lead(leglength)/3)),
-         #w_lead = lead(leglength)/(lag(leglength) + leglength + lead(leglength)),
          p_lag = lag(festername), 
          p = festername ,
-         p_lead = lead(festername)
-      )
-      smoothed <- mutate(smoothed, smooth=(lag(w)*p_lag + w*p + lead(w)*p_lead)/3) %>%
-      ungroup() %>% arrange(n) %>%
-      select(smooth)
-   
-   return(smoothed)
+         p_lead = lead(festername),
+         smooth=(lag(w)*p_lag + w*p + lead(w)*p_lead)/3) %>%
+      ungroup() %>% arrange(n)
+  
+   return(smoothed$smooth)
 }
 
 #' Vanilla Scaling by Gabel & Huber

@@ -149,6 +149,29 @@ test_that("scalingname defaults to deparsed function name", {
 
 })
 
+test_that("Franzmann Kaiser scaling works", {
+  
+  fk_scores <- read.csv("../lrfranz.csv", sep = ";") %>%
+    mutate(date = as.integer(format(as.Date(edate, format = "%d.%m.%Y"), format = "%Y%m")),
+           edate = as.Date(edate, format = "%d.%m.%Y"),
+           year = as.integer(substr(date, 1, 4)),
+           LR_general = as.numeric(gsub(",", ".", LR_general))) %>%
+    rename(country = Country) %>%
+    select(-one_of("LR_economic", "LR_social"))
+    
+  test_scores <- mp_maindataset() %>%
+    subset(country == 41)
+  
+  test_scores$manifestoR_fk <- franzmann(test_scores, basevalues = TRUE, smoothing = TRUE) 
+  test_scores <- test_scores %>%
+    subset(!is.na(manifestoR_fk)) %>%
+    left_join(fk_scores, by = c("party", "edate")) %>%
+    select(one_of("party", "edate", "LR_general", "manifestoR_fk"))
+  
+#   qplot(LR_general, manifestoR_fk, data = test_scores) + geom_smooth(method = lm)
+
+})
+
 
 ## TODO more tests, of other functions
 
