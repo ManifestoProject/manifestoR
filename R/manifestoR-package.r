@@ -15,6 +15,7 @@
 #' @references \url{https://manifesto-project.wzb.eu/}
 #' 
 #' @importFrom utils head tail
+#' @import zoo
 #' @import NLP
 #' @import dplyr
 #' @import functional

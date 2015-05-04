@@ -12,3 +12,8 @@ test_that("main data set is formatted correctly", {
                     "party", "per101", "rile") %in% names(mpds)))
   
 })
+
+test_that("interpolation works", {
+  
+})
+
