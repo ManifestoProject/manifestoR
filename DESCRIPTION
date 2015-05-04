@@ -1,6 +1,6 @@
 Package: manifestoR
-Title: Access and process data and documents of the Manifesto Project
-Date: 2015-05-01
+Title: Access and Process Data and Documents of the Manifesto Project
+Date: 2015-05-04
 Version: 0.9-12
 Authors@R: c(person("Jirka", "Lewandowski",
 		    role = c("aut", "cre"),
@@ -14,7 +14,11 @@ Authors@R: c(person("Jirka", "Lewandowski",
 	     person("Pola", "Lehmann",
 		    role = c("ctb"),
 		    email = "pola.lehmann@wzb.eu"))
-Description: Access and process data and documents of the Manifesto Project
+Description: manifestoR provides access to coded election programmes from
+    the Manifesto Corpus and to the Manifesto Project's Main Dataset. The election
+    programme texts are given in the Corpus format of the package `tm` to enable
+    easy use of text processing and text mining functionality. Specific functions
+    for scaling of coded political texts are included.
 Depends: 
     R (>= 3.1.0),
     NLP (>= 0.1-3),
