@@ -10,6 +10,7 @@
 #' category percentages and returns scaled positions, e.g. \code{\link{scale_weighted}}.
 #' @param ... further arguments passed on to the scaling function \code{scalingfun},
 #' or \code{\link{count_codes}}
+#' @seealso \code{\link{scale}}
 #' @export
 mp_scale <- function(data,
                      scalingfun = rile,
@@ -59,6 +60,11 @@ default_list <- function(the_names, default_val = 0L) {
 
 #' Scaling functions
 #' 
+#' Scaling functions take a data.frame of variables with information about
+#' political parties/text and position the cases on a scale, i.e. output a
+#' vector of values. For applying scaling functions directly to text documents,
+#' refer to \code{\link{mp_scale}}.
+#'
 #' \code{scale_weighted} scales the data as a weighted sum of the variable values
 #' 
 #' @param data A data.frame with cases to be scaled
@@ -71,7 +77,7 @@ default_list <- function(the_names, default_val = 0L) {
 #' \code{scale_weighted} scales the data as a weighted sum of the category percentages
 #' 
 #' @param weights weights of the linear combination in the same order as `vars`.
-#' @seealso mp_scale
+#' @seealso \code{\link{mp_scale}}
 #' @export
 #' @rdname scale
 scale_weighted <- function(data,
@@ -148,7 +154,6 @@ rep.data.frame <- function(x, times = 1, ...) {
 #' @param neg variable names that should contribute to the denominator ("negatively")
 #' @param N vector of numbers of quasi sentences to convert percentages to counts
 #' @param zero_offset Constant to be added to prevent 0/0 and log(0); defaults to 0.5 (smaller than any possible non-zero count)
-#' (choose 1 if ) data is already in counts
 #' @param ... further parameters passed on to \code{\link{scale_weighted}}
 #' @references Lowe, W., Benoit, K., Mikhaylov, S., & Laver, M. (2011). Scaling Policy Preferences from Coded Political Texts. Legislative Studies Quarterly, 36(1), 123-155. 
 #' @rdname scale
