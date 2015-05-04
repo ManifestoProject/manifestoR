@@ -221,8 +221,7 @@ is.naorstringna <- function(v) {
 #' @export
 mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
   
-  columns <- c("party", "date", "language", "is_primary_doc",
-               "may_contradict_core_dataset", "annotations")
+  columns <- c("party", "date", "language", "annotations")
   
   metadata <- suppressWarnings(as.metaids(substitute(ids), apikey=apikey, cache=cache))
   
@@ -234,7 +233,16 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
                                  envir = mp_maindataset(),
                                  enclos = parent.frame()),]
   }
-  
+
+  if (!("language" %in% names(metadata))) {
+    metadata <- mutate(metadata, language = NA)
+  }
+  if (!("annotations" %in% names(metadata))) {
+    metadata <- mutate(metadata, annotations = FALSE)
+  }
+  if (!("url_original" %in% names(metadata))) {
+    metadata <- mutate(metadata, url_original = NA)
+  }
   availability <- select(metadata, one_of(columns))
 
   availability$manifestos <- !is.naorstringna(metadata$manifesto_id)
@@ -247,9 +255,7 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
         mutate(manifestos = FALSE,
                originals = FALSE,
                annotations  = FALSE,
-               language = NA,
-               is_primary_doc = NA,
-               may_contradict_core_dataset = NA) %>%
+               language = NA) %>%
         bind_rows(availability)
 
   availability <- list(query=ids, date=date(), availability=availability)
