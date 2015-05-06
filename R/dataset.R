@@ -59,3 +59,51 @@ seq_Date_multi <- function(dates, by) {
   
 }
 
+#' Median Voter position
+#' 
+#' @param x either a vector of values or a data.frame containing a column as
+#' named in var (default: rile)
+#' @param voteshare either a vector of values or the name of a column in the data.frame
+#' x that contains the vote shares
+#' @param var variable of which to compute the median voter position (default: rile)
+#' @param groups TODO
+median_voter <- function(x,
+                         voteshares = "pervote",
+                         var = "rile",
+                         groups = c("country", "edate")) {
+  
+  if (is.data.frame(x)) {
+    x <- ## group_by_(x, .dots = groups)
+    x <- unlist(x[,var])
+  }
+  
+  
+}
+
+median_voter_single <- function(positions, voteshares) {
+    
+  df <- data.frame(position = positions[order(positions)],
+                   voteshare = voteshares[order(positions)]) %>%
+          group_by(position) %>%
+          summarize(voteshare = sum(voteshare)) %>%
+          ungroup() %>%
+          mutate(cumvoteshare = cumsum(voteshare)/sum(voteshare),
+                 above50 = cumvoteshare >= 0.5,
+                 median_neighbours = (!lag(above50) & above50) |
+                                     (lead(above50) & !above50))
+  print(df)
+  ## TODO implement adjustment
+  
+  if (all(!is.na(df$median_neighbours)) & sum(df$median_neighbours) == 2) {
+#     thresh <- 0.5*sum(df$voteshare)
+    df %>%
+      subset(median_neighbours) %>%
+#       The Lewandowski method
+      mutate(weights = abs(cumvoteshare - 0.5)) %>%
+      summarise(median_voter = sum(position * weights)/sum(weights))
+#       summarise(median_voter = position[1] + (thresh - cumvoteshare[1])/voteshare[2]*(position[2]-position[1]))
+  } else {
+    df[1,"position"]
+  }
+}
+

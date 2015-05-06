@@ -65,3 +65,9 @@ test_that("interpolation works", {
   
 })
 
+test_that("median voter on mpds works", {
+  
+  
+  
+})
+
