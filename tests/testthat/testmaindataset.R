@@ -65,9 +65,33 @@ test_that("interpolation works", {
   
 })
 
-test_that("median voter on mpds works", {
+test_that("median voter computations work", {
+
+  ## extracted data where adjusted makes no difference
+  expect_equal(median_voter_single(
+                    c(9.6, -37.8, 9.5, 28, 23.81),
+                    c(10.3, 46.5, 12.9, 15.8, 13.6)) %>% unlist() %>% as.numeric(),
+              -8.546512, tolerance = 0.01)
   
+  expect_equal(median_voter_single(
+                    c(9.6, -37.8, 9.5, 28, 23.81),
+                    c(10.3, 46.5, 12.9, 15.8, 13.6),
+                    adjusted = TRUE) %>% unlist() %>% as.numeric(),
+              -8.546512, tolerance = 0.01)
   
+  ## extracted data where adjusted makes a difference
+  expect_equal(median_voter_single(
+                    c(-36.111, -9.048, -11.574, 5.91),
+                    c(65.895, 16.661, 7.415, 4.549)) %>% unlist() %>% as.numeric(),
+               -45.37972, tolerance = 0.01)
+  
+  expect_equal(median_voter_single(
+                    c(-36.111, -9.048, -11.574, 5.91),
+                    c(65.895, 16.661, 7.415, 4.549),
+                    adjusted = TRUE) %>% unlist() %>% as.numeric(),
+               -30.781635, tolerance = 0.01)
   
 })
+
+## TODO median voter on main data set still missing
 

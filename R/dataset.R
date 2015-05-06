@@ -61,49 +61,67 @@ seq_Date_multi <- function(dates, by) {
 
 #' Median Voter position
 #' 
-#' @param x either a vector of values or a data.frame containing a column as
+#' @param positions either a vector of values or a data.frame containing a column as
 #' named in var (default: rile)
 #' @param voteshare either a vector of values or the name of a column in the data.frame
 #' x that contains the vote shares
-#' @param var variable of which to compute the median voter position (default: rile)
+#' @param scale variable of which to compute the median voter position (default: rile)
 #' @param groups TODO
-median_voter <- function(x,
+median_voter <- function(positions,
                          voteshares = "pervote",
-                         var = "rile",
-                         groups = c("country", "edate")) {
+                         scale = "rile",
+                         groups = c("country", "edate"),
+                         ...) {
   
-  if (is.data.frame(x)) {
-    x <- ## group_by_(x, .dots = groups)
-    x <- unlist(x[,var])
+  if (is.numeric(positions) & is.numeric(voteshares)) {
+    median_voter_single(positions, voteshares)
+  } else if (is.data.frame(positions)) {
+    positions %>%
+      group_by_(.dots = groups) %>%
+      summarise(median_voter = median_voter_single(select_(., .dots = var),
+                                                   select_(., .dots = voteshares)))
+  } else {
+    stop("Wrong input format for median_voter")
   }
-  
   
 }
 
-median_voter_single <- function(positions, voteshares) {
-    
-  df <- data.frame(position = positions[order(positions)],
-                   voteshare = voteshares[order(positions)]) %>%
-          group_by(position) %>%
-          summarize(voteshare = sum(voteshare)) %>%
-          ungroup() %>%
-          mutate(cumvoteshare = cumsum(voteshare)/sum(voteshare),
-                 above50 = cumvoteshare >= 0.5,
-                 median_neighbours = (!lag(above50) & above50) |
-                                     (lead(above50) & !above50))
-  print(df)
-  ## TODO implement adjustment
-  
-  if (all(!is.na(df$median_neighbours)) & sum(df$median_neighbours) == 2) {
-#     thresh <- 0.5*sum(df$voteshare)
-    df %>%
-      subset(median_neighbours) %>%
-#       The Lewandowski method
-      mutate(weights = abs(cumvoteshare - 0.5)) %>%
-      summarise(median_voter = sum(position * weights)/sum(weights))
-#       summarise(median_voter = position[1] + (thresh - cumvoteshare[1])/voteshare[2]*(position[2]-position[1]))
-  } else {
-    df[1,"position"]
+median_voter_single <- function(positions,
+                                voteshares,
+                                adjusted = FALSE,
+                                scalemin = -100,
+                                scalemax = 100) {
+
+  left_bounds <- function(position) {
+    if (adjusted) {
+      scalemin <- 2*position[1] - position[2]
+      ((c(scalemin, position) + c(position, NA))/2)[1:length(position)]
+    } else {
+      c(scalemin, (position[-1] + position[-length(position)])/2)
+    }
   }
+  right_bounds <- function(position) {
+    if (adjusted) {
+      scalemax <- 2*position[length(position)] - position[length(position)-1]
+      ((c(NA, position) + c(position, scalemax))/2)[2:(length(position)+1)]
+    } else {
+      c((position[-1] + position[1:(length(position)-1)])/2, scalemax)
+    }
+  }
+  
+  data.frame(position = positions[order(positions)],
+             voteshare = voteshares[order(positions)]) %>%
+      group_by(position) %>%
+      summarize(voteshare = sum(voteshare)) %>%
+      ungroup() %>%
+      mutate(voteshare = voteshare/sum(voteshare),
+             cumvoteshare = cumsum(voteshare)) %>% 
+      mutate(leftbound = left_bounds(position),
+             rightbound = right_bounds(position),
+             above50 = cumvoteshare >= 0.5,
+             contains_median = (c(TRUE, !above50[-length(positions)]) & above50)) %>%
+      subset(contains_median) %>%
+      summarise(median_voter = leftbound + (0.5 - cumvoteshare + voteshare) /
+                                    voteshare*(rightbound-leftbound))
 }
 
