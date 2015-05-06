@@ -14,11 +14,11 @@
 #' @examples
 #' \dontrun{
 #' mp_interpolate(mp_maindataset(), method = "constant")
-#' mp_interpolate(mpds, approx = na.spline, maxgap = 3)
+#' mp_interpolate(mp_maindataset(), approx = na.spline, maxgap = 3)
 #' }
 #' @export
 mp_interpolate <- function(df,
-                           vars = "(rile)|(per\\d{3,4}$)",
+                           vars = "(^rile$)|(^per\\d{3,4}$)",
                            by = "year",
                            approx = zoo::na.approx,
                            ...)
