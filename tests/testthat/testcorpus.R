@@ -178,6 +178,16 @@ test_that("corpus to data.frame works", {
   
 })
 
+test_that("you can create ManifestoDocument objects from raw data", {
+  
+  md <- ManifestoDocument(data.frame(text = "Naturstrom",
+                                     cmp_code = 501))
+  expect_equal(codes(md), 501)
+  expect_equal(content(md), "Naturstrom")
+  expect_equal(length(md), 1)
+  
+})
+
 # skn <- subset(mpds, countryname == "Sweden" | countryname == "Norway")
 # corp2 <- mp_corpus(skn)
 # 

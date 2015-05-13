@@ -53,7 +53,9 @@ ManifestoCorpus <- function(csource) {
 #'  
 #' @name ManifestoDocument
 #' 
-#' @param content data.frame of text and codes for the ManifestoDocument to be constructed
+#' @param content data.frame of text and codes for the ManifestoDocument to be constructed.
+#' There can be multiple columns of codes, but by default the accessor method \code{\link{codes}}
+#' searches for the column named "cmp_code".
 #' @param id an id to identify the Document
 #' @param meta an object of class \code{\link{ManifestoDocumentMeta}} containing the metadata for this document
 #' 
@@ -64,7 +66,8 @@ ManifestoCorpus <- function(csource) {
 #' doc <- corpus[[1]]
 #' print(doc)
 #' }
-ManifestoDocument <- function(content = data.frame(names = c("text", "cmp_code")),
+#' @export
+ManifestoDocument <- function(content = data.frame(),
                               id = character(0),
                               meta = ManifestoDocumentMeta()) {
   structure(list(content = content,
@@ -257,6 +260,7 @@ readManifesto <- function(elem, language, id) {
 #' @name ManifestoDocumentMeta
 #' @param meta a named list with tag-value pairs of document meta information
 #' @param id a character giving a unique identifier for the text document
+#' @export
 ManifestoDocumentMeta <- function(meta = list(), id = character(0)) {
   if (!is.null(id)) {
     meta$id <- id
