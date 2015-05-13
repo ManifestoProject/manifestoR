@@ -70,28 +70,65 @@ test_that("median voter computations work", {
   ## extracted data where adjusted makes no difference
   expect_equal(median_voter_single(
                     c(9.6, -37.8, 9.5, 28, 23.81),
-                    c(10.3, 46.5, 12.9, 15.8, 13.6)) %>% unlist() %>% as.numeric(),
+                    c(10.3, 46.5, 12.9, 15.8, 13.6)),
               -8.546512, tolerance = 0.01)
   
   expect_equal(median_voter_single(
                     c(9.6, -37.8, 9.5, 28, 23.81),
                     c(10.3, 46.5, 12.9, 15.8, 13.6),
-                    adjusted = TRUE) %>% unlist() %>% as.numeric(),
+                    adjusted = TRUE),
               -8.546512, tolerance = 0.01)
   
   ## extracted data where adjusted makes a difference
   expect_equal(median_voter_single(
                     c(-36.111, -9.048, -11.574, 5.91),
-                    c(65.895, 16.661, 7.415, 4.549)) %>% unlist() %>% as.numeric(),
+                    c(65.895, 16.661, 7.415, 4.549)),
                -45.37972, tolerance = 0.01)
   
   expect_equal(median_voter_single(
                     c(-36.111, -9.048, -11.574, 5.91),
                     c(65.895, 16.661, 7.415, 4.549),
-                    adjusted = TRUE) %>% unlist() %>% as.numeric(),
+                    adjusted = TRUE),
                -30.781635, tolerance = 0.01)
   
 })
 
-## TODO median voter on main data set still missing
+median_voter_as_expected <- function(mm, mpds, adjusted = FALSE, scale = "rile", voteshare = "pervote") {
+
+  expect_true("median_voter" %in% names(mm))
+  expect_is(mm$median_voter %>% unlist(), "numeric")
+  expect_equal(nrow(mm),
+               nrow(mpds %>% group_by(country, edate) %>% summarise(n = n())))
+  
+  ## median_voter should be NA only if one of the input variables is NA
+  mpds[,"scale"] <- mpds[,scale]
+  mpds[,"voteshare"] <- mpds[,voteshare]
+  mm %>%
+    subset(is.na(median_voter)) %>%
+    select(country, edate) %>%
+    left_join(select(mpds, country, edate, scale, voteshare)) %>%
+    group_by(country, edate) %>%
+    summarise(scale_na = any(is.na(scale)),
+              voteshare_na = any(is.na(voteshare)),
+              too_few = (n() <= 1 & adjusted)) %>%
+    mutate(any_problem = scale_na | voteshare_na | too_few) %>%
+    ungroup() %>%
+    summarise(all_any_problem = all(any_problem)) %>%
+    select(all_any_problem) %>%
+    as.logical() %>%
+    expect_true()
+    
+}
+
+test_that("median voter works on main data set", {
+  
+  mpds <- mp_maindataset()
+  
+  median_voter_as_expected(median_voter(mpds), mpds)
+
+  median_voter_as_expected(median_voter(mpds, adjusted = TRUE), mpds, adjusted = TRUE)
+
+  median_voter_as_expected(median_voter(mpds, scale = "per104"), mpds, scale = "per104")
+  
+})
 

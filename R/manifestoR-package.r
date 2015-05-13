@@ -30,4 +30,7 @@ globalVariables(c("one_of", ".", "matches", # dplyr
                   "md5sum_text.x", "md5sum_text.y", # & metadata
                   "download", "url_original",
                   "leadedate", "leglength", "festername", "w", "p", # scaling
-                  "p_lead", "p_lag", "lrcorescores"))
+                  "p_lead", "p_lag", "lrcorescores", # median_voter_single
+                  "position", "voteshare", "cumvoteshare",
+                  "above50", "contains_median", "leftbound", "rightbound"
+                ))
