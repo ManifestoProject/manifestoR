@@ -14,24 +14,61 @@
 aggregate_cee_codes <- function(x) {
   UseMethod("aggregate_cee_codes", x)
 }
-#' @rdname cmp_codes
+#' @method aggregate_cee_codes default
 #' @export
 aggregate_cee_codes.default <- function(x) {
-  x[!is.na(x) & x >= 1000] <- floor(x[!is.na(x) & x >= 1000]/10)
+  cee_codes <- grepl("^\\d{4}$", x)
+  x[cee_codes] <- floor(as.integer(x[cee_codes])/10)
   return(x)
 }
-#' @rdname cmp_codes
-#' @export
+#' @method aggregate_cee_codes ManifestoDocument
 aggregate_cee_codes.ManifestoDocument <- function(x) {
   doc <- x
   codes(doc) <- aggregate_cee_codes(codes(doc))
   return(doc)
 }
-#' @rdname cmp_codes
+#' @method aggregate_cee_codes ManifestoCorpus
 #' @export
 aggregate_cee_codes.ManifestoCorpus <- function(x) {
   tm_map(x, aggregate_cee_codes)
 }
+
+#' @rdname cmp_codes
+#' 
+#' @details
+#' \code{aggregate_v5_to_v4} aggregates the CMP codings according to
+#' the more specialized Coding Handbook Version 5 to the more general
+#' categories of Handbook Version 4. Codes 202.2, 605.2 and 703.2 are
+#' converted to a 000, while all other subcategory codes with an appended
+#' dot and fourth digit are aggregated to the corresponding three-digit 
+#' main category.
+#' 
+#' @export
+aggregate_v5_to_v4 <- function(x) {
+  UseMethod("aggregate_v5_to_v4", x)
+}
+
+#' @method aggregate_v5_to_v4 default
+#' @export
+aggregate_v5_to_v4.default <- function(x) {
+  x <- as.character(x)
+  x[x %in% c("202.2", "605.2", "703.2")] <- 0L
+  return(as.integer(gsub("^(\\d{3})\\.\\d$", "\\1", x)))
+}
+
+#' @method aggregate_v5_to_v4 ManifestoDocument
+aggregate_v5_to_v4.ManifestoDocument <- function(x) {
+  doc <- x
+  codes(doc) <- aggregate_v5_to_v4(codes(doc))
+  return(doc)
+}
+#' @method aggregate_v5_to_v4 ManifestoCorpus
+#' @export
+aggregate_v5_to_v4.ManifestoCorpus <- function(x) {
+  tm_map(x, aggregate_v5_to_v4)
+}
+
+
 
 #' Count the codings from a ManifestoDocument
 #'

@@ -33,3 +33,20 @@ test_that("aggregating cee codes works", {
   check_cee_aggregation(codes(corp),
                         codes(aggregate_cee_codes(corp)))
 })
+
+test_that("aggregating handbook version 5 codes works", {
+  
+  test_codes <- c(101, "201.2", "6014", "202.6", NA)
+  aggregated_test_codes <- c(101, 201, 6014, 202, NA)
+  expect_equal(aggregate_v5_to_v4(test_codes), aggregated_test_codes)
+  
+  doc <- ManifestoDocument(data.frame(text = "notext",
+                                      cmp_code = test_codes))
+  expect_equal(codes(aggregate_v5_to_v4(doc)), aggregated_test_codes)
+  
+  ## nothing should be changed here
+  corp <- mp_corpus(countryname == "Czech Republic" & edate < as.Date("2010-01-01"))
+  corp2 <- aggregate_v5_to_v4(corp)
+  expect_equal(codes(corp), codes(corp2))
+  
+})
