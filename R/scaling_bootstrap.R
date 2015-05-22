@@ -20,7 +20,7 @@
 #' @export
 mp_bootstrap <- function(data,
                          fun = rile,
-                         col_filter = "per(\\d{3,4}|(uncod))",
+                         col_filter = "per((\\d{3}(_\\d)?)|\\d{4}|(uncod))",
                          statistics = list(sd),
                          N = 1000,
                          ...) {  
@@ -40,8 +40,9 @@ mp_bootstrap <- function(data,
   bootstrap_row <- function(row) {
 
     total <- row$total
-    row_permute <- select(row, matches(col_filter)) %>% mutate(rowid=1)
-    row_dontpermute <- select(row, -matches(col_filter)) %>% mutate(rowid=1)
+    to_permute <- grepl(col_filter, names(row)) & !is.na(row[1,])
+    row_permute <- row[,to_permute] %>% mutate(rowid=1)
+    row_dontpermute <- row[,!to_permute] %>% mutate(rowid=1)
     bootstrap_distribution <- do.call(
         fun,
         list(right_join(row_dontpermute, by = c("rowid"),

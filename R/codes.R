@@ -84,7 +84,7 @@ count_codes <- function(doc,
                         with_eu_codes = meta(doc, "has_eu_code"),
                         prefix = "per",
                         relative = TRUE) {
-
+  
   the_codes <- codes(doc)
   if (length(with_eu_codes) > 0 && with_eu_codes) {
     eu_codes <- codes(doc, "eu_code")
@@ -93,11 +93,18 @@ count_codes <- function(doc,
   tt <- table(the_codes)
 
   df <- as.data.frame(t(as.matrix(tt)))
-  names(df) <- paste0(prefix, names(df))
-  if (relative) {
-    n <- sum(df[1,])
-    df[1,] <- df[1,]/n * 100
-    df$total <- n
+  if (ncol(df) > 0) {
+    names(df) <- paste0(prefix, names(df))
+    if (relative) {
+      n <- sum(df[1,])
+      df[1,] <- df[1,]/n * 100
+      df$total <- n
+    }
+    return(df)    
+  } else {
+    if (relative) {
+      return(data.frame(total = 0))
+    }
+    return(df)
   }
-  return(df)
 }

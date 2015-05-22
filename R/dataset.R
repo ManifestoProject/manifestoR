@@ -18,13 +18,20 @@
 #' }
 #' @export
 mp_interpolate <- function(df,
-                           vars = "(^rile$)|(^per\\d{3,4}$)",
+                           vars = "(^rile$)|(^per((\\d{3}(_\\d)?)|\\d{4})$)",
                            by = "year",
                            approx = zoo::na.approx,
                            ...)
   {
   
-  the_approx <- functional::Curry(approx, ...)
+  curried_approx <- functional::Curry(approx, ...)
+  the_approx <- function(x) {
+    if (all(is.na(x))) {
+      return(NA)
+    } else {
+      approx(x, ...)
+    }
+  }
     
   lapply(unique(df$party), function(the_party) {
 

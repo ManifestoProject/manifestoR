@@ -10,11 +10,13 @@
 #' category percentages and returns scaled positions, e.g. \code{\link{scale_weighted}}.
 #' @param ... further arguments passed on to the scaling function \code{scalingfun},
 #' or \code{\link{count_codes}}
+#' @param aggregate_to_v4 aggregate codes to handbook version 4 scheme before scaling
 #' @seealso \code{\link{scale}}
 #' @export
 mp_scale <- function(data,
                      scalingfun = rile,
                      scalingname = as.character(substitute(scalingfun)),
+                     aggregate_to_v4 = (scalingname == "rile"),
                      ...) {
   UseMethod("mp_scale", data)
 }
@@ -23,6 +25,7 @@ mp_scale <- function(data,
 mp_scale.default <- function(data,
                              scalingfun = rile,
                              scalingname = as.character(substitute(scalingfun)),
+                             aggregate_to_v4 = (scalingname == "rile"),
                              ...) {
   scalingfun(data, ...)
 }
@@ -31,11 +34,13 @@ mp_scale.default <- function(data,
 mp_scale.ManifestoDocument <- function(data,
         scalingfun = rile,
         scalingname = as.character(substitute(scalingfun)),
+        aggregate_to_v4 = (scalingname == "rile"),
         ...) {
 
   do.call(document_scaling(scalingfun,
                            returndf = FALSE,
-                           scalingname = scalingname),
+                           scalingname = scalingname,
+                           aggregate_to_v4),
           list(data, ...))
 
 }
@@ -81,7 +86,7 @@ default_list <- function(the_names, default_val = 0L) {
 #' @export
 #' @rdname scale
 scale_weighted <- function(data,
-                     vars = grep("per\\d{3}$", names(data), value=TRUE),
+                     vars = grep("per((\\d{3}(_\\d)?)|\\d{4}|(uncod))$", names(data), value=TRUE),
                      weights = 1) {
 
   data <- select(data, one_of(vars[vars %in% names(data)]))
@@ -196,11 +201,19 @@ scale_ratio <- function(data, pos, neg, ...) {
 #' 
 #' @export
 #' @rdname mp_scale
-document_scaling <- function(scalingfun, returndf = FALSE, scalingname = "scaling", ...) {
+document_scaling <- function(scalingfun,
+                             returndf = FALSE,
+                             scalingname = "scaling",
+                             aggregate_to_v4 = FALSE,
+                             ...) {
   
   count_codes_loc <- functional::Curry(count_codes, ...)
 
   return(function(x) {
+    
+    if (aggregate_to_v4) {
+      x <- aggregate_v5_to_v4(x)
+    }
 
     df <- data.frame(party=meta(x, "party"), date=meta(x, "date"))
     df <- bind_cols(df, count_codes_loc(x))

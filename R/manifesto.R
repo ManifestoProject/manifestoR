@@ -157,6 +157,7 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
     }
     if (exists("has_eu_code")) {
       has_eu_code <- as.logical(has_eu_code)
+      has_eu_code[is.na(has_eu_code)] <- FALSE
     }
   })
   
@@ -299,7 +300,7 @@ print.ManifestoAvailability <- function(x, ...) {
   languages <- na.omit(unique(avl$availability$language))
   
   summary <- list('Queried for'=nqueried,
-                  'Raw Texts found'=paste(length(which(avl$availability$manifestos)),
+                  'Documents found'=paste(length(which(avl$availability$manifestos)),
                                           " (", round(100*ncoveredtexts/nqueried, decs), "%)",
                                           sep=""),
                   'Coded Documents found'=paste(length(which(avl$availability$annotations)),
