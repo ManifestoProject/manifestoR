@@ -16,7 +16,15 @@ output:
 %\VignetteIndexEntry{The workflow with the manifestoR package}
 -->
 
+\newpage
+
 # Downloading documents from the Manifesto Corpus
+
+When publishing work using the Manifesto Corpus, please make sure to give the identification number of the corpus version used for your analysis and to reference
+
+Lehmann, Pola / Merz, Nicolas / Regel, Sven / Werner, Annika (2015): Manifesto Corpus. Berlin: WZB Berlin Social Science Center.
+
+You can print citation and version information with the function `mp_cite()`.
 
 ## Loading the package
 
@@ -49,7 +57,7 @@ mp_setapikey("manifesto_apikey.txt")
 mp_setapikey(key.file = "../tests/manifesto_apikey.txt")
 ```
 
-This code presumes that you have stored and downloaded the API key in a file
+This R code presumes that you have stored and downloaded the API key in a file
 name `manifesto_apikey.txt` in your current R working directory.
 
 Note that it is a security risk to store the API key file or a script containing
@@ -67,7 +75,7 @@ my_corpus
 ```
 
 `mp_corpus` returns a `ManifestoCorpus` object, a subclass of `Corpus` as defined
-in the natural language processing package `tm`.
+in the natural language processing package `tm` (Feinerer & Hornik 2015).
 Following `tm`s logic, a `ManifestoCorpus` consists of `ManifestoDocuments`.
 For both, corpus and documents, `tm` provides accessor functions to the corpus
 and documents content and metadata:
@@ -214,9 +222,9 @@ variables in the Manifesto Project Main Dataset, they are also used in `manifest
 
 ## Text mining tools
 
-Since the Manifesto Corpus uses the infrastructure of the `tm` package, all
-of `tm`s filtering and transformation functionality can be applied directly
-to the downloaded `ManifestoCorpus`.
+Since the Manifesto Corpus uses the infrastructure of the `tm` package
+(Feinerer & Hornik 2015), all of `tm`s filtering and transformation functionality
+can be applied directly to the downloaded `ManifestoCorpus`.
 
 For example, standard natural language processors are available to clean the corpus:
 
@@ -418,19 +426,105 @@ is available on a `ManifestoCorpus`.
 
 # Scaling texts
 
+Scaling of political content refers to the estimation of its location in a policy
+space (Grimmer & Stewart 2013). `manifestoR` provides several functions to scale coded documents by
+known routines such as the RILE measure (see sections
+[Using manifestoR's scaling functions](#using-manifestors-scaling-functions)),
+as well as infrastructure to create new scales (see section [Writing custom scaling functions](#writing-custom-scaling-functions)) and statistical analysis routines for the
+distributions of scaling functions (see section [Bootstrapping scaling function distributions and standard errors](#bootstrapping-scaling-function-distributions-and-standard-errors)).
+
 ## Using manifestoR's scaling functions
 
-TODO
+Implementationwise, a scaling function in `manifestoR` takes a data.frame of cases
+and outputs a position value for each case. For example, you can compute the RILE
+scores of cases from the main dataset by calling:
+
+```{r}
+rile(subset(mpds, countryname == "Albania"))
+```
+
+What variables are used from the input data depends on the scaling function. All
+currently implemented functions use only the percentages of coded categories,
+in the form of variables starting with "per" as in the Manifesto Project Dataset.
+The following functions are currently available:
+
+* RILE according to Laver & Budge (1992): `rile`
+* logit rile according to Lowe et al. (2011): `logit_rile`
+* Vanilla scaling according to Gabel & Huber (2000): `vanilla`
+* ... (more scaling functions are planned and contributions are welcome, see
+[Contributing to manifestoR](#contributing-to-manifestor)).
+
+To apply scaling functions directly to coded documents or corpora
+you can use the function `mp_scale`. It takes a `ManifestoCorpus`
+or `ManifestoDocument` and returns the scaled positions for each document:
+
+```{r message=FALSE}
+corpus <- mp_corpus(countryname == "Romania")
+mp_scale(corpus, scalingfun = logit_rile)
+```
 
 ## Writing custom scaling functions
 
-TODO
+Writing custom scaling functions for texts in `manifestoR` is easy, since it
+requires nothing more than writing a function that takes a `data.frame` of cases
+as input and returns a vector of values. `mp_scale` provides the mechanism
+that converts a coded text to a `data.frame` with "per" variables such that your function
+can handle it:
+
+```{r}
+custom_scale <- function(data) { 
+  data$per402 - data$per401
+}
+mp_scale(corpus, scalingfun = custom_scale)
+```
+
+In addition, `manifestoR` provides several function templates you can use for
+creating scales, e.g. a weighted sum of per variables
+(`scale_weighted`), the logit ratio of category counts (`scale_logit`)
+or ratio scaling as suggested by Kim and Fording (1998) and by Laver & Garry (2000)
+(`scale_ratio`). For example, the ratio equivalent to the simple function
+above can be implemented as:
+```{r}
+custom_scale <- function(data) {
+    scale_ratio(data, pos = c("per402"), neg = c("per401"))
+}
+mp_scale(corpus, scalingfun = custom_scale)
+```
+
+For details on these template functions, their parameters and how to use them,
+see the R documentation `?scale`.
 
 ## Bootstrapping scaling function distributions and standard errors
 
-TODO
+In order to better evaluate the significance of analysis results based on
+scaled coded texts, Benoit, Mikhaylov, and Laver (2009) proposed to approximate
+the standard errors of the scale variable by bootstrapping its distribution.
+This procedure is available via the function `mp_bootstrap`:
+
+```{r}
+data <- subset(mpds, countryname == "Albania")
+mp_bootstrap(data, fun = rile)
+```
+
+Note that the argument `fun` can be any scaling function and the returned `data.frame`
+containes the scaled position as well as the bootstrapped standard deviations.
+Also, with the additional parameters `statistics`, you can compute arbitrary statistics
+from the bootstrapped distribution, such as variance or quantiles:
+```{r}
+custom_scale <- function(data) { 
+  data$per402 - data$per401
+}
+mp_bootstrap(data,
+             fun = custom_scale,
+             statistics = list(var, 0.025, 0.975))
+```
+
 
 # Additional Information
+
+For a more detailed reference and complete list of the functions provided
+by `manifestoR`, see the R package reference manual on CRAN:
+[http://cran.r-project.org/web/packages/manifestoR/manifestoR.pdf](http://cran.r-project.org/web/packages/manifestoR/manifestoR.pdf)
 
 ## Contacting the Manifesto Project team
 
@@ -444,7 +538,35 @@ For general questions about the Project and dataset, please check the
 [Frequently Asked Questions](https://manifesto-project.wzb.eu/questions) section
 on our website first.
 
-We also welcome bug reports, feature requests or (planned) source code contributions for the
+## Contributing to manifestoR
+
+We welcome bug reports, feature requests or (planned) source code contributions for the
 `manifestoR` package. For all of these, best refer to our repository on github:
 [https://github.com/ManifestoProject/manifestoR](https://github.com/ManifestoProject/manifestoR).
+For more information, please refer to the Section "Developing" in the README file
+of the github repository.
+
+\newpage
+
+# References
+
+Benoit, K., Laver, M., & Mikhaylov, S. (2009). Treating Words as Data with Error: Uncertainty in Text Statements of Policy Positions. American Journal of Political Science, 53(2), 495-513. http://doi.org/10.1111/j.1540-5907.2009.00383.x
+
+Feinerer, I., & Hornik, K. (2015). Tm: Text Mining Package. http://cran.r-project.org/web/packages/tm/index.html
+
+Gabel, M. J., & Huber, J. D. (2000). Putting Parties in Their Place: Inferring Party Left-Right Ideological Positions from Party Manifestos Data. American Journal of Political Science, 44(1), 94-103.
+
+Grimmer, J., and Stewart, B.. 2013. Text as Data: The Promise and Pitfalls of Automatic Content Analysis Methods for Political Texts. Political Analysis 21(3): 267–97.
+
+Kim, H., & Fording, R. C. (1998). Voter ideology in western democracies, 1946-1989. European Journal of Political Research, 33(1), 73-97.
+
+Laver, M. & Budge, I., eds. (1992). Party Policy and Government Coalitions, Houndmills, Basingstoke, Hampshire: The MacMillan Press 1992
+
+Laver, M., & Garry, J. (2000). Estimating Policy Positions from Political Texts. American Journal of Political Science, 44(3), 619-634.
+
+Lehmann, P., Merz, N., Regel, S. & Werner, A. (2015). Manifesto Corpus. Berlin: WZB Berlin Social Science Center.
+
+Lowe, W., Benoit, K., Mikhaylov, S., & Laver, M. (2011). Scaling Policy Preferences from Coded Political Texts. Legislative Studies Quarterly, 36(1), 123-155.
+
+
 
