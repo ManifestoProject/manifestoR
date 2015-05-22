@@ -145,7 +145,7 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
   ## type conversion for certain metadata entries
   metadata <- within(metadata, {
     if (exists("manifesto_id")) {
-      manifesto_id <- as.integer(manifesto_id)
+      manifesto_id <- as.character(manifesto_id)
     } else {
       manifesto_id <- NA
     }
@@ -384,7 +384,7 @@ mp_corpus <- function(ids,
       textToManifestoDocument <- function(idx) {    
         the.meta <- structure(as.list(left_join(
           within(texts[idx, the.names], {
-            manifesto_id <- as.integer(manifesto_id)
+            manifesto_id <- as.character(manifesto_id)
           }), ids, by = "manifesto_id")))
         the.meta$kind <- NULL
         class(the.meta) <- "TextDocumentMeta"
