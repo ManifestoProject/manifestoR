@@ -16,6 +16,7 @@
 #' 
 #' @importFrom utils head tail
 #' @import zoo
+#' @importFrom psych fa
 #' @import NLP
 #' @import dplyr
 #' @import functional
