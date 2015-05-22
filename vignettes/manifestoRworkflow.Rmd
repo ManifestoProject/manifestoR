@@ -1,7 +1,7 @@
 ---
 title: "Working with the manifestoR package"
 author: "Jirka Lewandowski <jirka.lewandowski@wzb.eu>"
-date: "03/03/2015"
+date: "05/22/2015"
 output:
   pdf_document:
     toc: yes
