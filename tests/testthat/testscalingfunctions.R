@@ -11,7 +11,7 @@ test_that("Vanilla scaling produces no error", {
 
   ### vanilla test
 
-  westeurope$vanilla.inv <- vanilla(allpers, invert=1)
-  westeurope$vanilla <- vanilla(allpers, invert=0)
+  allpers$vanilla.inv <- vanilla(allpers, invert=1)
+  allpers$vanilla <- vanilla(allpers, invert=0)
 
 })
