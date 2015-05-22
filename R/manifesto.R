@@ -187,6 +187,11 @@ as.metaids <- function(ids, apikey=NULL, cache=TRUE) {
   if ( !("ManifestoMetadata" %in% class(ids)) ) {
     ids <- mp_metadata(ids, apikey=apikey, cache=cache)
   }
+
+  if ("is_primary_doc" %in% names(ids)) {
+    ids <- subset(ids, is.na(is_primary_doc) | is_primary_doc)
+  }
+
   return(ids)
 }
 
