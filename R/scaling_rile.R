@@ -10,19 +10,16 @@ rile_l <- c(103, 105, 106, 107, 202, 403, 404, 406, 412, 413, 504, 506, 701)
 #' @param ... A ManifestoCorpus or ManifestoDocument with annotated texts to be be scaled
 #' @export
 rile <- function(x) { UseMethod("rile", x) }
-#' @rdname rile
 #' @export
 rile.default <- functional::Curry(scale_bipolar,
                                   pos=paste0("per", rile_r),
                                   neg=paste0("per", rile_l))
-#' @rdname rile
 #' @export
 rile.ManifestoDocument <- function(x) {
   .Deprecated("mp_scale(doc, scalingfun = rile)")
   f <- document_scaling(rile.default, scalingname = "rile")
   f(x)
 }
-#' @rdname rile
 #' @export
 rile.ManifestoCorpus <- function(x) {
   .Deprecated("mp_scale(corpus, scalingfun = rile)")
@@ -33,19 +30,16 @@ rile.ManifestoCorpus <- function(x) {
 #' @rdname rile
 #' @export
 logit_rile <- function(x) { UseMethod("logit_rile", x) }
-#' @rdname rile
 #' @export
 logit_rile.default <- functional::Curry(scale_logit,
                                         pos=paste0("per", rile_r),
                                         neg=paste0("per", rile_l))
-#' @rdname rile
 #' @export
 logit_rile.ManifestoDocument <- function(x) {
   .Deprecated("mp_scale(doc, scalingfun = logit_rile)")
   f <- document_scaling(logit_rile.default, scalingname = "logit_rile")
   f(x)
 }
-#' @rdname rile
 #' @export
 logit_rile.ManifestoCorpus <- function(x) {
   .Deprecated("mp_scale(corpus, scalingfun = logit_rile)")

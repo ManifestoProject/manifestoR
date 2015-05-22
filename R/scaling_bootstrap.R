@@ -1,7 +1,7 @@
 #' Compute bootstrap distributions for scaling functions
 #' 
 #' Bootstrapping of distributions of scaling functions as described by
-#' Benoit, Mikhaylov, and Laver 2009. Given a dataset with percentages of CMP
+#' Benoit, Mikhaylov, and Laver (2009). Given a dataset with percentages of CMP
 #' categories, for each case the distribution of categories is resampled from
 #' a multinomial distribution and the scaling function computed for the resampled
 #' values. Arbitrary statistics of the resulting bootstrap distribution can be

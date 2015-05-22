@@ -22,6 +22,7 @@ mp_scale <- function(data,
 }
 
 #' @method mp_scale default
+#' @export
 mp_scale.default <- function(data,
                              scalingfun = rile,
                              scalingname = as.character(substitute(scalingfun)),
@@ -31,6 +32,7 @@ mp_scale.default <- function(data,
 }
 
 #' @method mp_scale ManifestoDocument
+#' @export
 mp_scale.ManifestoDocument <- function(data,
         scalingfun = rile,
         scalingname = as.character(substitute(scalingfun)),
@@ -46,6 +48,7 @@ mp_scale.ManifestoDocument <- function(data,
 }
 
 #' @method mp_scale ManifestoCorpus
+#' @export
 mp_scale.ManifestoCorpus <- function(data,
         scalingfun = rile,
         scalingname = as.character(substitute(scalingfun)),
@@ -189,7 +192,7 @@ scale_bipolar <- function(data, pos, neg, ...) {
 #' @export
 scale_ratio <- function(data, pos, neg, ...) {
    scale_bipolar(data, pos = pos, neg = c(), ...) /
-      scale_bipolar(data, pos = pos, neg = c(), ...)
+      scale_bipolar(data, pos = neg, neg = c(), ...)
 }
 
 #' \code{document_scaling} creates a function applicable to
