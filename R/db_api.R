@@ -177,7 +177,10 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
   }
 
   # prepare version parameter if needed
-  if (!is.null(versionid) && type %in% c(kmtype.meta, kmtype.text)) {
+  if (type %in% c(kmtype.meta, kmtype.text)) {
+    if (is.null(versionid)) {
+      versionid <- last(mp_corpusversions(apikey = apikey))
+    }
     parameters <- c(parameters, version = versionid)
   }
 
