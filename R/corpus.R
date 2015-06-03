@@ -188,7 +188,10 @@ as.data.frame.ManifestoDocument <- function(x,
                         stringsAsFactors = stringsAsFactors,
                         ...)
   if (with.meta) {
-    metadata <- data.frame(t(unlist(meta(x))), stringsAsFactors = stringsAsFactors)
+    metadata <- data.frame(t(unlist(meta(x))),
+                            stringsAsFactors = stringsAsFactors) %>%
+                mutate(party = as.numeric(as.character(party)),
+                       date = as.numeric(as.character(date)))
     dftotal <- data.frame(dftotal, metadata)
   }
   return(dftotal)
