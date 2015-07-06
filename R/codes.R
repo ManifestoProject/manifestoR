@@ -72,8 +72,11 @@ aggregate_v5_to_v4.ManifestoCorpus <- function(x) {
 
 #' Count the codings from a ManifestoDocument
 #'
-#' @param doc ManifestoDocument to use
-#' @param with_eu_codes Whether to include special EU code layer; by default taken
+#' @param doc ManifestoDocument, ManifestoCorpus or vector of codes
+#' @param code_layers vector of names of code layers to use, defaults to cmp_code; Caution:
+#' The layer eu_code is handled separately in the parameter with_eu_codes due to its
+#' different logic
+#' @param with_eu_codes Whether to include special EU code layer; by default ("auto") taken
 #' from the document's metadata
 #' @param prefix prefix for naming the count/percentage columns in the resulting data.frame
 #' @param relative If true, percentages are returned, absolute counts else
@@ -81,17 +84,90 @@ aggregate_v5_to_v4.ManifestoCorpus <- function(x) {
 #'
 #' @export
 count_codes <- function(doc,
-                        with_eu_codes = meta(doc, "has_eu_code"),
+                        code_layers = c("cmp_code"),
+                        with_eu_codes = "auto",
+                        prefix = "per",
+                        relative = TRUE) {
+  UseMethod("count_codes", doc)
+}
+
+fix_names_code_table <- function(df, prefix) {
+  
+  the_order <- order(names(df))
+  df %>%
+    select(the_order) %>%
+    select(matches("party"),
+           matches("date"),
+           starts_with(prefix),
+           matches("total"))
+  
+}
+
+fix_missing_counted_codes <- function(df) {
+  
+  m <- is.na(df)
+  m[which(df$total <= 0),] <- FALSE
+  df[m] <- 0L
+  
+  return(df)
+  
+}
+
+#' @export
+count_codes.ManifestoCorpus <- function(doc,
+                                        code_layers = c("cmp_code"),
+                                        with_eu_codes = "auto",
+                                        prefix = "per",
+                                        relative = TRUE) {
+  
+  lapply(content(doc), count_codes, code_layers, with_eu_codes, prefix, relative) %>%
+    bind_rows() %>%
+    fix_missing_counted_codes() %>%
+    fix_names_code_table(prefix)
+  
+}
+
+#' @export
+count_codes.ManifestoDocument <- function(doc,
+                        code_layers = c("cmp_code"),
+                        with_eu_codes = "auto",
                         prefix = "per",
                         relative = TRUE) {
   
-  the_codes <- codes(doc)
+  if (with_eu_codes == "auto") {
+    with_eu_codes <- meta(doc, "has_eu_code")
+    if (is.null(with_eu_codes)) {
+      with_eu_codes <- FALSE
+    }
+  }
+  the_codes <- c()
+  if ("eu_code" %in% code_layers) {
+    warning("eu_code is included in code_layers, but should be included via the with_eu_codes parameter to respect its logic!")
+  }
+  for (layer in code_layers) {
+    the_codes <- c(the_codes, as.character(codes(doc, layer)))
+  }
   if (length(with_eu_codes) > 0 && with_eu_codes) {
     eu_codes <- codes(doc, "eu_code")
     the_codes <- c(the_codes, eu_codes[!is.na(eu_codes) & eu_codes != 0L])
   }
-  tt <- table(the_codes)
+  
+  data.frame(party = null_to_na(meta(doc, "party")),
+             date = null_to_na(meta(doc, "date"))) %>%
+    bind_cols(count_codes(the_codes, code_layers, with_eu_codes, prefix, relative))
+  
+  
+}
 
+#' @export
+count_codes.default <- function(doc,
+                                code_layers = c("cmp_code"),
+                                with_eu_codes = "auto",
+                                prefix = "per",
+                                relative = TRUE) {
+  
+  tt <- table(doc)
+  
   df <- as.data.frame(t(as.matrix(tt)))
   if (ncol(df) > 0) {
     names(df) <- paste0(prefix, names(df))
@@ -107,4 +183,5 @@ count_codes <- function(doc,
     }
     return(df)
   }
+  
 }

@@ -155,6 +155,18 @@ rep.data.frame <- function(x, times = 1, ...) {
   }
 }
 
+#' Convert NULL to NA
+#' 
+#' @param x element
+#' @return NA if the element is NULL, the element otherwise
+null_to_na <- function(x) {
+  if (is.null(x)) {
+    return(NA)
+  } else {
+    return(x)
+  }
+}
+
 
 #' \code{scale_logit} scales the data on a logit scale as described by Lowe et al. (2011).
 #'
@@ -218,8 +230,7 @@ document_scaling <- function(scalingfun,
       x <- aggregate_v5_to_v4(x)
     }
 
-    df <- data.frame(party=meta(x, "party"), date=meta(x, "date"))
-    df <- bind_cols(df, count_codes_loc(x))
+    df <- count_codes_loc(x)
 
     df[,scalingname] <- scalingfun(df)
 
@@ -238,15 +249,28 @@ document_scaling <- function(scalingfun,
 #' @export
 #' @rdname mp_scale
 corpus_scaling <- function(scalingfun, scalingname = "scaling", ...) {
-  
+
   doc_scale_loc <- document_scaling(scalingfun, ...)
-  
+
   function(x) {
-    df <- data.frame(party = unlist(lapply(content(x), function(doc) { meta(doc, "party")})),
-                     date = unlist(lapply(content(x), function(doc) { meta(doc, "date")})),
-                     scaling = unlist(lapply(content(x), doc_scale_loc)))
-    names(df)[3] <- scalingname
-    df
+    scalings <- lapply(content(x), doc_scale_loc)
+    
+    has_party_date <- unlist(lapply(scalings, function(scale) {
+      c("party" %in% names(scale), "date" %in% names(scale))
+    }))
+
+    if (all(has_party_date)) {
+      return(bind_rows(scalings))
+    } else {
+      if (any(has_party_date)) {
+        warning("Some scaled documents have party and date and some don't!")
+      }
+      df <- data.frame(party = unlist(lapply(content(x), function(doc) { null_to_na(meta(doc, "party")) })),
+                       date = unlist(lapply(content(x), function(doc) { null_to_na(meta(doc, "date")) })),
+                       scaling = unlist(scalings))
+      names(df)[3] <- scalingname
+      return(df)
+    }
   }
 }
 
