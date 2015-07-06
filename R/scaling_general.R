@@ -10,13 +10,15 @@
 #' category percentages and returns scaled positions, e.g. \code{\link{scale_weighted}}.
 #' @param ... further arguments passed on to the scaling function \code{scalingfun},
 #' or \code{\link{count_codes}}
-#' @param aggregate_to_v4 aggregate codes to handbook version 4 scheme before scaling
+#' @param recode_v5_to_v4 recode handbook version 5 scheme to version 4 before scaling; this
+#' parameter is only relevant if data is a ManifestoDocument or ManifestoCorpus, but not for 
+#' data.frames with code percentages
 #' @seealso \code{\link{scale}}
 #' @export
 mp_scale <- function(data,
                      scalingfun = rile,
                      scalingname = as.character(substitute(scalingfun)),
-                     aggregate_to_v4 = (scalingname == "rile"),
+                     recode_v5_to_v4 = (scalingname == "rile"),
                      ...) {
   UseMethod("mp_scale", data)
 }
@@ -26,7 +28,7 @@ mp_scale <- function(data,
 mp_scale.default <- function(data,
                              scalingfun = rile,
                              scalingname = as.character(substitute(scalingfun)),
-                             aggregate_to_v4 = (scalingname == "rile"),
+                             recode_v5_to_v4 = (scalingname == "rile"),
                              ...) {
   scalingfun(data, ...)
 }
@@ -36,13 +38,13 @@ mp_scale.default <- function(data,
 mp_scale.ManifestoDocument <- function(data,
         scalingfun = rile,
         scalingname = as.character(substitute(scalingfun)),
-        aggregate_to_v4 = (scalingname == "rile"),
+        recode_v5_to_v4 = (scalingname == "rile"),
         ...) {
 
   do.call(document_scaling(scalingfun,
                            returndf = FALSE,
                            scalingname = scalingname,
-                           aggregate_to_v4),
+                           recode_v5_to_v4),
           list(data, ...))
 
 }
@@ -219,15 +221,15 @@ scale_ratio <- function(data, pos, neg, ...) {
 document_scaling <- function(scalingfun,
                              returndf = FALSE,
                              scalingname = "scaling",
-                             aggregate_to_v4 = FALSE,
+                             recode_v5_to_v4 = FALSE,
                              ...) {
   
   count_codes_loc <- functional::Curry(count_codes, ...)
 
   return(function(x) {
     
-    if (aggregate_to_v4) {
-      x <- aggregate_v5_to_v4(x)
+    if (recode_v5_to_v4) {
+      x <- recode_v5_to_v4(x)
     }
 
     df <- count_codes_loc(x)
