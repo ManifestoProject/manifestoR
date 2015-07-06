@@ -19,7 +19,7 @@ pack: doc Rmdvignette
 	(cd ../; R CMD build $(pkgname))
 
 check: pack
-	(cd ../; R CMD check $(pkgname)_$(pkgversion).tar.gz)
+	(cd ../; R CMD check --as-cran $(pkgname)_$(pkgversion).tar.gz)
 
 testcheck: test pack check
 
