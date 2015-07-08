@@ -179,6 +179,7 @@ null_to_na <- function(x) {
 #' @param ... further parameters passed on to \code{\link{scale_weighted}}
 #' @references Lowe, W., Benoit, K., Mikhaylov, S., & Laver, M. (2011). Scaling Policy Preferences from Coded Political Texts. Legislative Studies Quarterly, 36(1), 123-155. 
 #' @rdname scale
+#' @export
 scale_logit <- function(data, pos, neg, N = data[,"total"], zero_offset = 0.5, ...) {
   abs.data <- data[,intersect(union(pos, neg), names(data))]*unlist(N)
   log( (scale_weighted(abs.data, pos) + zero_offset) /
