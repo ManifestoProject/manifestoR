@@ -57,7 +57,7 @@ test_that("downgrading of corpus and metadata works", {
   suppressWarnings(mp_use_corpus_version(oldversion))
   avl_old <- suppressWarnings(mp_availability(mp_maindataset()))
 
-  expect_true(sum(avl$availability$annotations) >
-              sum(avl_old$availability$annotations))
+  expect_true(sum(na.omit(avl$availability$annotations)) >
+              sum(na.omit(avl_old$availability$annotations)))
 
 })

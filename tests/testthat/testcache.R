@@ -101,8 +101,8 @@ test_that("versioning is respected in cache", {
 
   mp_load_cache()
   avl_cache <- suppressWarnings(mp_availability(mp_maindataset()))
-  expect_true(sum(avl$availability$annotations) >
-                sum(avl_cache$availability$annotations))
+  expect_true(sum(na.omit(avl$availability$annotations)) >
+                sum(na.omit(avl_cache$availability$annotations)))
 
   ## clean up
   file.remove("mp_cache.RData")
