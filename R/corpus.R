@@ -162,7 +162,7 @@ length.ManifestoDocument <- function(x) {
 str.ManifestoDocument <- function(object, ...) {
   doc2 <- object
   class(doc2) <- "list"
-  return(str(doc2, ...))
+  return(utils::str(doc2, ...))
 }
 
 #' @method subset ManifestoDocument

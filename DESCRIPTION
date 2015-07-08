@@ -29,6 +29,7 @@ Depends:
     dplyr (>= 0.4.1)
 Imports:
     utils,
+    stats,
     httr (>= 1.0.0),
     jsonlite (>= 0.9.12),
     functional (>= 0.6),
@@ -39,7 +40,7 @@ Suggests:
     rmarkdown,
     testthat,
     R.rsp
-VignetteBuilder: R.rsp
+VignetteBuilder: knitr
 Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R
     codes.R scaling_general.R scaling_rile.R scaling_functions.R
     scaling_bootstrap.R dataset.R

@@ -302,7 +302,7 @@ print.ManifestoAvailability <- function(x, ...) {
   ncovereddocs <- nrow(avl$availability[which(avl$availability$annotations),])
   ncoveredorigs <- length(which(unique(avl$availability[which(
                              avl$availability$originals),])$originals))
-  languages <- na.omit(unique(avl$availability$language))
+  languages <- stats::na.omit(unique(avl$availability$language))
   
   summary <- list('Queried for'=nqueried,
                   'Documents found'=paste(length(which(avl$availability$manifestos)),
@@ -475,7 +475,7 @@ mp_view_originals <- function(ids, maxn = 5, apikey = NULL, cache = TRUE) {
                   "of mp_view_originals"))
   } else {
     for (url in ids$url_original) {
-      browseURL(paste0(kmurl.originalsroot, url))
+      utils::browseURL(paste0(kmurl.originalsroot, url))
     }
   }
 

@@ -17,6 +17,7 @@
 #' @param N number of resamples to use for bootstrap distribution
 #' @param ... more arguments passed on to \code{fun}
 #' @references Benoit, K., Laver, M., & Mikhaylov, S. (2009). Treating Words as Data with Error: Uncertainty in Text Statements of Policy Positions. American Journal of Political Science, 53(2), 495-513. http://doi.org/10.1111/j.1540-5907.2009.00383.x
+#' @importFrom stats sd
 #' @export
 mp_bootstrap <- function(data,
                          fun = rile,
@@ -32,7 +33,7 @@ mp_bootstrap <- function(data,
   stat_funs <- statistics
   stat_funs[quantiles] <- lapply(statistics[quantiles],
                                     function(q) {
-                                      functional::Curry(quantile, probs = q)
+                                      functional::Curry(stats::quantile, probs = q)
                                     })
   fun_name <- as.character(substitute(fun))
 
@@ -46,7 +47,7 @@ mp_bootstrap <- function(data,
     bootstrap_distribution <- do.call(
         fun,
         list(right_join(row_dontpermute, by = c("rowid"),
-                       as.data.frame(t(rmultinom(N, total, row_permute[1,])))/total * 100),
+                       as.data.frame(t(stats::rmultinom(N, total, row_permute[1,])))/total * 100),
              ...))
 
     df <- bind_cols(data.frame(do.call(fun, list(row, ...))),
