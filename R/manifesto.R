@@ -147,7 +147,7 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
     if (exists("manifesto_id")) {
       manifesto_id <- as.character(manifesto_id)
     } else {
-      manifesto_id <- NA
+      manifesto_id <- as.character(rep(NA, times = nrow(metadata)))
     }
     if (exists("is_primary_doc")) {
       is_primary_doc <- as.logical(is_primary_doc)

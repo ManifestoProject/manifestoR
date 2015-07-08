@@ -265,10 +265,10 @@ mp_use_corpus_version <- function(versionid, apikey=NULL) {
  
     mp_load_cache(new_cache)
 
-    ## download documents to write them automatically to new cache
-    nupdated <- length(mp_corpus(select(subset(texts_in_cache, download),
-                                  one_of("party", "date"))))
-    if (nupdated > 0) {
+    if (nrow(subset(texts_in_cache, download)) > 0) { ## prevent warning of querying empty corpus
+      ## download documents to write them automatically to new cache
+      nupdated <- length(mp_corpus(select(subset(texts_in_cache, download),
+                                          one_of("party", "date"))))
       message(paste(nupdated, "documents updated"))      
     }
 
