@@ -144,18 +144,18 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
 
   ## type conversion for certain metadata entries
   metadata <- within(metadata, {
-    if (exists("manifesto_id")) {
+    if (exists("manifesto_id", inherits = FALSE)) {
       manifesto_id <- as.character(manifesto_id)
     } else {
       manifesto_id <- as.character(rep(NA, times = nrow(metadata)))
     }
-    if (exists("is_primary_doc")) {
+    if (exists("is_primary_doc", inherits = FALSE)) {
       is_primary_doc <- as.logical(is_primary_doc)
     }
-    if (exists("may_contradict_core_dataset")) {
+    if (exists("may_contradict_core_dataset", inherits = FALSE)) {
       may_contradict_core_dataset <- as.logical(may_contradict_core_dataset)
     }
-    if (exists("has_eu_code")) {
+    if (exists("has_eu_code", inherits = FALSE)) {
       has_eu_code <- as.logical(has_eu_code)
       has_eu_code[is.na(has_eu_code)] <- FALSE
     }
