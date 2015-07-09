@@ -39,7 +39,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
-    R.rsp
+    R.rsp,
+    devtools (>= 1.7.0)
 VignetteBuilder: knitr
 Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R
     codes.R scaling_general.R scaling_rile.R scaling_functions.R
