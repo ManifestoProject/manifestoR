@@ -181,9 +181,9 @@ null_to_na <- function(x) {
 #' @rdname scale
 #' @export
 scale_logit <- function(data, pos, neg, N = data[,"total"], zero_offset = 0.5, ...) {
-  abs.data <- data[,intersect(union(pos, neg), names(data))]*unlist(N)
-  log( (scale_weighted(abs.data, pos) + zero_offset) /
-       (scale_weighted(abs.data, neg) + zero_offset) )
+  abs.data <- data[,intersect(union(pos, neg), names(data))]/100*unlist(N)  ## convert percentages to counts
+  log( (scale_weighted(abs.data, pos, ...) + zero_offset) /
+       (scale_weighted(abs.data, neg, ...) + zero_offset) )
 }
 
 #' \code{scale_bipolar} scales the data by adding up the variable
