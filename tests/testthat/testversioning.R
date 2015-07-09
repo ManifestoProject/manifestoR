@@ -6,8 +6,11 @@ mp_emptycache()
 test_that("list metadata versions works", {
   
   mdvs <- mp_corpusversions()
-  expect_is(mdvs, "character") ## this is important since numbers might be very large
-  expect_more_than(length(mdvs), 0)
+  expect_is(mdvs, "data.frame") ## this is important since numbers might be very large
+  expect_named(mdvs, c("name", "tag"))
+  expect_is(mdvs$name, "character")
+  expect_is(mdvs$tag, "character")
+  expect_more_than(nrow(mdvs), 0)
   
 })
 

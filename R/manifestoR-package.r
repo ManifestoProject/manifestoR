@@ -30,6 +30,7 @@ globalVariables(c("one_of", ".", "matches", "starts_with", # dplyr
                   "manifesto_id", "country", "party", "edate", # general dataset
                   "md5sum_text.x", "md5sum_text.y", # & metadata
                   "download", "url_original", "is_primary_doc",
+                  "name", "tag", # metadata versions
                   "leadedate", "leglength", "festername", "w", "p", # scaling
                   "p_lead", "p_lag", "lrcorescores", # median_voter_single
                   "position", "voteshare", "cumvoteshare",
