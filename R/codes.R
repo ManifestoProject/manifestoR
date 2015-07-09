@@ -80,6 +80,8 @@ recode_v5_to_v4.ManifestoCorpus <- function(x) {
 #' from the document's metadata
 #' @param prefix prefix for naming the count/percentage columns in the resulting data.frame
 #' @param relative If true, percentages are returned, absolute counts else
+#' @param ensure_names Vector of names to make sure they exist in the outcome dataset;
+#' the value of the created variables defaults to 0.0;
 #' @return A data.frame with onw row and the counts/percentages as columns
 #'
 #' @export
@@ -87,18 +89,24 @@ count_codes <- function(doc,
                         code_layers = c("cmp_code"),
                         with_eu_codes = "auto",
                         prefix = "per",
-                        relative = TRUE) {
+                        relative = TRUE,
+                        ensure_names = c()) {
   UseMethod("count_codes", doc)
 }
 
-fix_names_code_table <- function(df, prefix) {
+fix_names_code_table <- function(df, prefix, ensure_names) {
   
+  ensure_names <- ensure_names %>%
+      subset(!grepl(paste0("$(", prefix, ").*^"), ensure_names)) %>%
+    as.character()
+
   the_order <- order(names(df))
   df %>%
     select(the_order) %>%
     select(matches("party"),
            matches("date"),
            starts_with(prefix),
+           one_of(ensure_names),
            matches("total"))
   
 }
@@ -118,12 +126,15 @@ count_codes.ManifestoCorpus <- function(doc,
                                         code_layers = c("cmp_code"),
                                         with_eu_codes = "auto",
                                         prefix = "per",
-                                        relative = TRUE) {
+                                        relative = TRUE,
+                                        ensure_names = c()) {
   
-  lapply(content(doc), count_codes, code_layers, with_eu_codes, prefix, relative) %>%
+  lapply(content(doc),
+         count_codes,
+         code_layers, with_eu_codes, prefix, relative, ensure_names) %>%
     bind_rows() %>%
     fix_missing_counted_codes() %>%
-    fix_names_code_table(prefix)
+    fix_names_code_table(prefix, ensure_names)
   
 }
 
@@ -132,7 +143,8 @@ count_codes.ManifestoDocument <- function(doc,
                         code_layers = c("cmp_code"),
                         with_eu_codes = "auto",
                         prefix = "per",
-                        relative = TRUE) {
+                        relative = TRUE,
+                        ensure_names = c()) {
   
   if (with_eu_codes == "auto") {
     with_eu_codes <- meta(doc, "has_eu_code")
@@ -154,7 +166,7 @@ count_codes.ManifestoDocument <- function(doc,
   
   data.frame(party = null_to_na(meta(doc, "party")),
              date = null_to_na(meta(doc, "date"))) %>%
-    bind_cols(count_codes(the_codes, code_layers, with_eu_codes, prefix, relative))
+    bind_cols(count_codes(the_codes, code_layers, with_eu_codes, prefix, relative, ensure_names))
   
   
 }
@@ -164,7 +176,8 @@ count_codes.default <- function(doc,
                                 code_layers = c("cmp_code"),
                                 with_eu_codes = "auto",
                                 prefix = "per",
-                                relative = TRUE) {
+                                relative = TRUE,
+                                ensure_names = c()) {
   
   tt <- table(doc)
   
@@ -176,12 +189,18 @@ count_codes.default <- function(doc,
       df[1,] <- df[1,]/n * 100
       df$total <- n
     }
-    return(df)    
   } else {
     if (relative) {
-      return(data.frame(total = 0))
+      df <- data.frame(total = 0)
+    } else {
+      df <- data.frame()
     }
-    return(df)
   }
+  
+  names(df) <- gsub(".", "_", names(df), fixed = TRUE)
+  for (the_name in setdiff(ensure_names, names(df))) {
+    df[,the_name] <- 0.0
+  }
+  return(df)    
   
 }
