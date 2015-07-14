@@ -14,6 +14,7 @@ output:
 <!--
 %\VignetteEngine{knitr::rmarkdown}
 %\VignetteIndexEntry{The workflow with the manifestoR package}
+\usepackage[utf8]{inputenc}
 -->
 
 \newpage
