@@ -375,7 +375,8 @@ mp_corpus <- function(ids,
 
   ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache)
 
-  ids <- base::subset(ids, !is.naorstringna(manifesto_id))
+  ids <- base::subset(ids, !is.naorstringna(manifesto_id) &
+                        (is.null(codefilter) | annotations))
   
   if (nrow(ids) > 0) {
     

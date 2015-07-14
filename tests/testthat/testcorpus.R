@@ -84,9 +84,9 @@ test_that("codefilter works", {
   allowed_codes <- c(503, 103)
   
   corp_filtered <- mp_corpus(party == 41320, codefilter = allowed_codes)
-  
+
   expect_true(all(lapply(content(corp_filtered), function(doc) {
-    return(all(codes(doc) %in% allowed_codes))
+    return(meta(doc, "annotations") & all(codes(doc) %in% allowed_codes))
   })))
   
   ## eu_codes
