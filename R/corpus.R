@@ -207,7 +207,7 @@ as.data.frame.ManifestoCorpus <- function(x,
                                           
                                           ...) {
   suppressWarnings({
-    dfslist <- lapply(x, Curry(as.data.frame,
+    dfslist <- lapply(content(x), Curry(as.data.frame,
                                           stringsAsFactors = stringsAsFactors,
                                           with.meta = with.meta,
                                           row.names = row.names,
