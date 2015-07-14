@@ -240,7 +240,7 @@ document_scaling <- function(scalingfun,
     if (returndf) {
       return(df)
     } else {
-      return(df[1,scalingname])
+      return(df[[scalingname]][1])
     }
 
   })
