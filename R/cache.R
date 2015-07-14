@@ -156,15 +156,17 @@ table_caching <- function(varname, fun, ids,
 #' 
 #' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
 #'        the API key set via \code{\link{mp_setapikey}}.
+#' @param only_stable Consider only for versions marked as stable by the Manifesto
+#'        Projec Team, defaults to TRUE
 #' @return \code{mp_update_cache} returns a list with a boolean
 #'         \code{update_available} and \code{versionid},
 #'         a character string identifying the most recent online version available
 #' @rdname corpusupdate
 #' @export
-mp_check_for_corpus_update <- function(apikey = NULL) {
+mp_check_for_corpus_update <- function(apikey = NULL, only_stable = TRUE) {
   
   cacheversion <- getn(kmetaversion, envir = mp_cache())
-  dbversion <- last(mp_corpusversions(apikey = apikey))
+  dbversion <- last_corpus_version(apikey = apikey, onlytag = only_stable)
   
   return(list(update_available = (is.null(cacheversion) || (cacheversion != dbversion)),
               versionid = dbversion))
@@ -307,10 +309,10 @@ getn <- function(...) {
 #' @rdname corpusupdate
 #' @return \code{mp_update_cache} returns the character identifier of the version updated to
 #' @export
-mp_update_cache <- function(apikey=NULL) {
+mp_update_cache <- function(apikey=NULL, only_stable = TRUE) {
   
   ## get list of versions, take most current one
-  versionid <- last(mp_corpusversions(apikey = apikey))
+  versionid <- last_corpus_version(apikey = apikey, onlytag = only_stable)
   mp_use_corpus_version(versionid)
   
   return(versionid)
@@ -340,10 +342,10 @@ get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
         
         versionid <- get(kmetaversion, envir = mp_cache())
         
-      } else {
+      } else { ## This case should never happen
         
-        ## TODO: try to keep the cache content in sync with the stored versionid!
-        versionid <- last(mp_corpusversions(...))
+        ## TODO: try to keep the cache content in sync with the stored versionid! U
+        versionid <- last_corpus_version(...)
         assign(kmetaversion, versionid, envir = mp_cache())
         
       }    

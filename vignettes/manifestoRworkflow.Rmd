@@ -1,7 +1,7 @@
 ---
 title: "Working with the manifestoR package"
 author: "Jirka Lewandowski <jirka.lewandowski@wzb.eu>"
-date: "05/22/2015"
+date: "07/09/2015"
 output:
   pdf_document:
     toc: yes
@@ -369,7 +369,7 @@ This way `manifestoR` always works with the same snapshot of the Manifesto Proje
 Database and Corpus, saves a lot of unnecessary online traffic and also enables
 you to continue with your analyses offline.
 
-Each snapshot of the Manifesto Corpus is identified via a timestamp, which is
+Each snapshot of the Manifesto Corpus is identified via a version number, which is
 stored in the cache together with the data and can be accessed via
 ```{r}
 mp_which_corpus_version()
@@ -377,9 +377,9 @@ mp_which_corpus_version()
 
 When collaborating on a project with other researchers, it is advisable to use
 the same corpus version for reproducibility of the results.
-`manifestoR` can be set to use a specific version id with the functions
+`manifestoR` can be set to use a specific version with the functions
 ```{r}
-mp_use_corpus_version("20150306152837")
+mp_use_corpus_version("2015-3")
 ```
 
 In order to guarantee reproducibility of **published work**, please also mention

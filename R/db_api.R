@@ -147,8 +147,9 @@ mpdb_api_request <- function(file, body) {
 #' @param type string of \code{"meta", "text", "original", "main", "versions"} 
 #'             to indicate type of content to get
 #' @param parameters content filter parameters specific to type
-#' @param versionid character string specifying the corpus version to use, format
-#'        as returned by \code{\link{mp_corpusversions}} and the API
+#' @param versionid character string specifying the corpus version to use, either
+#'        a name or tag as in the respective columns of the value of
+#'        \code{\link{mp_corpusversions}} and the API
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
 #'               environment \code{mp_globalenv} is used.
@@ -174,12 +175,13 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     requestfile <- "api_texts_and_annotations.json"
   } else if (type == kmtype.metaversions) {
     requestfile <- "api_list_metadata_versions.json"
+    parameters <- c(parameters, tag = "true")
   }
 
   # prepare version parameter if needed
   if (type %in% c(kmtype.meta, kmtype.text)) {
     if (is.null(versionid)) {
-      versionid <- last(mp_corpusversions(apikey = apikey))
+      versionid <- last_corpus_version(apikey = apikey)
     }
     parameters <- c(parameters, version = versionid)
   }
@@ -229,4 +231,12 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     return(texts)
 
   }
+}
+
+last_corpus_version <- function(onlytag = TRUE, apikey = NULL) {
+  mp_corpusversions(apikey = apikey) %>%
+    subset(!onlytag | !is.na(tag)) %>%
+    arrange(name) %>%
+    tail(n=1) %>%
+    with(ifelse(is.na(tag), name, tag))
 }
