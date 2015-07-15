@@ -125,9 +125,9 @@ mpdb_api_request <- function(file, body) {
   response <- httr::POST(url=paste0(kmurl.apiroot, file),
                          body=body,
                          httr::user_agent(paste("httr",
-                                                packageVersion("httr"),
+                                                utils::packageVersion("httr"),
                                                 "manifestoR",
-                                                packageVersion("manifestoR"))))
+                                                utils::packageVersion("manifestoR"))))
   content <- httr::content(response, as="text")
   if (response$status_code != "200") {
     msg <- paste("HTTP Error", response$status_code,
