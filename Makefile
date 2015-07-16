@@ -1,6 +1,6 @@
 # variables
 pkgname = manifestoR
-pkgversion = 1.0-4
+pkgversion = 1.0-5
 
 # default target
 all: pack check
