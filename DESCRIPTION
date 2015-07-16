@@ -1,6 +1,6 @@
 Package: manifestoR
 Title: Access and Process Data and Documents of the Manifesto Project
-Date: 2015-07-14
+Date: 2015-07-16
 Version: 1.0-4
 Authors@R: c(person("Jirka", "Lewandowski",
 		    role = c("aut", "cre"),
