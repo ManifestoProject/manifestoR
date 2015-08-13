@@ -181,9 +181,12 @@ as.data.frame.ManifestoDocument <- function(x,
                                             stringsAsFactors = FALSE,
                                             with.meta = FALSE,
                                             ...) {
-    
   dftotal <- data.frame(x$content,
-                        pos = 1:length(x),
+                        pos = if (length(x) > 0) {
+                          1:length(x)
+                        } else {
+                          integer(0)
+                        },
                         row.names = row.names,
                         stringsAsFactors = stringsAsFactors,
                         ...)
