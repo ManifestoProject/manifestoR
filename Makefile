@@ -11,7 +11,7 @@ doc:
 
 Rmdvignette:
 	sed -i '/VignetteBuilder: R.rsp/c\VignetteBuilder: knitr' DESCRIPTION
-	R -e "library(devtools); install(); build_vignettes();"
+	R -e "library(devtools); install(dependencies = FALSE); build_vignettes();"
 	cp inst/doc/manifestoRworkflow.pdf vignettes/
 	sed -i '/VignetteBuilder: knitr/c\VignetteBuilder: R.rsp' DESCRIPTION
 
