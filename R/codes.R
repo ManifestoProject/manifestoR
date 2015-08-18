@@ -57,6 +57,7 @@ recode_v5_to_v4.default <- function(x) {
 }
 
 #' @method recode_v5_to_v4 ManifestoDocument
+#' @export
 recode_v5_to_v4.ManifestoDocument <- function(x) {
   doc <- x
   codes(doc) <- recode_v5_to_v4(codes(doc))
