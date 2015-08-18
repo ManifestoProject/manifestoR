@@ -190,7 +190,7 @@ as.data.frame.ManifestoDocument <- function(x,
                         row.names = row.names,
                         stringsAsFactors = stringsAsFactors,
                         ...)
-  if (with.meta) {
+  if (with.meta & nrow(dftotal) > 0) {
     metadata <- data.frame(t(unlist(meta(x))),
                             stringsAsFactors = stringsAsFactors) %>%
                 mutate(party = as.numeric(as.character(party)),
