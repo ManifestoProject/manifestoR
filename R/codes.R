@@ -181,7 +181,6 @@ count_codes.ManifestoDocument <- function(doc,
     eu_codes <- codes(doc, "eu_code")
     the_codes <- c(the_codes, eu_codes[!is.na(eu_codes) & eu_codes != 0L])
   }
-  
   data.frame(party = null_to_na(meta(doc, "party")),
              date = null_to_na(meta(doc, "date"))) %>%
     bind_cols(count_codes(the_codes, code_layers, with_eu_codes, prefix, relative, include_codes))
@@ -199,7 +198,7 @@ count_codes.default <- function(doc,
                                                    { v4_categories() } else { c() }) {
   
   tt <- table(doc)
-  
+
   df <- as.data.frame(t(as.matrix(tt)))
   if (ncol(df) > 0) {
     names(df) <- paste0(prefix, names(df))
@@ -209,11 +208,7 @@ count_codes.default <- function(doc,
       df$total <- n
     }
   } else {
-    if (relative) {
-      df <- data.frame(total = 0L)
-    } else {
-      df <- data.frame()
-    }
+    df <- data.frame(total = 0L)
   }
   
   if (length(include_codes) > 0) {
