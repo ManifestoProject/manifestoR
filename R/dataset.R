@@ -42,16 +42,9 @@ mp_interpolate <- function(df,
       df %>%
         right_join(data.frame(edate = seq_Date_multi(df$edate, by = by),
                               party = the_party),
-                   by = c("edate", "party")) -> df_2 ## workaround ## %>%
-##        mutate_each_(funs(zoo(., edate) %>% the_approx() %>% as.numeric()),
-##                     vars = grep(vars, names(df), value = TRUE))
-
-      ## workaround for dplyr 0.4.2 bug https://github.com/hadley/dplyr/issues/1228
-      for (varname in grep(vars, names(df_2), value = TRUE)) {
-        df_2[[varname]] <- zoo(df_2[[varname]], df_2[["edate"]]) %>% the_approx() %>% as.numeric()
-      }
-      return(df_2)
-      ## end of workaround
+                   by = c("edate", "party")) %>%
+        mutate_each_(funs(zoo(., edate) %>% the_approx() %>% as.numeric()),
+                     vars = grep(vars, names(df), value = TRUE))
   
     } else {
       return(df)
