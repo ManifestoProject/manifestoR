@@ -506,6 +506,20 @@ mp_cite <- function(corpus_version = mp_which_corpus_version(),
                              "You're currently using corpus version ", corpus_version, ", ",
                              "please cite as\n\n",
                              get_citation(corpus_version, kmtype.corpuscitation, apikey = apikey))
+      
+      corpus_cache <- manifestos_in_cache() %>%
+                        select(party, date) %>%
+                        mp_metadata(apikey = apikey)
+      if (!is.null(corpus_cache) && 
+          !is.null(corpus_cache$source) && 
+          any(corpus_cache$source == "CEMP")) {
+        cite_message <- paste0(cite_message, "\n\n",
+                               "You have downloaded uncoded machine-readable manifesto texts, ",
+                               "which have been originally created in the Comparative ",
+                               "Electronic Manifestos Project please cite additionally. ",
+                               "Please cite additionally", "\n\n",
+                               get_citation("CEMP", kmtype.corpuscitation, apikey = apikey))
+      }
     } else {
       cite_message <- paste0(cite_message, "\n\n",
                              "You're manifestoR cache does not contain any corpus version identification. ",
