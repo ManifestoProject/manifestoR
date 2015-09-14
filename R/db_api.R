@@ -180,6 +180,10 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
   } else if (type == kmtype.metaversions) {
     requestfile <- "api_list_metadata_versions.json"
     parameters <- c(parameters, tag = "true")
+  } else if (type == kmtype.corecitation) {
+    requestfile <- "api_get_core_citation"
+  } else if (type == kmtype.corpuscitation) {
+    requestfile <- "api_get_corpus_citation"
   }
 
   # prepare version parameter if needed
@@ -196,7 +200,7 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
                                           toamplist(parameters)))
 
   # convert to desired format (before caching)
-  if (type == kmtype.versions) {
+  if (type %in% c(kmtype.versions, kmtype.corecitation, kmtype.corpuscitation)) {
 
     return(data.frame(fromJSON(jsonstr)))
 
@@ -235,6 +239,12 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     return(texts)
 
   }
+}
+
+get_citation <- function(version, type, apikey = NULL) {
+  get_mpdb(type,
+           parameters = list(key = version),
+           apikey = apikey)$citation %>% unlist()
 }
 
 last_corpus_version <- function(onlytag = TRUE, apikey = NULL) {

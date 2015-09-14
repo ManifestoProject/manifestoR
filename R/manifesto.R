@@ -484,9 +484,44 @@ mp_view_originals <- function(ids, maxn = 5, apikey = NULL, cache = TRUE) {
 
 #' Print Manifesto Corpus citation information
 #'
+#' @param corpus_version corpus version for which citation should be printed
+#' @param core_versions core version for which citation should be printed
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @export
-mp_cite <- function() {
-  message(paste0(kcitemessage, "\n\n",
-                 "You're currently using corpus version ",
-                    getn(kmetaversion, envir = mp_cache()), "."))
+mp_cite <- function(corpus_version = mp_which_corpus_version(),
+                    core_versions = mp_which_dataset_versions(),
+                    apikey = NULL) {
+  
+  cite_message <- kcitemessage
+  
+  if (is.null(apikey) && is.na(getn("apikey", envir = mp_globalenv))) {
+    cite_message <- paste0(cite_message, "\n\n",
+        "No API key specified. For generation as well as citation information ",
+        "please go to https://manifesto-project.wzb.eu.")
+  } else {
+    
+    if (!is.null(corpus_version) && !is.na(corpus_version)) {
+      cite_message <- paste0(cite_message, "\n\n",
+                             "You're currently using corpus version ", corpus_version, ", ",
+                             "please cite as\n\n",
+                             get_citation(corpus_version, kmtype.corpuscitation, apikey = apikey))
+    } else {
+      cite_message <- paste0(cite_message, "\n\n",
+                             "You're manifestoR cache does not contain any corpus version identification. ",
+                             "Please load a cache, download data or specify the corpus version ",
+                             "manually in mp_cite() to obtain citation information.")
+    }
+    
+    if (length(core_versions) > 0) {
+      cite_message <- paste0(cite_message, "\n\n",
+                             "You are using Manifesto Project Dataset version(s) ",
+                             paste(core_versions, collapse = ", "), ", please cite as \n\n", 
+                             core_versions %>%
+                               sapply(get_citation, type = kmtype.corecitation, apikey = apikey) %>% 
+                               paste(sep = "\n\n"))
+    }
+  }
+
+  message(cite_message)
 }
