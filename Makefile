@@ -15,7 +15,7 @@ Rmdvignette:
 	cp inst/doc/manifestoRworkflow.pdf vignettes/
 	sed -i '/VignetteBuilder: knitr/c\VignetteBuilder: R.rsp' DESCRIPTION
 
-pack: doc Rmdvignette
+pack: doc
 	(cd ../; R CMD build $(pkgname))
 
 check: pack
