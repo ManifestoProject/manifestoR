@@ -174,12 +174,13 @@ mp_check_for_corpus_update <- function(apikey = NULL, only_stable = TRUE) {
 }
 
 #' @rdname corpusupdate
+#' @param cache_env Cache environment
 #' @return \code{mp_which_corpus_version} returns the current version id of the
 #' corpus and metadata stored in the cache
 #' @export
-mp_which_corpus_version <- function() {
+mp_which_corpus_version <- function(cache_env = mp_cache()) {
   
-  cacheversion <- getn(kmetaversion, envir = mp_cache())
+  cacheversion <- getn(kmetaversion, envir = cache_env)
   
   if (is.null(cacheversion)) {
     return(NA)
@@ -187,6 +188,15 @@ mp_which_corpus_version <- function() {
     return(cacheversion)
   }
 }
+
+#' @rdname corpusupdate
+#' @return \code{mp_which_dataset_versions} returns the names of the main dataset
+#' versions which are in the cache, i.e. have been downloaded
+#' @export
+mp_which_dataset_versions <- function(cache_env = mp_cache()) {
+  gsub(paste0(kdatasetname, "(.*)"), "\\1", ls(cache_env, pattern = kdatasetname))
+}
+
 
 #' Use a specific version of the Manifesto Project Corpus
 #' 

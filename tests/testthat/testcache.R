@@ -117,4 +117,16 @@ test_that("check_for_corpus_update works", {
   
 })
 
+test_that("list dataset versions in cache works", {
+  
+  mp_maindataset("MPDS2015a") -> mpds2015a
+  mp_maindataset("MPDS2014b") -> mpds2014b
+  
+  in_cache <- mp_which_dataset_versions()
+  expect_equal(length(in_cache), 2)
+  expect_true("MPDS2014b" %in% in_cache)
+  expect_true("MPDS2015a" %in% in_cache)
+  
+})
+
 ## for more caching tests with metadata see testmetadata.R
