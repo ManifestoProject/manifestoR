@@ -116,7 +116,9 @@ codes.ManifestoDocument <- function(x, layer = "cmp_code") {
 #' @rdname codes
 #' @export
 codes.ManifestoCorpus <- function(x, layer = "cmp_code") {
-  c(unlist(lapply(x, codes, layer)))
+  l <- lapply(x, codes, layer)
+  names(l) <- NULL
+  return(unlist(l))
 }
 
 #' @param value new codes

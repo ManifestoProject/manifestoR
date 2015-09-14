@@ -403,9 +403,9 @@ mp_corpus <- function(ids,
           items[which(is.nacode(items$eu_code)),"eu_code"] <- NA 
         }
         suppressWarnings({ ## string codes might have become factor
-          items[,"cmp_code"] <- as.integer(as.character(items[,"cmp_code"]))
+          items[,"cmp_code"] <- as.character(items[,"cmp_code"])
           if ("eu_code" %in% names(items)) {
-            items[,"eu_code"] <- as.integer(as.character(items[,"eu_code"]))
+            items[,"eu_code"] <- as.character(items[,"eu_code"])
           }
         }) 
         

@@ -51,9 +51,9 @@ test_that("getting codes works", {
 
   ## getting
   expect_equal(code_layers(eu_doc), c("cmp_code", "eu_code"))
-  expect_is(codes(eu_doc), "integer")
+  expect_is(codes(eu_doc), "character")
   expect_equal(codes(eu_doc), codes(eu_doc, "cmp_code"))
-  expect_is(codes(eu_doc, "eu_code"), "integer")
+  expect_is(codes(eu_doc, "eu_code"), "character")
   expect_false(all(na.omit(codes(eu_doc, "eu_code")) == 0L))
 
 

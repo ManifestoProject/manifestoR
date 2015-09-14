@@ -3,7 +3,6 @@ mp_setapikey(key.file = "../manifesto_apikey.txt")
 mp_emptycache()
 
 check_cee_aggregation <- function(orig, mod) {
-  
   table_orig <- table(orig)
   table_mod <- table(mod)
   expect_is(table_mod, "table")
@@ -12,9 +11,10 @@ check_cee_aggregation <- function(orig, mod) {
   
   orig <- na.omit(orig)
   mod <- na.omit(mod)
-  cee_codes <- (orig >= 1000)
+  cee_codes <- (as.integer(orig) >= 1000)
   expect_equal(orig[!cee_codes], mod[!cee_codes])
-  expect_equal(floor(orig[cee_codes]/10), mod[cee_codes])
+  expect_equal(as.character(floor(as.numeric(orig[cee_codes])/10)),
+               mod[cee_codes])
   
 }
 
@@ -36,8 +36,8 @@ test_that("aggregating cee codes works", {
 
 test_that("aggregating handbook version 5 codes works", {
   
-  test_codes <- c(101, "201.2", "6014", "202.6", NA)
-  aggregated_test_codes <- c(101, 201, 6014, 202, NA)
+  test_codes <- c("101", "201.2", "6014", "202.6", NA)
+  aggregated_test_codes <- c("101", "201", "6014", "202", NA)
   expect_equal(recode_v5_to_v4(test_codes), aggregated_test_codes)
   
   doc <- ManifestoDocument(data.frame(text = "notext",

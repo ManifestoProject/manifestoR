@@ -17,9 +17,7 @@ aggregate_cee_codes <- function(x) {
 #' @method aggregate_cee_codes default
 #' @export
 aggregate_cee_codes.default <- function(x) {
-  cee_codes <- grepl("^\\d{4}$", x)
-  x[cee_codes] <- floor(as.integer(x[cee_codes])/10)
-  return(x)
+  gsub("^(\\d{3})\\d$", "\\1", x)
 }
 #' @method aggregate_cee_codes ManifestoDocument
 aggregate_cee_codes.ManifestoDocument <- function(x) {
@@ -52,8 +50,8 @@ recode_v5_to_v4 <- function(x) {
 #' @export
 recode_v5_to_v4.default <- function(x) {
   x <- as.character(x)
-  x[x %in% c("202.2", "605.2", "703.2")] <- 0L
-  return(as.integer(gsub("^(\\d{3})\\.\\d$", "\\1", x)))
+  x[x %in% c("202.2", "605.2", "703.2")] <- "0"
+  return(gsub("^(\\d{3})\\.\\d$", "\\1", x))
 }
 
 #' @method recode_v5_to_v4 ManifestoDocument
@@ -120,6 +118,7 @@ fix_names_code_table <- function(df, prefix, include_codes) {
     select(the_order) %>%
     select(matches("party"),
            matches("date"),
+           # matches(paste0(prefix, "\\d+$")),  # use this line when aggregation is implemented
            starts_with(prefix),
            one_of(ensure_names),
            matches("total"))
