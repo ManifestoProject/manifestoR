@@ -1,11 +1,11 @@
 ---
 title: "Working with the manifestoR package"
 author: "Jirka Lewandowski <jirka.lewandowski@wzb.eu>"
-date: "07/09/2015"
+date: "14/09/2015"
 output:
   pdf_document:
-    toc: yes
     number_sections: yes
+    toc: yes
   html_document:
     keep_md: yes
     number_sections: yes
@@ -21,9 +21,7 @@ output:
 
 # Downloading documents from the Manifesto Corpus
 
-When publishing work using the Manifesto Corpus, please make sure to give the identification number of the corpus version used for your analysis and to reference
-
-Lehmann, Pola / Merz, Nicolas / Regel, Sven / Werner, Annika (2015): Manifesto Corpus. Berlin: WZB Berlin Social Science Center.
+When publishing work using the Manifesto Corpus, please make sure to cite it correctly and to give the identification number of the corpus version used for your analysis.
 
 You can print citation and version information with the function `mp_cite()`.
 
@@ -31,7 +29,11 @@ You can print citation and version information with the function `mp_cite()`.
 
 First of all, load the `manifestoR` package with the usual R syntax:
 
-```{r}
+```{r eval=FALSE}
+library(manifestoR)
+```
+
+```{r eval=TRUE, include=FALSE}
 library(manifestoR)
 ```
 
@@ -63,6 +65,14 @@ name `manifesto_apikey.txt` in your current R working directory.
 
 Note that it is a security risk to store the API key file or a script containing
 the key in public repositories.
+
+## Downloading the Manifesto Project Dataset
+
+You can download the Manifesto Project Dataset (MPDS) with the function `mp_maindataset()`.
+By default the most recent update is returned, but you can specify older versions
+to get for reproducibility (type `mp_coreversions()` for a list of version and `?mp_maindataset`
+for usage information). For analysing the dataset using scaling functions, refer
+to the section [Using manifestoR's scaling functions](#using-manifestors-scaling-functions) below.
 
 ## Downloading documents
 
@@ -437,10 +447,12 @@ distributions of scaling functions (see section [Bootstrapping scaling function 
 ## Using manifestoR's scaling functions
 
 Implementationwise, a scaling function in `manifestoR` takes a data.frame of cases
-and outputs a position value for each case. For example, you can compute the RILE
-scores of cases from the main dataset by calling:
+and outputs a position value for each case. The Manifesto Project Dataset (MPDS)
+can be downloaded in `manifestoR` using the function `mp_maindataset()` (see section
+[Downloading the Manifesto Project Dataset](#downloading-the-manifesto-project-dataset) above). Then you can e.g. compute the RILE scores of cases from the main dataset by calling:
 
 ```{r}
+mpds <- mp_maindataset()
 rile(subset(mpds, countryname == "Albania"))
 ```
 
@@ -557,7 +569,7 @@ Feinerer, I., & Hornik, K. (2015). Tm: Text Mining Package. http://cran.r-projec
 
 Gabel, M. J., & Huber, J. D. (2000). Putting Parties in Their Place: Inferring Party Left-Right Ideological Positions from Party Manifestos Data. American Journal of Political Science, 44(1), 94-103.
 
-Grimmer, J., and Stewart, B.. 2013. Text as Data: The Promise and Pitfalls of Automatic Content Analysis Methods for Political Texts. Political Analysis 21(3): 267–97.
+Grimmer, J., & Stewart, B.. 2013. Text as Data: The Promise and Pitfalls of Automatic Content Analysis Methods for Political Texts. Political Analysis 21(3): 267–97.
 
 Kim, H., & Fording, R. C. (1998). Voter ideology in western democracies, 1946-1989. European Journal of Political Research, 33(1), 73-97.
 
@@ -565,9 +577,9 @@ Laver, M. & Budge, I., eds. (1992). Party Policy and Government Coalitions, Houn
 
 Laver, M., & Garry, J. (2000). Estimating Policy Positions from Political Texts. American Journal of Political Science, 44(3), 619-634.
 
-Lehmann, P., Merz, N., Regel, S. & Werner, A. (2015). Manifesto Corpus. Berlin: WZB Berlin Social Science Center.
+Lehmann, P.,  Matthieß, T., Merz, N., Regel, S., & Werner, A. (2015): Manifesto Corpus. Version: 2015-4. Berlin: WZB Berlin Social Science Center.
 
 Lowe, W., Benoit, K., Mikhaylov, S., & Laver, M. (2011). Scaling Policy Preferences from Coded Political Texts. Legislative Studies Quarterly, 36(1), 123-155.
 
-
+Volkens, A., Lehmann, P., Matthieß, T., Merz, N., Regel, S., & Werner, A (2015): The Manifesto Data Collection. Manifesto Project (MRG/CMP/MARPOR). Version 2015a. Berlin: Wissenschaftszentrum Berlin für Sozialforschung (WZB)
 
