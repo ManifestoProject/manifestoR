@@ -1,0 +1,8 @@
+1.0-5 (2015-09-14)
+==================
+
+* Dependency increased to dplyr 0.4.3, since 0.4.2 contains a bug affecting manifestoR code
+* Codings are now treated as character vectors to work with handbook version 5 codings
+* Citation information is now requesting the API
+* Several small bugfixes
+
