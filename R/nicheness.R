@@ -1,0 +1,113 @@
+
+# measurement of nicheness (original script in stata by daniel bischof)
+# do-file from http://danbischof.com/downloads/
+# article: http://ppq.sagepub.com/content/early/2015/06/26/1354068815588259.abstract
+# .R by nicolas merz
+
+library(manifestoR)
+library(foreign)
+
+mp_setapikey(key.file = "manifesto_apikey.txt")
+
+mpds <- mp_maindataset()
+data <- mpds %>%
+   mutate(
+      n_ecology = per416 + per410 + per501 + per106,
+      n_nationalist = per601 + per602 + per605 + per607 + per608,
+      n_agrarian = per703,
+      n_regional = per301 + per302 + per706,
+      n_europe = per406 + per407 + per108 + per110
+   ) %>%
+   # log
+   mutate(
+      ecology_1 = log(n_ecology + 1),
+      nationalist_1 = log(n_nationalist + 1),
+      agrarian_1 = log(n_agrarian + 1),
+      regional_1 = log(n_regional + 1),
+      europe_1 = log(n_europe + 1)
+   ) %>%
+   # smooth with lag
+   group_by(party) %>% arrange(date) %>% mutate(
+      ecology = (ecology_1 + lag(ecology_1))/2,
+      ecology = ifelse(is.na(lag(ecology_1)),ecology_1,ecology),
+      nationalist = (nationalist_1 + lag(nationalist_1))/2, 
+      nationalist = ifelse(is.na(lag(nationalist_1)),nationalist_1,nationalist),
+      agrarian = (agrarian_1 + lag(agrarian_1))/2,
+      agrarian = ifelse(is.na(lag(agrarian_1)),agrarian_1,agrarian),
+      regional = (regional_1 + lag(regional_1))/2,
+      regional = ifelse(is.na(lag(regional_1)),regional_1,regional),
+      europe = (europe_1 + lag(europe_1))/2,
+      europe = ifelse(is.na(lag(europe_1)),europe_1,europe),
+      # sum niche segments
+      sum_seg = ecology + nationalist + agrarian + regional + europe,
+      # share of niche segments
+      seg_eco = ecology/sum_seg,
+      seg_nat = nationalist/sum_seg,
+      seg_agr = agrarian/sum_seg,
+      seg_reg = regional/sum_seg,
+      seg_eur = europe/sum_seg,
+      # shannons entropy measure of niche segments
+      diversification = log(1/(seg_eco^seg_eco * 
+                              seg_nat^seg_nat * 
+                              seg_agr^seg_agr * 
+                              seg_reg^seg_reg * 
+                              seg_eur^seg_eur))
+   ) %>% ungroup() %>% 
+   mutate(
+      diversification = ifelse((seg_eco == 1 | 
+                                seg_nat == 1 |
+                                seg_agr == 1 |
+                                seg_reg == 1 |
+                                seg_eur == 1), 
+                                 0,
+                                 diversification)                                 
+   ) %>%
+   mutate(
+      max_divers = max(diversification, na.rm=TRUE),
+      min_divers = min(diversification, na.rm=TRUE),
+      specialization = (min_divers + max_divers) - diversification
+   ) %>% 
+   #mean without party of interest
+   group_by(country,edate) %>%
+   mutate(
+      N = n(),
+      npwq = N-1,
+      t_ecology = sum(ecology, na.rm=TRUE),
+      sumop_ecology = t_ecology - ecology,
+      mean_ecology = sumop_ecology/npwq,
+      #mean_ecology = (sum(ecology, na.rm=TRUE) - ecology) / npwq,
+      mean_nationalist = ((sum(nationalist, na.rm=TRUE) - nationalist) / npwq),
+      mean_agrarian = ((sum(agrarian, na.rm=TRUE) - agrarian) / npwq),
+      mean_regional = ((sum(regional, na.rm=TRUE) - regional) / npwq),
+      mean_europe = ((sum(europe, na.rm=TRUE) - europe) / npwq),
+      #
+      dis_ecology = (ecology - mean_ecology)^2,
+      dis_nationalist = (nationalist - mean_nationalist)^2,
+      dis_agrarian = (agrarian - mean_agrarian)^2,
+      dis_regional = (regional - mean_regional)^2,
+      dis_europe = (europe - mean_europe)^2,
+      # across countries
+      sum_distance =  dis_ecology + dis_nationalist + dis_agrarian + dis_regional + dis_europe,
+      divide_distance = sum_distance/5,
+      distance = sqrt(divide_distance),
+      # per country-election
+      nicheness = distance - ((sum(distance, na.rm=TRUE) - distance)/npwq)
+   )  %>%
+   ungroup() %>% mutate(
+      max_nic = max(nicheness, na.rm=TRUE),
+      min_nic = min(nicheness, na.rm=TRUE),
+      nicheness_stand = (nicheness - min_nic)/(max_nic - min_nic),
+      
+      max_spec = max(specialization, na.rm=TRUE),
+      min_spec = min(specialization, na.rm=TRUE),
+      
+      specialization_stand = (specialization-min_spec)/(max_spec-min_spec),
+      specialization_stand_two = specialization_stand,
+      specialization_stand_two = ifelse(is.na(specialization_stand_two),0,specialization_stand_two), 
+      # nicheness two
+      nicheness_two = nicheness_stand + specialization_stand_two
+   )
+   
+write.dta(data,"niche_with_R.dta")
+
+   
