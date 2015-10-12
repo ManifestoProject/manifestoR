@@ -38,6 +38,7 @@ Imports:
 Suggests:
     knitr,
     rmarkdown,
+    magrittr,
     testthat,
     R.rsp,
     devtools (>= 1.7.0)
