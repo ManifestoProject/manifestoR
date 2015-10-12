@@ -4,15 +4,24 @@
 #'
 #' @references Bischof, D. (2015). Towards a Renewal of the Niche Party Concept Parties, Market Shares and Condensed Offers. Party Politics.
 #' @references Meyer, T.M., & Miller, B. (2013). The Niche Party Concept and Its Measurement. Party Politics 21(2): 259-271.
-#' @references Wagner, M. (2012). Defining and Measuring Niche Parties. Party Politics 18(6): 845–64.
+#' @references Wagner, M. (2012). Defining and Measuring Niche Parties. Party Politics 18(6): 845-64.
 #' 
-#' @param data a dataframe or matrix
+#' @param data a dataframe or matrix in format of Manifesto Project Main Dataset
 #' @param method choose between bischof, wagner and meyermiller (currently only bischof is implemented)
 #' @export
 mp_nicheness <- function(data,
-                         method="bischof", # not yet implemented
-                         keep.vars=FALSE # not yet implemented
+                         method="bischof" # not yet implemented
                          ) {
+  switch(method,
+         "bischof" = nicheness_bischof(data),
+         stop(paste("Nicheness method", method, "not implemented!"))
+         )
+}
+
+#' @export
+#' @rdname mp_nicheness
+nicheness_bischof <- function(data) {
+    
    data <- data %>%
       mutate(
          n_ecology = per416 + per410 + per501 + per106,
