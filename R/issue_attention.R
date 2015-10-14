@@ -3,7 +3,7 @@
 #' Effective number of Manifesto Issues suggested by Zac Greene. When using the measure please cite:
 #' @references Greene, Z. (2015). Competing on the Issues How Experience in Government and Economic Conditions Influence the Scope of Parties' Policy Messages. Party Politics.
 #'
-#' @param data used (has to be a manifesto project dataset)
+#' @param data a data.frame in format of Manifesto Project Main Dataset (variables names "per...")
 #' @param method entropy measure used for the effective number of manifesto issues. Possible options are "shannon" for Shannon's H and "herfindahl" for the Herfindahl-Index.
 #' @export
 issue_attention_diversity <- function(data, method="shannon") {
