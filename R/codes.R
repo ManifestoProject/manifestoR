@@ -80,6 +80,57 @@ v4_categories <- function() {
     704, 705, 706)
 }
 
+
+#' Aggregate category percentages in groups
+#' 
+#' General function to aggregate percentage variables by creating a new
+#' variable holding the sum
+#' 
+#' @param data dataset to use in aggregation
+#' @param groups (named) list of variable name vectors to aggregate to a new one
+#' (as given in the name); see default value for an example of the format
+#' @param na.rm passed on to \code{\link{sum}}
+#' @param keep keep variables that were aggregated in result?
+#' 
+#' @export
+aggregate_pers <- function(data,
+                           groups = list("per101_102" = c("per101", "per102"),
+                                         "per104_105" = c("per104", "per105"),
+                                         "per107_109" = c("per107", "per109"),
+                                         "per108_110" = c("per108", "per110"),
+                                         "per203_204" = c("per203", "per204"),
+                                         "per301_302" = c("per301", "per302"),
+                                         "per406_407" = c("per406", "per407"),
+                                         "per409_414" = c("per409", "per414"),
+                                         "per504_505" = c("per504", "per505"),
+                                         "per506_507" = c("per506", "per507"),
+                                         "per601_602" = c("per601", "per602"),
+                                         "per603_604" = c("per603", "per604"),
+                                         "per607_608" = c("per607", "per608"),
+                                         "per701_702" = c("per701", "per702")),
+                           na.rm = FALSE,
+                           keep = FALSE) {
+  
+  data <- 
+    Reduce(function(data, aggregate) {
+        data[,aggregate] <- data %>%
+          select(one_of(groups[[aggregate]])) %>%
+          rowSums(na.rm = na.rm)
+        data
+      },
+      names(groups),
+      init = data)
+  
+  if (!keep) {
+    data %>%
+      select(-one_of(unlist(groups)))
+  } else {
+    data
+  }
+    
+}
+
+
 #' Count the codings from a ManifestoDocument
 #'
 #' @param doc ManifestoDocument, ManifestoCorpus or vector of codes

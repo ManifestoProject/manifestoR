@@ -18,6 +18,30 @@ check_cee_aggregation <- function(orig, mod) {
   
 }
 
+test_that("general per aggregation function works", {
+  
+  test_data <- data.frame(per101 = c(1,2),
+                          per102 = c(3,4),
+                          per305 = c(5,6))
+  
+  aggregated <- aggregate_pers(test_data,
+                               groups = list(per101_2 = c("per101", "per102")),
+                               keep = TRUE)
+  expect_equal(nrow(aggregated), nrow(test_data))
+  expect_equal(setdiff(names(aggregated), "per101_2"), names(test_data))
+  expect_equivalent(aggregated$per101_2, c(4, 6))
+  
+  aggregated <- aggregate_pers(test_data,
+                               groups = list(per101_2 = c("per101", "per102")),
+                               keep = FALSE)
+  expect_equal(nrow(aggregated), nrow(test_data))
+  expect_equal(setdiff(names(aggregated), "per101_2"),
+               setdiff(names(test_data), c("per101", "per102")))
+  expect_equivalent(aggregated$per101_2, c(4, 6))
+  
+  
+})
+
 test_that("aggregating cee codes works", {
   
   corp <- mp_corpus(countryname == "Czech Republic")
