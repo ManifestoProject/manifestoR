@@ -2,7 +2,8 @@ mp_setapikey("../manifesto_apikey.txt")
 
 test_that("issue attention diversity works", {
   
-  methods <- list(shannon = "enmi_sh", herfindahl = "enmi_herf")
+  methods <- list(shannon = "enmi_sh",
+                  herfindahl = "enmi_herf")
   
   test_data <- mp_maindataset("MPDS2015a") %>%
     subset(country %in% c(64, 87))
