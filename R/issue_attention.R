@@ -7,13 +7,19 @@
 #' @param method entropy measure used for the effective number of manifesto issues. Possible options are "shannon" for Shannon's H and "herfindahl" for the Herfindahl-Index.
 #' @export
 issue_attention_diversity <- function(data, method="shannon") {
+  
+  mp_standard_cats <- paste0("per", v4_categories())
+  mp_paired <- c("per102", "per105", "per109", "per110", "per204",
+                 "per302", "per407", "per414", "per505", "per507",
+                 "per602", "per604", "per608", "per702")
+  
    
    datax <- data %>% mutate(
       pertotal = rowSums(.[mp_standard_cats])
       ) %>%
    mutate_each(
       # take only coded part of document into account (not uncoded sentences)
-         funs(.=./pertotal),one_of(mp_standard_codes)
+         funs(.=./pertotal),one_of(mp_standard_cats)
       ) %>%
    mutate(
       # merges opposite categories
@@ -57,15 +63,5 @@ issue_attention_diversity <- function(data, method="shannon") {
 log_0 <- function(x) {
    ifelse(x==0,0,log(x))
 }
-
-mp_standard_cats <- c("per101","per102","per103","per104","per105","per106","per107","per108","per109","per110",
-                     "per201","per202","per203","per204",
-                     "per301","per302","per303","per304","per305",
-                     "per401","per402","per403","per404","per405","per406","per407","per408","per409","per410","per411","per412","per413","per414","per415","per416",
-                     "per501","per502","per503","per504","per505","per506","per507",
-                     "per601","per602","per603","per604","per605","per606","per607","per608",
-                     "per701","per702","per703","per704","per705","per706")
-
-mp_paired <- c("per102","per105","per109","per110","per204","per302","per407","per414","per505","per507","per602","per604","per608","per702")
 
 
