@@ -1,12 +1,12 @@
-#' Compute Issue Attention Diversity
+#' Issue Attention Diversity
 #' 
 #' Effective number of Manifesto Issues suggested by Zac Greene. When using the measure please cite:
-#' @references Greene, Z. (2015). Competing on the Issues How Experience in Government and Economic Conditions Influence the Scope of Parties’ Policy Messages. Party Politics.
+#' @references Greene, Z. (2015). Competing on the Issues How Experience in Government and Economic Conditions Influence the Scope of Parties' Policy Messages. Party Politics.
 #'
 #' @param data used (has to be a manifesto project dataset)
-#' @param entropy measure used for the effective number of manifesto issues. Possible options are "shannon" for Shannon's H and "herfindahl" for the Herfindahl-Index.
+#' @param method entropy measure used for the effective number of manifesto issues. Possible options are "shannon" for Shannon's H and "herfindahl" for the Herfindahl-Index.
 #' @export
-scale_iad <- function(data, method="shannon") {
+issue_attention_diversity <- function(data, method="shannon") {
    
    datax <- data %>% mutate(
       pertotal = rowSums(.[mp_standard_cats])
