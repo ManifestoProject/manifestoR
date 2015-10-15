@@ -56,20 +56,18 @@ formattextparams <- function(ids) {
 }
 
 separate_missings <- function(robj, request="") {
-
+  
   missings <- robj$missing_items
 
   robj <- robj$items
 
   for (misskey in missings) {
     
-    if (request == "metadata") {
-
-    } else if (request == "text") {
+    if (request %in% c("metadata", "text")) {
       
-      warning(paste0("No document found with id ", misskey, ". ",
-                     "This should not happen if you did not request ",
-                     "documents by manifesto_ids manually."))
+      warning(paste0("No document/metadata found with id ", misskey, ". ",
+                     "Please double check your request if it was specified manually."),
+              call. = FALSE)
       
     } else {
       
