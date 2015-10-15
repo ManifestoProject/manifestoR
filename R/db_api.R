@@ -127,15 +127,22 @@ mpdb_api_request <- function(file, body) {
                          httr::user_agent(paste("httr",
                                                 utils::packageVersion("httr"),
                                                 "manifestoR",
-                                                utils::packageVersion("manifestoR"))))
+                                                utils::packageVersion("manifestoR"))),
+                         httr::config(followlocation = 0L))
+  while (response$status_code %in% c(301:303)) { ## Manual following of redirects
+    response <- httr::GET(response$headers$location)
+  }
   content <- httr::content(response, as="text")
   if (response$status_code != "200") {
     msg <- paste("HTTP Error", response$status_code,
                  "when connecting to Manifesto Corpus Database")
     try({
-      msg <- paste0(msg, ": ", fromJSON(content)$error)
+      msg <- paste0(msg, ": ", fromJSON(content)$error, ".")
     }, silent = TRUE)
-    stop(msg)
+    if (response$status_code == 401) {
+      msg <- paste(msg, "This can indicate an invalid API key.")
+    }
+    stop(msg, call. = FALSE)
   } else {
     return(content[1])
   }
