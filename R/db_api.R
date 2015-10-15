@@ -142,6 +142,11 @@ mpdb_api_request <- function(file, body) {
     if (response$status_code == 401) {
       msg <- paste(msg, "This can indicate an invalid API key.")
     }
+    if (response$status_code == 404) {
+      msg <- paste(msg, "This can indicate that you are requesting a version,",
+                   "document, ... that does not exist. Please double check",
+                   "your query parameters.")
+    }
     stop(msg, call. = FALSE)
   } else {
     return(content[1])
