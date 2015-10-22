@@ -1,3 +1,5 @@
+* counting codes reproduces dataset style for handbook version 5: subcategories + aggregated percentages
+* issue attention diversity measure after Greene implemented in issue_attention_diversity
 * More user-friendly error messages in case of incorrect requests (metadata, API key)
   * fixes among others https://github.com/ManifestoProject/manifestoR/issues/1
 
