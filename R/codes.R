@@ -216,11 +216,11 @@ fix_names_code_table <- function(df, prefix, include_codes) {
   
 }
 
-fix_missing_counted_codes <- function(df) {
+fix_missing_counted_codes <- function(df, relative = TRUE) {
   
   m <- is.na(df)
   m[which(df$total <= 0),] <- FALSE
-  df[m] <- 0L
+  df[m] <- if (relative) 0.0 else 0L
   
   return(df)
   
@@ -240,7 +240,7 @@ count_codes.ManifestoCorpus <- function(doc,
          count_codes,
          code_layers, with_eu_codes, prefix, relative, include_codes, aggregate_v5_subcategories) %>%
     bind_rows() %>%
-    fix_missing_counted_codes() %>%
+    fix_missing_counted_codes(relative = relative) %>%
     fix_names_code_table(prefix,
                          include_codes = include_codes)
   
