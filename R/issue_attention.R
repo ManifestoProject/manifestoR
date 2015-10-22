@@ -12,7 +12,7 @@
 issue_attention_diversity <- function(data,
                                       method="shannon",
                                       prefix = "per",
-                                      include_variables = paste0(prefix, v4_categories()),
+                                      include_variables = paste0(prefix, setdiff(v4_categories(), "uncod")),
                                       aggregate_categories = list(c(101, 102),
                                                                   c(104, 105),
                                                                   c(107, 109),
