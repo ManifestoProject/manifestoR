@@ -1,11 +1,11 @@
 #' @export
-#' @rdnmame categories
+#' @rdname categories
 rile_r <- function() {
   c(104, 201, 203, 305, 401, 402, 407, 414, 505, 601, 603, 605, 606)
 }
 
 #' @export
-#' @rdnmame categories
+#' @rdname categories
 rile_l <- function() {
   c(103, 105, 106, 107, 202, 403, 404, 406, 412, 413, 504, 506, 701)
 }
