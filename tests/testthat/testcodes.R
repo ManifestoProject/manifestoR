@@ -76,7 +76,8 @@ test_that("aggregating handbook version 5 codes works", {
 })
 
 code_table_as_expected <- function(code_table, partydate = TRUE, prefix = "per",
-                                   include_codes = v4_categories()) {
+                                   include_codes = v4_categories(),
+                                   sum_regex = paste0(prefix, "(\\d{3}|(uncod))$")) {
   
   expect_is(code_table, "data.frame")
   expect_true("total" %in% names(code_table))
@@ -85,7 +86,7 @@ code_table_as_expected <- function(code_table, partydate = TRUE, prefix = "per",
     expect_true("date" %in% names(code_table))
   }
   if (length(include_codes) > 0) {
-    expect_true(all(paste0(prefix, include_codes) %in% names(code_table)))
+    expect_true(all(gsub(".", "_", paste0(prefix, include_codes), fixed = TRUE) %in% names(code_table)))
   }
   expect_false(code_table %>%
                 select(starts_with(prefix), matches("total")) %>%
@@ -93,7 +94,7 @@ code_table_as_expected <- function(code_table, partydate = TRUE, prefix = "per",
                 anyNA())
   code_table %>% 
     subset(total > 0L) %>%
-    select(starts_with(prefix)) %>%
+    select(matches(sum_regex)) %>%
     apply(1, sum) %>%
     na.omit() %>%
     sapply(expect_equal, 100)
@@ -125,6 +126,10 @@ test_that("count_codes works for all intended types of objects", {
 test_that("include_codes works", {
 
   corp <- mp_corpus(countryname == "Sweden")
+  
+  corp %>%
+    count_codes(include_codes = v5_categories()) %>%
+    code_table_as_expected(include_codes = v5_categories())
 
   corp %>%
     count_codes(include_codes = c()) %>%
@@ -143,7 +148,19 @@ test_that("include_codes works", {
     code_table_as_expected(partydate = FALSE, include_codes = c("foo", "bar"))
 })
 
-
+test_that("count_codes works for handbook version 5", {
+  
+  corp <- mp_corpus(countryname == "Greece" & date == 200910)
+  
+  corp %>%
+    count_codes() %>%
+    code_table_as_expected()
+  
+  corp %>%
+    count_codes(include_codes = v5_categories()) %>%
+    code_table_as_expected(include_codes = v5_categories())
+  
+})
 
 test_that("count_codes works for manually created ManifestoDocument", {
 
@@ -205,7 +222,7 @@ test_that("count_codes works for different code layers", {
                   ManifestoDocument() %>%
                   count_codes(code_layers = c("cmp_code", "additional_code"))
   code_table %>%
-    code_table_as_expected()
+    code_table_as_expected(sum_regex = "per.*")
   expect_equal(code_table$total, 3)
   expect_equal(code_table$per104, 1/3*100)
   expect_equal(code_table$per108, 1/3*100)
@@ -219,17 +236,17 @@ test_that("count_codes works for different code layers", {
   expect_equal(code_table$total, 4)
   expect_equal(code_table$per104, 1/4*100)
   expect_equal(code_table$per108, 1/2*100)
-  expect_equal(code_table$per0, 1/4*100)
+  expect_equal(code_table$peruncod, 1/4*100)
   
   ## only additional code
   code_table <- df %>%
     ManifestoDocument() %>%
     count_codes(code_layers = c("additional_code")) %>%
-    code_table_as_expected(include_codes = c())
+    code_table_as_expected(include_codes = c(), sum_regex = "per.*")
 
   code_table <- df %>%
     ManifestoDocument() %>%
     count_codes(code_layers = c("additional_code"), include_codes = c("check")) %>%
-    code_table_as_expected(include_codes = c("check"))
+    code_table_as_expected(include_codes = c("check"), sum_regex = "per.*")
 
 })
