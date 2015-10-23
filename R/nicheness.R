@@ -68,10 +68,7 @@ nicheness_bischof <- function(data,
       n_nationalist = per601 + per602 + per605 + per607 + per608,
       n_agrarian = per703,
       n_regional = per301 + per302 + per706,
-      n_europe = per406 + per407 + per108 + per110
-    ) %>%
-    # log
-    mutate(
+      n_europe = per406 + per407 + per108 + per110,
       ecology_1 = log(n_ecology + 1),
       nationalist_1 = log(n_nationalist + 1),
       agrarian_1 = log(n_agrarian + 1),
@@ -79,7 +76,9 @@ nicheness_bischof <- function(data,
       europe_1 = log(n_europe + 1)
     ) %>%
     # smooth with lag
-    group_by(party) %>% arrange(date) %>% mutate(
+    group_by(party) %>%
+    arrange(date) %>%
+    mutate(
       ecology = (ecology_1 + lag(ecology_1))/2,
       ecology = ifelse(row_number(date) == 1,ecology_1,ecology),
       nationalist = (nationalist_1 + lag(nationalist_1))/2, 
@@ -104,7 +103,8 @@ nicheness_bischof <- function(data,
                                  seg_agr^seg_agr * 
                                  seg_reg^seg_reg * 
                                  seg_eur^seg_eur))
-    ) %>% ungroup() %>% 
+    ) %>%
+    ungroup() %>% 
     mutate(
       diversification = ifelse((seg_eco == 1 | 
                                   seg_nat == 1 |
@@ -112,9 +112,7 @@ nicheness_bischof <- function(data,
                                   seg_reg == 1 |
                                   seg_eur == 1), 
                                0.0,
-                               diversification)                                 
-    ) %>%
-    mutate(
+                               diversification),
       max_divers = ifelse(all(diversification_bounds == "empirical"),
                           max(diversification, na.rm=TRUE),
                           diversification_bounds[2]),
@@ -123,20 +121,16 @@ nicheness_bischof <- function(data,
                           diversification_bounds[1]),
       specialization = (min_divers + max_divers) - diversification
     ) %>% 
-    #mean without party of interest
-    group_by(country,edate) %>%
+    # mean without party of interest
+    group_by(country, edate) %>%
     mutate(
       N = n(),
       npwq = N-1,
-      t_ecology = sum(ecology, na.rm=TRUE),
-      sumop_ecology = t_ecology - ecology,
-      mean_ecology = sumop_ecology/npwq,
-      #mean_ecology = (sum(ecology, na.rm=TRUE) - ecology) / npwq,
-      mean_nationalist = ((sum(nationalist, na.rm=TRUE) - nationalist) / npwq),
-      mean_agrarian = ((sum(agrarian, na.rm=TRUE) - agrarian) / npwq),
-      mean_regional = ((sum(regional, na.rm=TRUE) - regional) / npwq),
-      mean_europe = ((sum(europe, na.rm=TRUE) - europe) / npwq),
-      #
+      mean_ecology = (sum(ecology, na.rm=TRUE) - ecology) / npwq,
+      mean_nationalist = (sum(nationalist, na.rm=TRUE) - nationalist) / npwq,
+      mean_agrarian = (sum(agrarian, na.rm=TRUE) - agrarian) / npwq,
+      mean_regional = (sum(regional, na.rm=TRUE) - regional) / npwq,
+      mean_europe = (sum(europe, na.rm=TRUE) - europe) / npwq,
       dis_ecology = (ecology - mean_ecology)^2,
       dis_nationalist = (nationalist - mean_nationalist)^2,
       dis_agrarian = (agrarian - mean_agrarian)^2,
@@ -149,7 +143,8 @@ nicheness_bischof <- function(data,
       # per country-election
       nicheness = distance - ((sum(distance, na.rm=TRUE) - distance)/npwq)
     )  %>%
-    ungroup() %>% mutate(
+    ungroup() %>%
+    mutate(
       max_nic = max(nicheness, na.rm=TRUE),
       min_nic = min(nicheness, na.rm=TRUE),
       nicheness_stand = (nicheness - min_nic)/(max_nic - min_nic),
