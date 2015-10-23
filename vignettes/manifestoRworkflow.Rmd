@@ -88,12 +88,16 @@ my_corpus
 `mp_corpus` returns a `ManifestoCorpus` object, a subclass of `Corpus` as defined
 in the natural language processing package `tm` (Feinerer & Hornik 2015).
 Following `tm`s logic, a `ManifestoCorpus` consists of `ManifestoDocuments`.
+Documents in corpus can be indexed via their `manifesto_id` (consisting of
+the CMP party code, an underscore, and either the election year, if unambigous,
+or the election year and month) or via their position in the corpus.
 For both, corpus and documents, `tm` provides accessor functions to the corpus
 and documents content and metadata:
 
 ```{r}
+head(content(my_corpus[["42110_2002"]]))
 head(content(my_corpus[[1]]))
-meta(my_corpus[[1]])
+meta(my_corpus[["42110_2002"]])
 ```
 
 For more information on the available metadata per document, refer to the section
@@ -172,7 +176,7 @@ mp_view_originals(party > 41000 & party < 41999, maxn = 20)
 As in `tm`, the textual content of a document is returned by the function `content`:
 
 ```{r}
-txt <- content(my_corpus[[2]])
+txt <- content(my_corpus[["42110_2006"]])
 class(txt)
 head(txt, n = 4)
 ```
@@ -184,7 +188,7 @@ It can be called on `ManifestoDocument`s and `ManifestoCorpus`s and returns a ve
 of the CMP codings attached to the quasi-sentences of the document/corpus in a row:
 
 ```{r}
-doc <- my_corpus[[2]]
+doc <- my_corpus[["42110_2006"]]
 head(codes(doc), n = 15)
 head(codes(my_corpus), n = 15)
 ```
@@ -240,10 +244,10 @@ can be applied directly to the downloaded `ManifestoCorpus`.
 For example, standard natural language processors are available to clean the corpus:
 
 ```{r}
-head(content(my_corpus[[3]]))
+head(content(my_corpus[["42110_2008"]]))
 corpus_cleaned <- tm_map(my_corpus, removePunctuation)
 corpus_nostop <- tm_map(corpus_cleaned, removeWords, stopwords("german"))
-head(content(corpus_nostop[[3]]))
+head(content(corpus_nostop[["42110_2008"]]))
 ```
 
 So is analysis in form of term document matrices:
