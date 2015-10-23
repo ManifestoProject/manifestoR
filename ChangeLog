@@ -1,3 +1,5 @@
+* Corpus documents can now be accessed via their manifesto_id (= party_date) and not only by number
+  * implementation change of tm Source and reader for ManifestoCorpus
 * counting codes reproduces dataset style for handbook version 5: subcategories + aggregated percentages
 * issue attention diversity measure after Greene implemented in issue_attention_diversity
 * More user-friendly error messages in case of incorrect requests (metadata, API key)

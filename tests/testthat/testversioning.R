@@ -23,15 +23,14 @@ test_that("specifying and updating versions works", {
   germeta <- suppressWarnings(mp_metadata(subset(mp_maindataset(), countryname == "Germany")))
   expect_equal(nrow(germeta), 0)
 
-  
+  oldversion <- "20150603140744"
+  mp_use_corpus_version(oldversion)
   swecorp <- suppressWarnings(mp_corpus(subset(mp_maindataset(), countryname == "Sweden")))
   expect_more_than(length(swecorp), 0)
     
   expect_true(mp_check_for_corpus_update()$update_available)
   
   ## test corpus content: between this and the next version there should be a change in MD5 sums
-  intermedversion <- "20150225182659"
-  mp_use_corpus_version(intermedversion)
   gercorp <- suppressWarnings(mp_corpus(subset(mp_maindataset(), countryname == "Germany")))
   expect_more_than(length(gercorp), 0)
   
@@ -52,11 +51,11 @@ test_that("downgrading of corpus and metadata works", {
 
   expect_more_than(length(gercorp), 0)
 
-  intermedversion <- "20150225182659"
+  intermedversion <- "20150603140744"
   expect_message(mp_use_corpus_version(intermedversion), regexp = "\\d+.*updated")
   gercorp <- suppressWarnings(mp_corpus(subset(mp_maindataset(), countryname == "Germany")))
 
-  oldversion <- "20150218100957"
+  oldversion <- "20150603140744"
   suppressWarnings(mp_use_corpus_version(oldversion))
   avl_old <- suppressWarnings(mp_availability(mp_maindataset()))
 

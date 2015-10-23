@@ -10,11 +10,11 @@
 #' \code{\link{ManifestoDocument}}.
 #'  
 #' @name ManifestoCorpus
-#' @param csource a \code{\link{ManifestoSource}}, see \code{\link[tm]{Source}}
+#' @param csource a \code{\link{ManifestoJSONSource}}, see \code{\link[tm]{Source}}
 #' @docType class
 #' @examples
 #' \dontrun{corpus <- mp_corpus(subset(mp_maindataset(), countryname == "Russia"))}
-ManifestoCorpus <- function(csource) {
+ManifestoCorpus <- function(csource = ManifestoJSONSource()) {
   corpus <- VCorpus(csource)
   class(corpus) <- c("ManifestoCorpus", class(corpus))
   return(corpus)
@@ -256,10 +256,18 @@ tail.ManifestoDocument <- function(x, n = 6, ...) {
 #' @param elem a named list with the component \code{content}
 #' @param id a character giving a unique identifier for the created text document
 readManifesto <- function(elem, language, id) {
- doc <- ManifestoDocument(content = elem$content[[1]]$content,
-                          meta = elem$content[[1]]$meta,
-                          id = id)
- return(doc)
+  document <- elem$content
+  if ("content" %in% names(document)) {
+    document <- rename(document, text = content)
+  }
+  if ("code" %in% names(document)) {
+    document <- rename(document, cmp_code = code)
+  }
+  ManifestoDocument(content = document %>%
+                      mutate_each(funs(as.character), contains("code")) %>%
+                      mutate_each(funs(ifelse(is.nacode(.), NA, .)), contains("code")),
+                    id = elem$id,
+                    meta = elem$meta)
 }
 
 #' Manifesto Document Metadata
@@ -287,6 +295,7 @@ ManifestoDocumentMeta <- function(meta = list(), id = character(0)) {
 #' @docType class
 #' @param texts texts of the manifesto documents
 ManifestoSource <- function(texts) {
+  .Deprecated("ManifestoJSONSource")
   SimpleSource(length = length(texts),
                reader = readManifesto,
                content = texts,
@@ -296,6 +305,32 @@ ManifestoSource <- function(texts) {
 #' @method getElem ManifestoSource
 #' @export
 getElem.ManifestoSource <- function(x) {
-  list(content = x$content[x$position],
+  .Deprecated("getElem.ManifestoJSONSource",
+              package = "manifestoR",
+              msg = "class ManifestoSource is deprecated, please use ManifestoJSONSource instead!")
+  list(content = x$content[[x$position]],
        uri = NULL)    
+}
+
+#' @rdname ManifestoSource
+#' @param query_meta metadata to attach to document by joining on manifesto_id
+ManifestoJSONSource <- function(texts = list(manifesto_id = c(),
+                                             items = c()),
+                                query_meta = data.frame()) {
+  SimpleSource(length = length(texts$manifesto_id),
+               reader = readManifesto,
+               ids = texts$manifesto_id,
+               query_meta = query_meta,
+               content = texts$items,
+               class = c("ManifestoJSONSource"))
+}
+
+#' @method getElem ManifestoJSONSource
+#' @export
+getElem.ManifestoJSONSource <- function(x) {
+  suppressWarnings(
+    list(content = x$content[[x$position]],
+         meta = data.frame(manifesto_id = x$ids[[x$position]]) %>%
+           left_join(x$query_meta, by = "manifesto_id"),
+         id = x$ids[[x$position]]))
 }
