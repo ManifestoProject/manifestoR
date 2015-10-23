@@ -6,40 +6,56 @@ test_that("Bischof nicheness works and produces correct results", {
   
   mpds <- mp_maindataset("MPDS2015a")
   
+  vars <- c("nicheness", "specialization", "nicheness_two")
+  
   mpds %>%
     subset(countryname == "France") %>%
-    mutate(., nicheness_bischof = nicheness_bischof(.)) %>%
-    mutate(., nicheness_mp_bischof = mp_nicheness(., method = "bischof")) %>%
-    select(party, date, nicheness_bischof, nicheness_mp_bischof) -> niche_test_fr
+    nicheness_bischof(out_variables = c(vars, "party", "date")) -> niche_test_fr
   mpds %>%
     subset(countryname %in% c("Germany", "France")) %>%
-    mutate(., nicheness_bischof = nicheness_bischof(.)) %>%
-    mutate(., nicheness_mp_bischof = mp_nicheness(., method = "bischof")) %>%
-    select(party, date, nicheness_bischof, nicheness_mp_bischof) -> niche_test_multi
+    nicheness_bischof(out_variables = c(vars, "party", "date")) -> niche_test_multi
   
   ## Consistency
-  expect_false(anyNA(niche_test_fr$nicheness_bischof))
-  expect_is(niche_test_fr$nicheness_bischof %>% unlist(), "numeric")
-  expect_is(niche_test_fr$nicheness_mp_bischof %>% unlist(), "numeric")
-  expect_equivalent(niche_test_fr$nicheness_bischof, niche_test_fr$nicheness_mp_bischof)
+  for (n in c("nicheness", "specialization", "nicheness_two")) {
+    expect_false(anyNA(niche_test_fr[[n]]))
+    expect_false(anyNA(niche_test_multi[[n]]))
+    expect_is(niche_test_fr[[n]] %>% unlist(), "numeric")
+    expect_is(niche_test_multi[[n]] %>% unlist(), "numeric")
+  }
+
   ## Amount/Selection of data does not matter
-  expect_equivalent(niche_test_multi %>% subset(substr(party, 1, 2) == 31), niche_test_fr)
+  expect_equivalent(niche_test_multi %>%
+                      subset(substr(party, 1, 2) == 31),
+                    niche_test_fr)
   
   ## Order invariance
   left_join(
     mpds %>%
       subset(countryname == "France") %>%
       arrange(party, date) %>%
-      mutate(., nicheness_pd = nicheness_bischof(.)),
+      nicheness_bischof(., out_variables = c("party", "date", "nicheness_two")),
     mpds %>%
       subset(countryname == "France") %>%
       arrange(date, party) %>%
-      mutate(., nicheness_dp = nicheness_bischof(.))) %>%
+      nicheness_bischof(., out_variables = c("party", "date", "nicheness_two")),
+    by = c("party", "date")) %>%
     arrange(party, date) %$%
-    expect_equivalent(nicheness_pd, nicheness_dp)
-  
+    expect_equivalent(nicheness_two.x, nicheness_two.y)
+    
   read.csv("../data/niche_replication.csv") %>%
-    right_join(niche_test_fr) %$%
-    expect_equivalent(nicheness_replication, nicheness_bischof)
+    rename(replication_spec = specialization,
+           replication_niche = nicheness,
+           replication_niche_two = nicheness_two) %>%
+    right_join(niche_test_fr) %>%
+    transmute(spec_err = replication_spec - specialization,
+              niche_err = replication_niche - nicheness,
+              niche_two_err = replication_niche_two - nicheness_two) %>%
+    mutate_each(funs(abs(.) < 0.001), vars = one_of("spec_err", "niche_err")) %>%
+    mutate(niche_two_err = abs(niche_two_err) < 0.5) %>%  ## some error is allows
+                                                          ## since we are not using
+                                                          ## Bischof's original bounds
+    unlist() %>%
+    all() %>%
+    expect_true()
 })
   
