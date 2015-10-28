@@ -52,7 +52,9 @@ mp_nicheness <- function(data,
 #' @rdname mp_nicheness
 #' @export
 nicheness_bischof <- function(data,
-                              out_variables = c("specialization",
+                              out_variables = c("party",
+                                                "date",
+                                                "specialization",
                                                 "nicheness",
                                                 "nicheness_two"),
                               diversification_bounds = c(
