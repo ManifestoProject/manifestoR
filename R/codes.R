@@ -67,8 +67,15 @@ recode_v5_to_v4.ManifestoCorpus <- function(x) {
   tm_map(x, recode_v5_to_v4)
 }
 
+#' Lists of categories and category relations
+#' 
+#' Code numbers of the Manifesto Project's category scheme. For documentation
+#' see \url{https://manifesto-project.wzb.eu/datasets}.
+#' 
+#' @rdname categories
+#' @export 
 v4_categories <- function() {
-  c(101, 102, 103, 104, 105,
+  c("uncod",  101, 102, 103, 104, 105,
     106, 107, 108, 109, 110, 201,
     202, 203, 204, 301, 302, 303,
     304, 305, 401, 402, 403, 404,
@@ -79,6 +86,87 @@ v4_categories <- function() {
     606, 607, 608, 701, 702, 703,
     704, 705, 706)
 }
+
+v5_categories <- function() {
+  v5_v4_aggregation_relations() %>%
+    unlist() %>%
+    { gsub("per", "", .) } %>%
+    { gsub("_", ".", .) } %>%
+    c(v4_categories()) %>%
+    unique() %>%
+    sort()
+}
+
+#' @rdname categories
+#' @export 
+v5_v4_aggregation_relations <- function() {
+  list(peruncod = c("peruncod", "per202_2", "per605_2", "per703_2"),
+       per103 = c("per103", "per103_1", "per103_2"),
+       per201 = c("per201", "per201_1", "per201_2"),
+       per202 = c("per202", "per202_1", "per202_3", "per202_4"),
+       per305 = c("per305", "per305_1", "per305_2", "per305_3", "per305_4", "per305_5", "per305_6"),
+       per416 = c("per416", "per416_1", "per416_2"),
+       per601 = c("per601", "per601_1", "per601_2"),
+       per602 = c("per602", "per602_1", "per602_2"),
+       per605 = c("per605", "per605_1"),
+       per606 = c("per606", "per606_1", "per606_2"),
+       per607 = c("per607", "per607_1", "per607_2", "per607_3"),
+       per608 = c("per608", "per608_1", "per608_2", "per608_3"),
+       per703 = c("per703", "per703_1")
+  )
+}
+
+
+#' Aggregate category percentages in groups
+#' 
+#' General function to aggregate percentage variables by creating a new
+#' variable holding the sum. If a variable with the name for the aggregate
+#' already exists, it is overwritten, giving a warning if it is changed, not NA,
+#' not zero and not named "peruncod".
+#' 
+#' @param data dataset to use in aggregation
+#' @param groups (named) list of variable name vectors to aggregate to a new one
+#' (as given in the name); see default value for an example of the format
+#' @param na.rm passed on to \code{\link{sum}}
+#' @param keep keep variables that were aggregated in result?
+#' 
+#' @export
+aggregate_pers <- function(data,
+                           groups = v5_v4_aggregation_relations(),
+                           na.rm = FALSE,
+                           keep = FALSE) {
+  
+  data <- 
+    Reduce(function(data, aggregate) {
+        aggregated <- data %>%
+          select(one_of(intersect(groups[[aggregate]], names(data))))
+        if (ncol(aggregated) != 0L) {
+          aggregated <- rowSums(aggregated, na.rm = na.rm)
+          if (aggregate %in% names(data) &&
+              aggregate != "peruncod" &&
+                any(!is.na(data[,aggregate]) & 
+                   data[,aggregate] != 0.0 & 
+                   data[,aggregate] != aggregated)) {
+            warning(paste0("Changing non-zero supercategory per value ", aggregate, 
+                           "when aggregating subcateogory percentages"),
+                    call. = FALSE)
+          }
+          data[,aggregate] <- aggregated
+        }
+        data
+      },
+      names(groups),
+      init = data)
+  
+  if (!keep) {
+    data %>%
+      select(-one_of(unlist(groups)))
+  } else {
+    data
+  }
+    
+}
+
 
 #' Count the codings from a ManifestoDocument
 #'
@@ -93,6 +181,8 @@ v4_categories <- function() {
 #' @param include_codes Vector of categories that should be included even if they are not
 #' present in the data; the value of the created variables then defaults to 0.0 (or NA if
 #' no codes are present at all);
+#' @param aggregate_v5_codes if TRUE, for handbook version 5 subcategories, the aggregate
+#' category's count/percentage is computed as well
 #' @return A data.frame with onw row and the counts/percentages as columns
 #'
 #' @export
@@ -102,13 +192,15 @@ count_codes <- function(doc,
                         prefix = "per",
                         relative = TRUE,
                         include_codes = if("cmp_code" %in% code_layers)
-                                           { v4_categories() } else { c() }) {
+                                           { v4_categories() } else { c() },
+                        aggregate_v5_subcategories = TRUE) {
   UseMethod("count_codes", doc)
 }
 
 fix_names_code_table <- function(df, prefix, include_codes) {
   
-  ensure_names <- paste0(prefix, include_codes)
+  ensure_names <- paste0(prefix, include_codes) %>%
+    { gsub(".", "_", ., fixed = TRUE)}
   ensure_names <- ensure_names %>%
       subset(!grepl(paste0("$(", prefix, ").+^"), ensure_names)) %>%
     as.character()
@@ -118,18 +210,17 @@ fix_names_code_table <- function(df, prefix, include_codes) {
     select(the_order) %>%
     select(matches("party"),
            matches("date"),
-           # matches(paste0(prefix, "\\d+$")),  # use this line when aggregation is implemented
            starts_with(prefix),
            one_of(ensure_names),
            matches("total"))
   
 }
 
-fix_missing_counted_codes <- function(df) {
+fix_missing_counted_codes <- function(df, relative = TRUE) {
   
   m <- is.na(df)
   m[which(df$total <= 0),] <- FALSE
-  df[m] <- 0L
+  df[m] <- if (relative) 0.0 else 0L
   
   return(df)
   
@@ -142,13 +233,14 @@ count_codes.ManifestoCorpus <- function(doc,
                                         prefix = "per",
                                         relative = TRUE,
                                         include_codes = if("cmp_code" %in% code_layers)
-                                                           { v4_categories() } else { c() }) {
+                                                           { v4_categories() } else { c() },
+                                        aggregate_v5_subcategories = TRUE) {
   
   lapply(content(doc),
          count_codes,
-         code_layers, with_eu_codes, prefix, relative, include_codes) %>%
+         code_layers, with_eu_codes, prefix, relative, include_codes, aggregate_v5_subcategories) %>%
     bind_rows() %>%
-    fix_missing_counted_codes() %>%
+    fix_missing_counted_codes(relative = relative) %>%
     fix_names_code_table(prefix,
                          include_codes = include_codes)
   
@@ -161,7 +253,8 @@ count_codes.ManifestoDocument <- function(doc,
                         prefix = "per",
                         relative = TRUE,
                         include_codes = if("cmp_code" %in% code_layers)
-                                           { v4_categories() } else { c() }) {
+                                           { v4_categories() } else { c() },
+                        aggregate_v5_subcategories = TRUE) {
   
   if (with_eu_codes == "auto") {
     with_eu_codes <- meta(doc, "has_eu_code")
@@ -182,7 +275,7 @@ count_codes.ManifestoDocument <- function(doc,
   }
   data.frame(party = null_to_na(meta(doc, "party")),
              date = null_to_na(meta(doc, "date"))) %>%
-    bind_cols(count_codes(the_codes, code_layers, with_eu_codes, prefix, relative, include_codes))
+    bind_cols(count_codes(the_codes, code_layers, with_eu_codes, prefix, relative, include_codes, aggregate_v5_subcategories))
   
   
 }
@@ -194,7 +287,8 @@ count_codes.default <- function(doc,
                                 prefix = "per",
                                 relative = TRUE,
                                 include_codes = if("cmp_code" %in% code_layers)
-                                                   { v4_categories() } else { c() }) {
+                                                   { v4_categories() } else { c() },
+                                aggregate_v5_subcategories = TRUE) {
   
   tt <- table(doc)
 
@@ -210,11 +304,22 @@ count_codes.default <- function(doc,
     df <- data.frame(total = 0L)
   }
   
+  if ("per0" %in% names(df)) {
+    df <- rename(df, peruncod = per0)
+  }
+
+  names(df) <- gsub(".", "_", names(df), fixed = TRUE)
+    
   if (length(include_codes) > 0) {
-    names(df) <- gsub(".", "_", names(df), fixed = TRUE)
-    for (the_name in setdiff(paste0(prefix, include_codes), names(df))) {
+    for (the_name in setdiff(paste0(prefix, gsub(".", "_", include_codes, fixed = TRUE)), names(df))) {
       df[,the_name] <- ifelse(df$total == 0L, NA, 0.0)
     }
+  }
+  
+  if (aggregate_v5_subcategories) {
+    df <- aggregate_pers(df,
+                         groups = v5_v4_aggregation_relations(),
+                         keep = TRUE)
   }
 
   return(df)    

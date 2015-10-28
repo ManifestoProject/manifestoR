@@ -375,52 +375,23 @@ mp_corpus <- function(ids,
 
   ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache)
 
-  ids <- base::subset(ids, !is.naorstringna(manifesto_id) &
-                        (is.null(codefilter) | annotations))
+  if (nrow(ids) > 0) {
+    ids <- base::subset(ids, !is.naorstringna(manifesto_id) &
+                          (is.null(codefilter) | annotations))
+  }
   
   if (nrow(ids) > 0) {
     
-    texts <- get_viacache(kmtype.text, ids, apikey=apikey, cache=cache)
-  
-    if (nrow(texts) > 0) {
-  
-      ## Format the documents into a tm Corpus of ManifestoDocuments
-      the.names <- names(texts)
-      the.names <- the.names[which(the.names != "items")]
-      
-      textToManifestoDocument <- function(idx) {    
-        the.meta <- structure(as.list(left_join(
-          within(texts[idx, the.names], {
-            manifesto_id <- as.character(manifesto_id)
-          }), ids, by = "manifesto_id")))
-        the.meta$kind <- NULL
-        class(the.meta) <- "TextDocumentMeta"
-        items <- texts[idx, "items"][[1]][[1]] ## what the hack...
-        names(items)[which(names(items)=="content")] <- "text" ## rename from json
-        names(items)[which(names(items)=="code")] <- "cmp_code"
-        items[which(is.nacode(items$cmp_code)),"cmp_code"] <- NA
-        if ("eu_code" %in% names(items)) {
-          items[which(is.nacode(items$eu_code)),"eu_code"] <- NA 
-        }
-        suppressWarnings({ ## string codes might have become factor
-          items[,"cmp_code"] <- as.character(items[,"cmp_code"])
-          if ("eu_code" %in% names(items)) {
-            items[,"eu_code"] <- as.character(items[,"eu_code"])
-          }
-        }) 
-        
-        
-        elem <- structure(list(content=items, meta=the.meta))
-        return(elem)    
-      }
-      corpus <- ManifestoCorpus(ManifestoSource(lapply(1:nrow(texts),
-                                                       textToManifestoDocument)))    
-    } else {
-      corpus <- ManifestoCorpus(ManifestoSource(c()))
-    }
+    corpus <- get_viacache(kmtype.text, ids, apikey=apikey, cache=cache) %>%
+      ManifestoJSONSource(query_meta = ids) %>%
+      ManifestoCorpus()
+    
   } else {
-    corpus <- ManifestoCorpus(ManifestoSource(c()))
+    
+    corpus <- ManifestoCorpus()
+    
   }
+  
   
   ## codefilter
   if (!is.null(codefilter)) {

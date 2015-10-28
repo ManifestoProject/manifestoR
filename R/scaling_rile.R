@@ -1,5 +1,16 @@
-rile_r <- c(104, 201, 203, 305, 401, 402, 407, 414, 505, 601, 603, 605, 606)
-rile_l <- c(103, 105, 106, 107, 202, 403, 404, 406, 412, 413, 504, 506, 701)
+#' @export
+#' @rdname categories
+rile_r <- function() {
+  c(104, 201, 203, 305, 401, 402, 407, 414, 505, 601, 603, 605, 606)
+}
+
+#' @export
+#' @rdname categories
+rile_l <- function() {
+  c(103, 105, 106, 107, 202, 403, 404, 406, 412, 413, 504, 506, 701)
+}
+
+
 #' RILE
 #' 
 #' Computes the RILE or other bipolar linear scaling measures for each case in a
@@ -12,8 +23,8 @@ rile_l <- c(103, 105, 106, 107, 202, 403, 404, 406, 412, 413, 504, 506, 701)
 rile <- function(x) { UseMethod("rile", x) }
 #' @export
 rile.default <- functional::Curry(scale_bipolar,
-                                  pos=paste0("per", rile_r),
-                                  neg=paste0("per", rile_l))
+                                  pos=paste0("per", rile_r()),
+                                  neg=paste0("per", rile_l()))
 #' @export
 rile.ManifestoDocument <- function(x) {
   .Deprecated("mp_scale(doc, scalingfun = rile)")
@@ -32,8 +43,8 @@ rile.ManifestoCorpus <- function(x) {
 logit_rile <- function(x) { UseMethod("logit_rile", x) }
 #' @export
 logit_rile.default <- functional::Curry(scale_logit,
-                                        pos=paste0("per", rile_r),
-                                        neg=paste0("per", rile_l))
+                                        pos=paste0("per", rile_r()),
+                                        neg=paste0("per", rile_l()))
 #' @export
 logit_rile.ManifestoDocument <- function(x) {
   .Deprecated("mp_scale(doc, scalingfun = logit_rile)")

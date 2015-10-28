@@ -56,20 +56,18 @@ formattextparams <- function(ids) {
 }
 
 separate_missings <- function(robj, request="") {
-
+  
   missings <- robj$missing_items
 
   robj <- robj$items
 
   for (misskey in missings) {
     
-    if (request == "metadata") {
-
-    } else if (request == "text") {
+    if (request %in% c("metadata", "text")) {
       
-      warning(paste0("No document found with id ", misskey, ". ",
-                     "This should not happen if you did not request ",
-                     "documents by manifesto_ids manually."))
+      warning(paste0("No document/metadata found with id ", misskey, ". ",
+                     "Please double check your request if it was specified manually."),
+              call. = FALSE)
       
     } else {
       
@@ -127,15 +125,27 @@ mpdb_api_request <- function(file, body) {
                          httr::user_agent(paste("httr",
                                                 utils::packageVersion("httr"),
                                                 "manifestoR",
-                                                utils::packageVersion("manifestoR"))))
+                                                utils::packageVersion("manifestoR"))),
+                         httr::config(followlocation = 0L))
+  while (response$status_code %in% c(301:303)) { ## Manual following of redirects
+    response <- httr::GET(response$headers$location)
+  }
   content <- httr::content(response, as="text")
   if (response$status_code != "200") {
     msg <- paste("HTTP Error", response$status_code,
                  "when connecting to Manifesto Corpus Database")
     try({
-      msg <- paste0(msg, ": ", fromJSON(content)$error)
+      msg <- paste0(msg, ": ", fromJSON(content)$error, ".")
     }, silent = TRUE)
-    stop(msg)
+    if (response$status_code == 401) {
+      msg <- paste(msg, "This can indicate an invalid API key.")
+    }
+    if (response$status_code == 404) {
+      msg <- paste(msg, "This can indicate that you are requesting a version,",
+                   "document, ... that does not exist. Please double check",
+                   "your query parameters.")
+    }
+    stop(msg, call. = FALSE)
   } else {
     return(content[1])
   }
