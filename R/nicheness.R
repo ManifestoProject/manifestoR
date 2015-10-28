@@ -5,6 +5,8 @@
 #' @references Bischof, D. (2015). Towards a Renewal of the Niche Party Concept Parties, Market Shares and Condensed Offers. Party Politics.
 #' @references Meyer, T.M., & Miller, B. (2013). The Niche Party Concept and Its Measurement. Party Politics 21(2): 259-271.
 #' @references Wagner, M. (2012). Defining and Measuring Niche Parties. Party Politics 18(6): 845-64.
+#' @references Baeck, H., Debus, M., & Dumont, P. (2010). Who gets what in coalition governments? Predictors of portfolio
+#' allocation in parliamentary democracies. European Journal of Political Research 50(4): 441-478.
 #' 
 #' @param data a dataframe or matrix in format of Manifesto Project Main Dataset
 #' @param method choose between bischof, wagner and meyermiller (currently only bischof is implemented)
@@ -17,6 +19,61 @@ mp_nicheness <- function(data,
          "bischof" = nicheness_bischof(data),
          stop(paste("Nicheness method", method, "not implemented!"))
   )
+}
+
+#' @param weights must be a vector of the length nrow(election_data) or the name
+#' of a variable in election_data
+meyer_miller_single_election <- function(election_data,
+                                         vars,
+                                         weights) {
+  
+  if (is.character(weights)) {
+    weights <- unlist(election_data[,weights])
+  }
+  
+  for (name in vars) {  ## TODO = Reduce?
+    election_data[,name] <- (election_data[,name] - 
+                               sapply(election_data$party, function(p) {
+                                 sum(election_data[election_data$party != p, name])/(nrow(election_data)-1)}))^2
+  }
+  election_data %>%
+    mutate_each_(funs(. * weights), vars) %>%
+    select(one_of(vars)) %>%
+    rowSums() %>%
+    { sqrt( . / length(vars)) }
+}
+
+#'
+#' @param groups groups of issues to determine niches/policy dimensions; formatted as named lists
+#' variable names. For an example see ... TODO Defaults to Baeck et. al 2010 Policy dimensions
+#' withouth industry, as used in the original paper by Meyer & Miller
+#' @param transform transform to apply to each of the group indicators. Can be a function,
+#' character "bischof" to apply log(x + 1), or NULL for no transformation.
+#' @rdname mp_nicheness
+#' @export
+nicheness_meyer_miller <- function(data,
+                                   groups = baeck_policy_dimensions()[names(baeck_policy_dimensions()) != "industry"],
+                                   transform = NULL,
+                                   smooth = FALSE,
+                                   weights = "pervote") {
+  
+  if (!is.null(transform) && transform == "bischof") {
+    transform <- function(x) { log(x + 1) }
+  } 
+  
+  data %>%
+    aggregate_pers(groups = groups,
+                   keep = TRUE) %>%
+    iff(!is.null(transform), mutate_each_, funs = funs(transform), vars = names(groups)) %>%
+    group_by(party) %>%
+    arrange(date) %>%
+    iff(smooth, mutate_each_, funs = funs((. + lag(.))/2), vars = names(groups)) %>%
+    ungroup() %>%
+    { split(., factor(paste(.$country, .$date))) } %>%
+    lapply(meyer_miller_single_election, vars = names(groups), weights = weights)
+  
+  ## TODO construct correct return value
+    
 }
 
 
@@ -124,8 +181,8 @@ nicheness_bischof <- function(data,
       specialization = (min_divers + max_divers) - diversification
     ) %>% 
     # mean without party of interest
-    group_by(country, edate) %>%
-    mutate(
+    group_by(country, date) %>%
+    mutate(  ## TODO use meyer_miller here
       N = n(),
       npwq = N-1,
       mean_ecology = (sum(ecology, na.rm=TRUE) - ecology) / npwq,

@@ -58,4 +58,23 @@ test_that("Bischof nicheness works and produces correct results", {
     all() %>%
     expect_true()
 })
+
+test_that("Meyer Miller nicheness", {
+  
+  ## TODO tests with theoretical values; for working of different parameters
+  
+  ## TODO consistency tests
+  
+  ## TODO replication test
+  
+  mpds %>%
+    subset(country == 41 & date == 200909) %>%
+    aggregate_pers(groups = baeck_policy_dimensions(), keep = TRUE) %>%
+    meyer_miller_single_election(vars = names(baeck_policy_dimensions()), weights = "pervote")
+  
+  mpds %>%
+    subset(country == 41 & date == 200909) %>%
+    nicheness_meyer_miller(groups = baeck_policy_dimensions())
+  
+})
   
