@@ -163,7 +163,8 @@ test_that("Meyer Miller nicheness", {
   mpds <- mp_maindataset("MPDS2015a")
   mpds %>%
     subset(country == 53 & date == 194802) %>%
-    nicheness_meyer_miller()
+    nicheness_meyer_miller() %>%
+    left_join(read.csv("tests/data/niche_mm_replication.csv"))
   
 })
   
