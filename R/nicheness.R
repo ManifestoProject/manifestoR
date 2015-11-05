@@ -34,10 +34,10 @@ meyer_miller_single_election <- function(election_data,
   for (name in vars) {  ## TODO = Reduce?
     election_data[,name] <- (election_data[,name] - 
                                sapply(election_data$party, function(p) {
-                                 sum(election_data[election_data$party != p, name])/(nrow(election_data)-1)}))^2
+                                 sum(election_data[election_data$party != p, name] * weights[election_data$party != p])/
+                                   (sum(weights[election_data$party != p]))}))^2
   }
   election_data %>%
-    mutate_each_(funs(. * weights), vars) %>%
     select(one_of(vars)) %>%
     rowSums() %>%
     { sqrt( . / length(vars)) }
