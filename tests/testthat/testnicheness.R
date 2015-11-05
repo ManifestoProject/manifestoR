@@ -61,11 +61,106 @@ test_that("Bischof nicheness works and produces correct results", {
 
 test_that("Meyer Miller nicheness", {
   
-  ## TODO tests with theoretical values; for working of different parameters
+  ## tests with theoretical values
   
-  ## TODO consistency tests
+  ## weighted
+  fake_data <- data.frame(
+    party   = c(11,  12,  13),
+    country = c(1,   1,   1),
+    date    = c(1,   1,   1),
+    pervote = c(1,   1,   1),
+    issue1  = c(1,   0L,  0L),
+    issue2  = c(0.3, 0.3, 0.4),
+    issue3  = c(0.6, 0.2, 0.2)
+  )
+  fake_data_agg <- data.frame(
+    party   = c(11,  12,  13),
+    country = c(1,   1,   1),
+    date    = c(1,   1,   1),
+    pervote = c(1,   1,   1),
+    issue1  = c(1,   0L,  0L),
+    issue2  = c(0.9, 0.5, 0.6),
+    issue3  = c(0.0, 0.0, 0.0)
+  )
+  fake_data_2 <- data.frame(
+    party   = c(11,  12,  13),
+    country = c(1,   1,   1),
+    date    = c(2,   2,   2),
+    pervote = c(1,   1,   1),
+    issue1  = c(0L,  1,   0L),  ## swapped issue values of parties 1 and 2
+    issue2  = c(0.3, 0.3, 0.4),
+    issue3  = c(0.2, 0.6, 0.2)
+  )
+  means  <- data.frame(
+    issue1 = c(0L,   0.5,  0.5),
+    issue2 = c(0.35, 0.35, 0.3),
+    issue3 = c(0.2,  0.4,  0.4)
+  )
+  sigma_p <- fake_data %>%
+    select(starts_with("issue")) %>%
+    { (. - means)^2 } %>%
+    rowSums() %>%
+    { . /3 } %>%
+    sqrt()
+  
+  fake_data %>%
+    meyer_miller_single_election(vars = c("issue1", "issue2", "issue3"),
+                                 weights = 1) %>%
+    expect_equivalent(sigma_p)
+  
+  expect_equivalent(
+    fake_data %>%
+      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"), weights = "pervote"),
+    fake_data %>%
+      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"), weights = 1)
+  )
+  
+  fake_data %>%
+    nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")) %>%
+    select(nicheness) %>%
+    unlist() %>%
+    expect_equivalent(sigma_p)
+  
+  suppressWarnings(expect_equivalent(
+    fake_data %>% 
+      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = c("issue2", "issue3"))) %>%
+      mutate(nicheness = nicheness * sqrt(2)/sqrt(3)),
+    fake_data_agg %>%
+      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"))
+  ))
+  
+  expect_equivalent(
+    fake_data %>% 
+      mutate_each(funs({log(. + 1)}), starts_with("issue")) %>%
+      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")),
+    fake_data %>%
+      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"),
+                             transform = "bischof")
+  )
+  
+  expect_equivalent(
+    fake_data %>% 
+      mutate_each(funs({exp(- .^2)}), starts_with("issue")) %>%
+      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")),
+    fake_data %>%
+      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"),
+                             transform = function(x) { exp(-x^2)} )
+  )
+  
+  ## consistency tests with multiple elections and regarding order
+  expect_equivalent(
+    bind_rows(fake_data, mutate(fake_data, date = 2)) %>%
+      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")) %>%
+      group_by(country, party) %>%
+      summarise(nicheness = unique(nicheness)) %>%
+      mutate(date = 1) %>%
+      select(country, party, date, nicheness),
+    fake_data %>%
+      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"))
+  )
   
   ## TODO replication test
+  mpds <- mp_maindataset("MPDS2015a")
   
   mpds %>%
     subset(country == 41 & date == 200909) %>%

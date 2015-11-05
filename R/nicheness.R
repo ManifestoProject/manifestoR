@@ -21,7 +21,7 @@ mp_nicheness <- function(data,
   )
 }
 
-#' @param weights must be a vector of the length nrow(election_data) or the name
+#' weights must be a vector of the length nrow(election_data) or the name
 #' of a variable in election_data
 meyer_miller_single_election <- function(election_data,
                                          vars,
@@ -57,11 +57,13 @@ nicheness_meyer_miller <- function(data,
                                    smooth = FALSE,
                                    weights = "pervote") {
   
-  if (!is.null(transform) && transform == "bischof") {
+  if (!is.null(transform) && 
+      is.character(transform) &&
+      transform == "bischof") {
     transform <- function(x) { log(x + 1) }
   } 
   
-  data %>%
+  nicheness <- data %>%
     aggregate_pers(groups = groups,
                    keep = TRUE) %>%
     iff(!is.null(transform), mutate_each_, funs = funs(transform), vars = names(groups)) %>%
@@ -70,10 +72,15 @@ nicheness_meyer_miller <- function(data,
     iff(smooth, mutate_each_, funs = funs((. + lag(.))/2), vars = names(groups)) %>%
     ungroup() %>%
     { split(., factor(paste(.$country, .$date))) } %>%
-    lapply(meyer_miller_single_election, vars = names(groups), weights = weights)
+    lapply(arrange_, .dots = "party") %>%
+    lapply(meyer_miller_single_election, vars = names(groups), weights = weights) %>%
+    unlist()
   
-  ## TODO construct correct return value
-    
+  data %>%
+    select(one_of(c("country", "party", "date"))) %>%
+    arrange(country, date, party) %>%
+    mutate(nicheness = nicheness)
+  
 }
 
 
