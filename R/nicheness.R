@@ -40,7 +40,7 @@ meyer_miller_single_election <- function(election_data,
   election_data %>%
     select(one_of(vars)) %>%
     rowSums() %>%
-    { sqrt( . / length(vars)) }
+    { sqrt( . / (length(vars)-1)) }
 }
 
 #'
