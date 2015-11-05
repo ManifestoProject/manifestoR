@@ -41,6 +41,7 @@ meyer_miller_single_election <- function(election_data,
     select(one_of(vars)) %>%
     rowSums() %>%
     { sqrt( . / (length(vars)-1)) } ## TODO wrong normalization
+                                    ## TODO Party system normalization goes here (switch via parameter)
 }
 
 #'
@@ -81,8 +82,6 @@ nicheness_meyer_miller <- function(data,
     arrange(country, date, party) %>%
     mutate(nicheness = nicheness)
     
-    ## TODO normalization
-  
 }
 
 
