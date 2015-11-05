@@ -52,7 +52,7 @@ meyer_miller_single_election <- function(election_data,
 #' @rdname mp_nicheness
 #' @export
 nicheness_meyer_miller <- function(data,
-                                   groups = baeck_policy_dimensions()[names(baeck_policy_dimensions()) != "industry"],
+                                   groups = meyer_miller_2013_policy_dimensions(),
                                    transform = NULL,
                                    smooth = FALSE,
                                    weights = "pervote") {

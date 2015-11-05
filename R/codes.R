@@ -116,7 +116,7 @@ v5_v4_aggregation_relations <- function() {
   )
 }
 
-baeck_policy_dimensions <- function(...) {
+baeck_policy_dimensions <- function() {
   list(foreign = c(101, 102, 103, 106, 107, 108, 109),
        defence = c(104, 105),
        interior = c(201, 202, 203, 204, 301, 302,
@@ -133,6 +133,13 @@ baeck_policy_dimensions <- function(...) {
        social_affairs = c(503, 603, 604, 606, 705, 706)
        ) %>%
     lapply(prefix, "per")
+}
+
+meyer_miller_2013_policy_dimensions <- function() {
+  within(baeck_policy_dimensions(), {
+    economy <- unique(c(economy, industry))
+    industry <- NULL
+  })
 }
 
 
