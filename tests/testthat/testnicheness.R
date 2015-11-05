@@ -42,7 +42,7 @@ test_that("Bischof nicheness works and produces correct results", {
     arrange(party, date) %$%
     expect_equivalent(nicheness_two.x, nicheness_two.y)
     
-  read.csv("../data/niche_replication.csv") %>%
+  read.csv("../data/niche_bischof_replication.csv") %>%
     rename(replication_spec = specialization,
            replication_niche = nicheness,
            replication_niche_two = nicheness_two) %>%
@@ -161,15 +161,9 @@ test_that("Meyer Miller nicheness", {
   
   ## TODO replication test
   mpds <- mp_maindataset("MPDS2015a")
-  
   mpds %>%
-    subset(country == 41 & date == 200909) %>%
-    aggregate_pers(groups = baeck_policy_dimensions(), keep = TRUE) %>%
-    meyer_miller_single_election(vars = names(baeck_policy_dimensions()), weights = "pervote")
-  
-  mpds %>%
-    subset(country == 41 & date == 200909) %>%
-    nicheness_meyer_miller(groups = baeck_policy_dimensions())
+    subset(country == 53 & date == 194802) %>%
+    nicheness_meyer_miller()
   
 })
   
