@@ -25,23 +25,37 @@ mp_nicheness <- function(data,
 #' of a variable in election_data
 meyer_miller_single_election <- function(election_data,
                                          vars,
-                                         weights) {
+                                         weights,
+                                         party_system_normalization = TRUE) {
   
   if (is.character(weights)) {
     weights <- unlist(election_data[,weights])
   }
   
+  ## TODO kick out variables that are 0 for everyone when respective parameter is set
+
   for (name in vars) {
     election_data[,name] <- (election_data[,name] - 
-                               sapply(election_data$party, function(p) {
-                                 sum(election_data[election_data$party != p, name] * weights[election_data$party != p])/
-                                   (sum(weights[election_data$party != p]))}))^2
+                               rival_mean(election_data[,name], weights = weights))^2
   }
+  
   election_data %>%
     select(one_of(vars)) %>%
     rowSums() %>%
-    { sqrt( . / (length(vars)-1)) } ## TODO wrong normalization
-                                    ## TODO Party system normalization goes here (switch via parameter)
+    { sqrt( . / (length(vars))) } %>% 
+    iff(party_system_normalization, function(.) { . - rival_mean(., weights = weights) } )
+
+}
+
+rival_mean <- function(x, weights = 1) {
+  
+  if (length(weights) == 1) {
+    weights <- rep(weights, length(x))
+  }
+  
+  (x*weights) %>%
+    { sum(.) - . } %>%
+    { . / (sum(weights) - weights)}
 }
 
 #'
