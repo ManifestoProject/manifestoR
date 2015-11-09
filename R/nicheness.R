@@ -26,14 +26,20 @@ mp_nicheness <- function(data,
 meyer_miller_single_election <- function(election_data,
                                          vars,
                                          weights,
-                                         party_system_normalization = TRUE) {
+                                         party_system_normalization = TRUE,
+                                         only_non_zero = TRUE) {
   
   if (is.character(weights)) {
     weights <- unlist(election_data[,weights])
   }
   
-  ## TODO kick out variables that are 0 for everyone when respective parameter is set
-
+  if (only_non_zero) {
+    ## kick out variables that are 0 for everyone
+    vars <- subset(vars, (election_data %>%
+                            select(one_of(vars)) %>%
+                            colSums()) > 0.0)
+  }
+  
   for (name in vars) {
     election_data[,name] <- (election_data[,name] - 
                                rival_mean(election_data[,name], weights = weights))^2
@@ -42,7 +48,7 @@ meyer_miller_single_election <- function(election_data,
   election_data %>%
     select(one_of(vars)) %>%
     rowSums() %>%
-    { sqrt( . / (length(vars))) } %>% 
+    { sqrt( . / (length(vars)-1)) } %>% ## Why -1 ?
     iff(party_system_normalization, function(.) { . - rival_mean(., weights = weights) } )
 
 }

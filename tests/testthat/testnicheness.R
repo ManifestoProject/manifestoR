@@ -100,12 +100,13 @@ test_that("Meyer Miller nicheness", {
     select(starts_with("issue")) %>%
     { (. - means)^2 } %>%
     rowSums() %>%
-    { . /3 } %>%
+    { . /2 } %>%
     sqrt()
   
   fake_data %>%
     meyer_miller_single_election(vars = c("issue1", "issue2", "issue3"),
-                                 weights = 1) %>%
+                                 weights = 1,
+                                 party_system_normalization = FALSE) %>%
     expect_equivalent(sigma_p)
   
   expect_equivalent(
@@ -119,12 +120,11 @@ test_that("Meyer Miller nicheness", {
     nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")) %>%
     select(nicheness) %>%
     unlist() %>%
-    expect_equivalent(sigma_p)
+    expect_equivalent(sigma_p - rival_mean(sigma_p))
   
   suppressWarnings(expect_equivalent(
     fake_data %>% 
-      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = c("issue2", "issue3"))) %>%
-      mutate(nicheness = nicheness * sqrt(2)/sqrt(3)),
+      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = c("issue2", "issue3"))),
     fake_data_agg %>%
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"))
   ))
