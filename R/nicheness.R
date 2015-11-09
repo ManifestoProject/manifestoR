@@ -92,8 +92,9 @@ nicheness_meyer_miller <- function(data,
     arrange(date) %>%
     iff(smooth, mutate_each_, funs = funs((. + lag(.))/2), vars = names(groups)) %>%
     ungroup() %>%
-    { split(., factor(paste(.$country, .$date))) } %>%
-    lapply(arrange_, .dots = "party") %>%
+    { split(., factor(paste0(.$country, .$date, sep = "_"))) } %>%
+    lapply(arrange_, "party") %>%
+    lapply(as.data.frame) %>%  ## fix necessary due to split
     lapply(meyer_miller_single_election, vars = names(groups), weights = weights) %>%
     unlist()
   
