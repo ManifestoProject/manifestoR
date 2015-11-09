@@ -159,12 +159,23 @@ test_that("Meyer Miller nicheness", {
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"))
   )
   
-  ## TODO replication test
   mpds <- mp_maindataset("MPDS2015a")
+  
+  expect_equivalent(
+    mpds %>%
+      subset(country == 53) %>%
+      nicheness_meyer_miller(),
+    mpds %>%
+      subset(country == 53) %>%
+      mp_nicheness(method = "meyermiller")
+  )
+
   mpds %>%
-    subset(country == 53 & date == 194802) %>%
+    subset(country == 53) %>%
     nicheness_meyer_miller() %>%
-    left_join(read.csv("../data/niche_mm_replication.csv"))
+    left_join(read.csv("../data/niche_mm_replication.csv")) %>%
+    mutate(deviation = abs(nicheness - nnbdd_dw)) %$%
+    expect_true(all(deviation < 0.2))
   
 })
   

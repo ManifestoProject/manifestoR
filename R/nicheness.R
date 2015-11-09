@@ -9,7 +9,7 @@
 #' allocation in parliamentary democracies. European Journal of Political Research 50(4): 441-478.
 #' 
 #' @param data a dataframe or matrix in format of Manifesto Project Main Dataset
-#' @param method choose between bischof, wagner and meyermiller (currently only bischof is implemented)
+#' @param method choose between bischof and meyermiller
 #' @param ... parmaeters passed on to specialized functions for differnet methods
 #' @export
 mp_nicheness <- function(data,
@@ -17,12 +17,11 @@ mp_nicheness <- function(data,
                          ... ) {
   switch(method,
          "bischof" = nicheness_bischof(data),
+         "meyermiller" = nicheness_meyer_miller(data),
          stop(paste("Nicheness method", method, "not implemented!"))
   )
 }
 
-#' weights must be a vector of the length nrow(election_data) or the name
-#' of a variable in election_data
 meyer_miller_single_election <- function(election_data,
                                          vars,
                                          weights,
@@ -66,17 +65,26 @@ rival_mean <- function(x, weights = 1) {
 
 #'
 #' @param groups groups of issues to determine niches/policy dimensions; formatted as named lists
-#' variable names. For an example see ... TODO Defaults to Baeck et. al 2010 Policy dimensions
-#' withouth industry, as used in the original paper by Meyer & Miller
+#' variable names. Defaults to adapted version of Baeck et. al 2010 Policy dimensions
+#' (without industry, as used in the original paper by Meyer & Miller)
 #' @param transform transform to apply to each of the group indicators. Can be a function,
 #' character "bischof" to apply log(x + 1), or NULL for no transformation.
+#' @param smooth Smoothing of policy dimension values before nicheness computation, as suggested
+#' and used by Bischof 2015
+#' @param weights vector of the length nrow(data) or the name of a variable in data; is used to
+#' weight mean party system position and nicheness; defaults to "pervote" as in Meyer & Miller 2013
+#' @param party_system_normalization normalize nicheness result within election (substract weighted mean nicheness)
+#' @param only_non_zero When dividing by the number of policy dimensions used for nicheness
+#' estimation, ignore dimensions that are zero for all parties (election-wise)
 #' @rdname mp_nicheness
 #' @export
 nicheness_meyer_miller <- function(data,
                                    groups = meyer_miller_2013_policy_dimensions(),
                                    transform = NULL,
                                    smooth = FALSE,
-                                   weights = "pervote") {
+                                   weights = "pervote",
+                                   party_system_normalization = TRUE,
+                                   only_non_zero = TRUE) {
   
   if (!is.null(transform) && 
       is.character(transform) &&
@@ -95,7 +103,11 @@ nicheness_meyer_miller <- function(data,
     { split(., factor(paste0(.$country, .$date, sep = "_"))) } %>%
     lapply(arrange_, "party") %>%
     lapply(as.data.frame) %>%  ## fix necessary due to split
-    lapply(meyer_miller_single_election, vars = names(groups), weights = weights) %>%
+    lapply(meyer_miller_single_election,
+           vars = names(groups),
+           weights = weights,
+           party_system_normalization = party_system_normalization,
+           only_non_zero = only_non_zero) %>%
     unlist()
   
   data %>%
