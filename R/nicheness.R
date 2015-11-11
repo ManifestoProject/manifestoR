@@ -4,7 +4,6 @@
 #'
 #' @references Bischof, D. (2015). Towards a Renewal of the Niche Party Concept Parties, Market Shares and Condensed Offers. Party Politics.
 #' @references Meyer, T.M., & Miller, B. (2013). The Niche Party Concept and Its Measurement. Party Politics 21(2): 259-271.
-#' @references Wagner, M. (2012). Defining and Measuring Niche Parties. Party Politics 18(6): 845-64.
 #' @references Baeck, H., Debus, M., & Dumont, P. (2010). Who gets what in coalition governments? Predictors of portfolio
 #' allocation in parliamentary democracies. European Journal of Political Research 50(4): 441-478.
 #' 
