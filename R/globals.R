@@ -31,4 +31,7 @@ kcitemessage <- paste0("When publishing work using the Manifesto Corpus, please 
 
 message(paste(kcitemessage,
   "You can print citation and version information with the function mp_cite().",
+  paste0("Note that some of the scaling/analysis functions in this package were conceptually",
+   "developed by authors referenced in the respective function documentation. Please also",
+   "reference them when using these functions.", collapse = " "),
   sep = "\n\n"))
