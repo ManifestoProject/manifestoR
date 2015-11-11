@@ -116,6 +116,42 @@ v5_v4_aggregation_relations <- function() {
   )
 }
 
+baeck_policy_dimensions <- function() {
+  list(foreign = c(101, 102, 103, 106, 107, 108, 109),
+       defence = c(104, 105),
+       interior = c(201, 202, 203, 204, 301, 302,
+                    303, 304, 605, 607, 608),
+       justice = c(201, 202, 203, 204, 303, 304, 605),
+       finance = c(402, 414),
+       economy = c(401, 403, 404, 405, 406, 407, 408, 409, 410, 412, 413, 415),
+       labour = c(504, 505, 701, 702),
+       education = c(506, 507),
+       health = c(504, 505, 706),
+       agriculture = c(703),
+       industry = c(401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 412, 413, 414),
+       environment = c(416, 501),
+       social_affairs = c(503, 603, 604, 606, 705, 706)
+       ) %>%
+    lapply(prefix, "per")
+}
+
+bischof_issue_groups <- function() {
+  list(
+    ecology = c(416, 410, 501, 106),
+    nationalist = c(601, 602, 605, 607, 608),
+    agrarian = c(703),
+    regional = c(301, 302, 706),
+    europe = c(406, 407, 108, 110)
+    ) %>%
+    lapply(prefix, "per")
+}
+
+meyer_miller_2013_policy_dimensions <- function() {
+  within(baeck_policy_dimensions(), {
+    industry <- NULL
+  })
+}
+
 
 #' Aggregate category percentages in groups
 #' 

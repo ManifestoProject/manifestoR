@@ -38,11 +38,13 @@ Imports:
 Suggests:
     knitr,
     rmarkdown,
+    magrittr,
     testthat,
     R.rsp,
     devtools (>= 1.7.0)
 VignetteBuilder: R.rsp
-Collate: manifestoR-package.r globals.R cache.R db_api.R corpus.R manifesto.R
+Collate: manifestoR-package.r globals.R pipe_helpers.R
+    cache.R db_api.R corpus.R manifesto.R
     codes.R scaling_general.R scaling_rile.R scaling_functions.R nicheness.R
     issue_attention.R scaling_bootstrap.R dataset.R
 License: GPL (>= 3)
