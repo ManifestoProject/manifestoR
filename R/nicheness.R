@@ -47,7 +47,7 @@ meyer_miller_single_election <- function(election_data,
   election_data %>%
     select(one_of(vars)) %>%
     rowSums() %>%
-    { sqrt( . / (length(vars)-1)) } %>% ## Why -1 ?
+    { sqrt( . / length(vars)) } %>%
     iff(party_system_normalization, function(.) { . - rival_mean(., weights = weights) } )
 
 }

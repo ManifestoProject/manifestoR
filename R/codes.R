@@ -137,7 +137,6 @@ baeck_policy_dimensions <- function() {
 
 meyer_miller_2013_policy_dimensions <- function() {
   within(baeck_policy_dimensions(), {
-    economy <- unique(c(economy, industry))
     industry <- NULL
   })
 }

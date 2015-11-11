@@ -100,7 +100,7 @@ test_that("Meyer Miller nicheness", {
     select(starts_with("issue")) %>%
     { (. - means)^2 } %>%
     rowSums() %>%
-    { . /2 } %>%
+    { . /3 } %>%
     sqrt()
   
   fake_data %>%
@@ -169,13 +169,17 @@ test_that("Meyer Miller nicheness", {
       subset(country == 53) %>%
       mp_nicheness(method = "meyermiller")
   )
-
-  mpds %>%
-    subset(country == 53) %>%
-    nicheness_meyer_miller() %>%
-    left_join(read.csv("../data/niche_mm_replication.csv")) %>%
-    mutate(deviation = abs(nicheness - nnbdd_dw)) %$%
-    expect_true(all(deviation < 0.2))
   
+  ## There is no replication test for the Meyer & Miller nicheness, since we
+  ## made substantial changes to the algorithm (compared to the STATA script)
+  ## to make it agree with the algorithm described in the paper.
+
+  #   mpds %>%
+  #     subset(country == 53) %>%
+  #     nicheness_meyer_miller() %>%
+  #     left_join(read.csv("../data/niche_mm_replication.csv")) %>%
+  #     mutate(deviation = abs(nicheness - nnbdd_dw)) %$%
+  #     expect_true(all(deviation < 0.2))
+
 })
   
