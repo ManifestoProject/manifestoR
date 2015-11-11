@@ -217,7 +217,7 @@ aggregate_pers <- function(data,
 #' @param include_codes Vector of categories that should be included even if they are not
 #' present in the data; the value of the created variables then defaults to 0.0 (or NA if
 #' no codes are present at all);
-#' @param aggregate_v5_codes if TRUE, for handbook version 5 subcategories, the aggregate
+#' @param aggregate_v5_subcategories if TRUE, for handbook version 5 subcategories, the aggregate
 #' category's count/percentage is computed as well
 #' @return A data.frame with onw row and the counts/percentages as columns
 #'
