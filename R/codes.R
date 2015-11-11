@@ -135,6 +135,17 @@ baeck_policy_dimensions <- function() {
     lapply(prefix, "per")
 }
 
+bischof_issue_groups <- function() {
+  list(
+    ecology = c(416, 410, 501, 106),
+    nationalist = c(601, 602, 605, 607, 608),
+    agrarian = c(703),
+    regional = c(301, 302, 706),
+    europe = c(406, 407, 108, 110)
+    ) %>%
+    lapply(prefix, "per")
+}
+
 meyer_miller_2013_policy_dimensions <- function() {
   within(baeck_policy_dimensions(), {
     industry <- NULL

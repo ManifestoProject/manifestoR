@@ -41,7 +41,7 @@ test_that("Bischof nicheness works and produces correct results", {
     by = c("party", "date")) %>%
     arrange(party, date) %$%
     expect_equivalent(nicheness_two.x, nicheness_two.y)
-    
+  
   read.csv("../data/niche_bischof_replication.csv") %>%
     rename(replication_spec = specialization,
            replication_niche = nicheness,
