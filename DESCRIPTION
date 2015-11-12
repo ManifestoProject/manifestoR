@@ -1,7 +1,7 @@
 Package: manifestoR
 Title: Access and Process Data and Documents of the Manifesto Project
-Date: 2015-11-11
-Version: 1.1
+Date: 2015-11-12
+Version: 1.1-1
 Authors@R: c(person("Jirka", "Lewandowski",
 		    role = c("aut", "cre"),
 		    email = "jirka.lewandowski@wzb.eu"),
@@ -15,7 +15,8 @@ Authors@R: c(person("Jirka", "Lewandowski",
 		    role = c("ctb"),
 		    email = "pola.lehmann@wzb.eu"))
 Description: Provides access to coded election programmes from
-    the Manifesto Corpus and to the Manifesto Project's Main Dataset. The Manifesto
+    the Manifesto Corpus and to the Manifesto Project's Main Dataset and routines
+    to analyse this data. The Manifesto
     Project (https://manifesto-project.wzb.eu) collects and analyses election
     programmes across time and space to measure the political preferences
     of parties. The Manifesto Corpus contains the collected
