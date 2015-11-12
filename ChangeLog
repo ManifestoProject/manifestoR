@@ -1,3 +1,8 @@
+1.1-1 (2015-11-12)
+==================
+
+* Correct and extended startup messages
+* Nicheness measures by Meyer & Miller 2013 and Bischof 2015 implemented
 * Corpus documents can now be accessed via their manifesto_id (= party_date) and not only by number
   * implementation change of tm Source and reader for ManifestoCorpus
 * counting codes reproduces dataset style for handbook version 5: subcategories + aggregated percentages
