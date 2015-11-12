@@ -30,7 +30,7 @@ kcitemessage <- paste0("When publishing work using the Manifesto Corpus, please 
                        "number of the corpus version used for your analysis.")
 
 .onAttach = function(libname, pkgname) {
-  message(paste(kcitemessage,
+  packageStartupMessage(paste(kcitemessage,
                 "You can print citation and version information with the function mp_cite().",
                 paste0(c("Note that some of the scaling/analysis algorithms provided with this package were conceptually",
                          "developed by authors referenced in the respective function documentation. Please also",
