@@ -340,9 +340,10 @@ count_codes.default <- function(doc,
     df <- data.frame(total = 0L)
   }
   
-  if ("per0" %in% names(df)) {
-    df <- rename(df, peruncod = per0)
-  }
+  df <- aggregate_pers(df,
+                       groups = list(peruncod = c("per0", "per000")),
+                       keep = FALSE,
+                       na.rm = TRUE)
 
   names(df) <- gsub(".", "_", names(df), fixed = TRUE)
     
