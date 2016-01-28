@@ -23,3 +23,5 @@ artifacts:
   paths:
   - manifestoR.tar.gz
   - check_results.txt
+  
+  
