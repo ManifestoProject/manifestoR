@@ -1,42 +1,16 @@
-make_documentation:
-  stage: document
-  script:
-    - R -e "library(devtools); document()"
-    - R -e "library(devtools); document()"
-  cache:
-    group: build
-    paths:
-    - NAMESPACE
-    - man/
-
-create_tarball:
+pack_manifestoR:
   stage: build
   script:
+    - R -e "library(devtools); document()"
     - R CMD build ./
     - mv manifestoR*.tar.gz manifestoR.tar.gz
-  cache:
-    group: build
-    paths:
-    - manifestoR.tar.gz
-  artifacts:
-    paths:
-    - manifestoR.tar.gz
-    
-r_check:
-  stage: check
-  script:
     - R CMD check --as-cran manifestoR.tar.gz > check_results.txt
-  cache:
-    group: build
-    paths:
-    - manifestoR.tar.gz
   artifacts:
     paths:
+    - manifestoR.tar.gz
     - check_results.txt
 
 stages:
-  - document
   - build
-  - check
 
   
