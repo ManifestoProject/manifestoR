@@ -2,6 +2,7 @@ make_documentation:
   stage: document
   script:
     - R -e "library(devtools); document()"
+    - R -e "library(devtools); document()"
 
 create_tarball:
   stage: build
