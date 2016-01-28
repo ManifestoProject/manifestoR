@@ -8,20 +8,21 @@ create_tarball:
   script:
     - R CMD build ./
     - mv manifestoR*.tar.gz manifestoR.tar.gz
-
+  artifacts:
+    paths:
+    - manifestoR.tar.gz
+    
 r_check:
   stage: check
   script:
     - R CMD check --as-cran manifestoR.tar.gz > check_results.txt
+  artifacts:
+    paths:
+    - check_results.txt
 
 stages:
   - document
   - build
   - check
 
-artifacts:
-  paths:
-  - manifestoR.tar.gz
-  - check_results.txt
-  
   
