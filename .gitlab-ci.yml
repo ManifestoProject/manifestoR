@@ -3,12 +3,19 @@ make_documentation:
   script:
     - R -e "library(devtools); document()"
     - R -e "library(devtools); document()"
+  cache:
+    paths:
+    - NAMESPACE
+    - man/
 
 create_tarball:
   stage: build
   script:
     - R CMD build ./
     - mv manifestoR*.tar.gz manifestoR.tar.gz
+  cache:
+    paths:
+    - manifestoR.tar.gz
   artifacts:
     paths:
     - manifestoR.tar.gz
