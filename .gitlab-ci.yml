@@ -4,6 +4,7 @@ make_documentation:
     - R -e "library(devtools); document()"
     - R -e "library(devtools); document()"
   cache:
+    group: build
     paths:
     - NAMESPACE
     - man/
@@ -14,6 +15,7 @@ create_tarball:
     - R CMD build ./
     - mv manifestoR*.tar.gz manifestoR.tar.gz
   cache:
+    group: build
     paths:
     - manifestoR.tar.gz
   artifacts:
@@ -24,6 +26,10 @@ r_check:
   stage: check
   script:
     - R CMD check --as-cran manifestoR.tar.gz > check_results.txt
+  cache:
+    group: build
+    paths:
+    - manifestoR.tar.gz
   artifacts:
     paths:
     - check_results.txt
