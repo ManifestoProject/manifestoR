@@ -1,7 +1,12 @@
 pack_manifestoR:
   stage: build
   script:
+    - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
     - R -e "library(devtools); document()"
+    - sed -i '/VignetteBuilder: R.rsp/c\VignetteBuilder: knitr' DESCRIPTION
+    - R -e "library(devtools); install(dependencies = FALSE); build_vignettes();"
+    - cp inst/doc/manifestoRworkflow.pdf vignettes/
+    - sed -i '/VignetteBuilder: knitr/c\VignetteBuilder: R.rsp' DESCRIPTION
     - R CMD build ./
     - mv manifestoR*.tar.gz manifestoR.tar.gz
     - R CMD check --as-cran manifestoR.tar.gz > check_results.txt
