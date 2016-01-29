@@ -12,7 +12,7 @@ doc:
 Rmdvignette:
 	sed -i '/VignetteBuilder: R.rsp/c\VignetteBuilder: knitr' DESCRIPTION
 	cat DESCRIPTION
-	R -e "library(devtools); build_vignettes();"
+	R -e "library(devtools); tools::buildVignettes(dir = getElement(as.package('./'), 'path'), tangle = TRUE)"
 	cp inst/doc/manifestoRworkflow.pdf vignettes/
 	sed -i '/VignetteBuilder: knitr/c\VignetteBuilder: R.rsp' DESCRIPTION
 
