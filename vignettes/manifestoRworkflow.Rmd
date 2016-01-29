@@ -33,10 +33,6 @@ First of all, load the `manifestoR` package with the usual R syntax:
 library(manifestoR)
 ```
 
-```{r eval=TRUE, include=FALSE}
-library(manifestoR)
-```
-
 ## Connecting to the Manifesto Project Database API
 
 To access the data in the Manifesto Corpus, an account for the Manifesto Project
@@ -57,6 +53,8 @@ library(manifestoR)
 mp_setapikey("manifesto_apikey.txt")
 ```
 ```{r eval=TRUE, include=FALSE}
+library(devtools)
+load_all("../")
 mp_setapikey(key.file = "../tests/manifesto_apikey.txt")
 ```
 

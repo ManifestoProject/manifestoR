@@ -11,6 +11,7 @@ pack_manifestoR:
     paths:
     - manifestoR.tar.gz
     - check_results.txt
+    - vignettes/manifestoRworkflow.pdf
 
 stages:
   - build
