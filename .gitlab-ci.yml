@@ -19,7 +19,7 @@ pack_manifestoR:
 test_manifestoR:
   stage: test
   script:
-    - ls
+    - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
     - R -e "library(devtools); document()"
     - make test
 
