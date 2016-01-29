@@ -17,7 +17,7 @@ pack_manifestoR:
     - vignettes/manifestoRworkflow.pdf
 
 test_manifestoR:
-  stage: buid
+  stage: build
   script:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
     - R -e "library(devtools); document()"
