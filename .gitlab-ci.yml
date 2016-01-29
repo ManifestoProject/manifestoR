@@ -6,6 +6,8 @@ pack_manifestoR:
     - mkdir inst
     - mkdir inst/doc
     - make Rmdvignette
+    - ls inst/doc
+    - ls vignettes
     - R CMD build ./
     - mv manifestoR*.tar.gz manifestoR.tar.gz
     - R CMD check --as-cran manifestoR.tar.gz > check_results.txt
