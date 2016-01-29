@@ -3,6 +3,8 @@ pack_manifestoR:
   script:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
     - R -e "library(devtools); document()"
+    - mkdir inst
+    - mkdir inst/doc
     - make Rmdvignette
     - R CMD build ./
     - mv manifestoR*.tar.gz manifestoR.tar.gz
