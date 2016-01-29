@@ -7,9 +7,7 @@ pack_manifestoR:
     - mkdir inst/doc
     - make Rmdvignette
     - R CMD build ./
-    - ls
     - mv manifestoR*.tar.gz manifestoR.tar.gz
-    - ls
     - R CMD check --as-cran manifestoR.tar.gz > check_results.txt
     - cat check_results.txt
   artifacts:
@@ -18,7 +16,15 @@ pack_manifestoR:
     - check_results.txt
     - vignettes/manifestoRworkflow.pdf
 
+test_manifestoR:
+  stage: test
+  script:
+    - ls
+    - R -e "library(devtools); document()"
+    - make test
+
 stages:
   - build
+  - test
 
   
