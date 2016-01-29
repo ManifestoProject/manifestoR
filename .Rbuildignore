@@ -2,6 +2,7 @@ Makefile
 notes/
 devel/
 tests/
+.gitlab-ci.yml
 inst/doc/manifestoRworkflow.R
 ^.*\.Rproj$
 ^\.Rproj\.user$
