@@ -1,6 +1,6 @@
 # variables
 pkgname = manifestoR
-pkgversion = 0.9-11
+pkgversion = 1.1-2
 
 # default target
 all: pack check
@@ -11,15 +11,15 @@ doc:
 
 Rmdvignette:
 	sed -i '/VignetteBuilder: R.rsp/c\VignetteBuilder: knitr' DESCRIPTION
-	R -e "library(devtools); install(); build_vignettes();"
+	R -e "library(devtools); build_vignettes();"
 	cp inst/doc/manifestoRworkflow.pdf vignettes/
 	sed -i '/VignetteBuilder: knitr/c\VignetteBuilder: R.rsp' DESCRIPTION
 
-pack: doc Rmdvignette
+pack: doc
 	(cd ../; R CMD build $(pkgname))
 
 check: pack
-	(cd ../; R CMD check $(pkgname)_$(pkgversion).tar.gz)
+	(cd ../; R CMD check --as-cran $(pkgname)_$(pkgversion).tar.gz)
 
 testcheck: test pack check
 

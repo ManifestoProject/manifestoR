@@ -56,20 +56,18 @@ formattextparams <- function(ids) {
 }
 
 separate_missings <- function(robj, request="") {
-
+  
   missings <- robj$missing_items
 
   robj <- robj$items
 
   for (misskey in missings) {
     
-    if (request == "metadata") {
-
-    } else if (request == "text") {
+    if (request %in% c("metadata", "text")) {
       
-      warning(paste0("No document found with id ", misskey, ". ",
-                     "This should not happen if you did not request ",
-                     "documents by manifesto_ids manually."))
+      warning(paste0("No document/metadata found with id ", misskey, ". ",
+                     "Please double check your request if it was specified manually."),
+              call. = FALSE)
       
     } else {
       
@@ -123,15 +121,31 @@ formatmpds <- function(mpds) {
 mpdb_api_request <- function(file, body) {
 
   response <- httr::POST(url=paste0(kmurl.apiroot, file),
-                         body=body)
+                         body=body,
+                         httr::user_agent(paste("httr",
+                                                utils::packageVersion("httr"),
+                                                "manifestoR",
+                                                utils::packageVersion("manifestoR"))),
+                         httr::config(followlocation = 0L))
+  while (response$status_code %in% c(301:303)) { ## Manual following of redirects
+    response <- httr::GET(response$headers$location)
+  }
   content <- httr::content(response, as="text")
   if (response$status_code != "200") {
     msg <- paste("HTTP Error", response$status_code,
                  "when connecting to Manifesto Corpus Database")
     try({
-      msg <- paste0(msg, ": ", fromJSON(content)$error)
+      msg <- paste0(msg, ": ", fromJSON(content)$error, ".")
     }, silent = TRUE)
-    stop(msg)
+    if (response$status_code == 401) {
+      msg <- paste(msg, "This can indicate an invalid API key.")
+    }
+    if (response$status_code == 404) {
+      msg <- paste(msg, "This can indicate that you are requesting a version,",
+                   "document, ... that does not exist. Please double check",
+                   "your query parameters.")
+    }
+    stop(msg, call. = FALSE)
   } else {
     return(content[1])
   }
@@ -147,8 +161,9 @@ mpdb_api_request <- function(file, body) {
 #' @param type string of \code{"meta", "text", "original", "main", "versions"} 
 #'             to indicate type of content to get
 #' @param parameters content filter parameters specific to type
-#' @param versionid character string specifying the corpus version to use, format
-#'        as returned by \code{\link{mp_corpusversions}} and the API
+#' @param versionid character string specifying the corpus version to use, either
+#'        a name or tag as in the respective columns of the value of
+#'        \code{\link{mp_corpusversions}} and the API
 #' @param apikey API key to use, defaults to \code{NULL}, which means the key 
 #'               currently stored in the variable \code{apikey} of the
 #'               environment \code{mp_globalenv} is used.
@@ -174,10 +189,18 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     requestfile <- "api_texts_and_annotations.json"
   } else if (type == kmtype.metaversions) {
     requestfile <- "api_list_metadata_versions.json"
+    parameters <- c(parameters, tag = "true")
+  } else if (type == kmtype.corecitation) {
+    requestfile <- "api_get_core_citation"
+  } else if (type == kmtype.corpuscitation) {
+    requestfile <- "api_get_corpus_citation"
   }
 
   # prepare version parameter if needed
-  if (!is.null(versionid) && type %in% c(kmtype.meta, kmtype.text)) {
+  if (type %in% c(kmtype.meta, kmtype.text)) {
+    if (is.null(versionid)) {
+      versionid <- last_corpus_version(apikey = apikey)
+    }
     parameters <- c(parameters, version = versionid)
   }
 
@@ -187,7 +210,7 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
                                           toamplist(parameters)))
 
   # convert to desired format (before caching)
-  if (type == kmtype.versions) {
+  if (type %in% c(kmtype.versions, kmtype.corecitation, kmtype.corpuscitation)) {
 
     return(data.frame(fromJSON(jsonstr)))
 
@@ -226,4 +249,18 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     return(texts)
 
   }
+}
+
+get_citation <- function(version, type, apikey = NULL) {
+  get_mpdb(type,
+           parameters = list(key = version),
+           apikey = apikey)$citation %>% unlist()
+}
+
+last_corpus_version <- function(onlytag = TRUE, apikey = NULL) {
+  mp_corpusversions(apikey = apikey) %>%
+    subset(!onlytag | !is.na(tag)) %>%
+    arrange(name) %>%
+    tail(n=1) %>%
+    with(ifelse(is.na(tag), name, tag))
 }

@@ -144,19 +144,20 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
 
   ## type conversion for certain metadata entries
   metadata <- within(metadata, {
-    if (exists("manifesto_id")) {
-      manifesto_id <- as.integer(manifesto_id)
+    if (exists("manifesto_id", inherits = FALSE)) {
+      manifesto_id <- as.character(manifesto_id)
     } else {
-      manifesto_id <- NA
+      manifesto_id <- as.character(rep(NA, times = nrow(metadata)))
     }
-    if (exists("is_primary_doc")) {
+    if (exists("is_primary_doc", inherits = FALSE)) {
       is_primary_doc <- as.logical(is_primary_doc)
     }
-    if (exists("may_contradict_core_dataset")) {
+    if (exists("may_contradict_core_dataset", inherits = FALSE)) {
       may_contradict_core_dataset <- as.logical(may_contradict_core_dataset)
     }
-    if (exists("has_eu_code")) {
+    if (exists("has_eu_code", inherits = FALSE)) {
       has_eu_code <- as.logical(has_eu_code)
+      has_eu_code[is.na(has_eu_code)] <- FALSE
     }
   })
   
@@ -186,6 +187,11 @@ as.metaids <- function(ids, apikey=NULL, cache=TRUE) {
   if ( !("ManifestoMetadata" %in% class(ids)) ) {
     ids <- mp_metadata(ids, apikey=apikey, cache=cache)
   }
+
+  if ("is_primary_doc" %in% names(ids)) {
+    ids <- subset(ids, is.na(is_primary_doc) | is_primary_doc)
+  }
+
   return(ids)
 }
 
@@ -221,8 +227,7 @@ is.naorstringna <- function(v) {
 #' @export
 mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
   
-  columns <- c("party", "date", "language", "is_primary_doc",
-               "may_contradict_core_dataset", "annotations")
+  columns <- c("party", "date", "language", "annotations")
   
   metadata <- suppressWarnings(as.metaids(substitute(ids), apikey=apikey, cache=cache))
   
@@ -234,7 +239,16 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
                                  envir = mp_maindataset(),
                                  enclos = parent.frame()),]
   }
-  
+
+  if (!("language" %in% names(metadata))) {
+    metadata <- mutate(metadata, language = NA)
+  }
+  if (!("annotations" %in% names(metadata))) {
+    metadata <- mutate(metadata, annotations = FALSE)
+  }
+  if (!("url_original" %in% names(metadata))) {
+    metadata <- mutate(metadata, url_original = NA)
+  }
   availability <- select(metadata, one_of(columns))
 
   availability$manifestos <- !is.naorstringna(metadata$manifesto_id)
@@ -247,9 +261,7 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
         mutate(manifestos = FALSE,
                originals = FALSE,
                annotations  = FALSE,
-               language = NA,
-               is_primary_doc = NA,
-               may_contradict_core_dataset = NA) %>%
+               language = NA) %>%
         bind_rows(availability)
 
   availability <- list(query=ids, date=date(), availability=availability)
@@ -290,10 +302,10 @@ print.ManifestoAvailability <- function(x, ...) {
   ncovereddocs <- nrow(avl$availability[which(avl$availability$annotations),])
   ncoveredorigs <- length(which(unique(avl$availability[which(
                              avl$availability$originals),])$originals))
-  languages <- na.omit(unique(avl$availability$language))
+  languages <- stats::na.omit(unique(avl$availability$language))
   
   summary <- list('Queried for'=nqueried,
-                  'Raw Texts found'=paste(length(which(avl$availability$manifestos)),
+                  'Documents found'=paste(length(which(avl$availability$manifestos)),
                                           " (", round(100*ncoveredtexts/nqueried, decs), "%)",
                                           sep=""),
                   'Coded Documents found'=paste(length(which(avl$availability$annotations)),
@@ -363,51 +375,23 @@ mp_corpus <- function(ids,
 
   ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache)
 
-  ids <- base::subset(ids, !is.naorstringna(manifesto_id))
+  if (nrow(ids) > 0) {
+    ids <- base::subset(ids, !is.naorstringna(manifesto_id) &
+                          (is.null(codefilter) | annotations))
+  }
   
   if (nrow(ids) > 0) {
     
-    texts <- get_viacache(kmtype.text, ids, apikey=apikey, cache=cache)
-  
-    if (nrow(texts) > 0) {
-  
-      ## Format the documents into a tm Corpus of ManifestoDocuments
-      the.names <- names(texts)
-      the.names <- the.names[which(the.names != "items")]
-      
-      textToManifestoDocument <- function(idx) {    
-        the.meta <- structure(as.list(left_join(
-          within(texts[idx, the.names], {
-            manifesto_id <- as.integer(manifesto_id)
-          }), ids, by = "manifesto_id")))
-        the.meta$kind <- NULL
-        class(the.meta) <- "TextDocumentMeta"
-        items <- texts[idx, "items"][[1]][[1]] ## what the hack...
-        names(items)[which(names(items)=="content")] <- "text" ## rename from json
-        names(items)[which(names(items)=="code")] <- "cmp_code"
-        items[which(is.nacode(items$cmp_code)),"cmp_code"] <- NA
-        if ("eu_code" %in% names(items)) {
-          items[which(is.nacode(items$eu_code)),"eu_code"] <- NA 
-        }
-        suppressWarnings({ ## string codes might have become factor
-          items[,"cmp_code"] <- as.integer(as.character(items[,"cmp_code"]))
-          if ("eu_code" %in% names(items)) {
-            items[,"eu_code"] <- as.integer(as.character(items[,"eu_code"]))
-          }
-        }) 
-        
-        
-        elem <- structure(list(content=items, meta=the.meta))
-        return(elem)    
-      }
-      corpus <- ManifestoCorpus(ManifestoSource(lapply(1:nrow(texts),
-                                                       textToManifestoDocument)))    
-    } else {
-      corpus <- ManifestoCorpus(ManifestoSource(c()))
-    }
+    corpus <- get_viacache(kmtype.text, ids, apikey=apikey, cache=cache) %>%
+      ManifestoJSONSource(query_meta = ids) %>%
+      ManifestoCorpus()
+    
   } else {
-    corpus <- ManifestoCorpus(ManifestoSource(c()))
+    
+    corpus <- ManifestoCorpus()
+    
   }
+  
   
   ## codefilter
   if (!is.null(codefilter)) {
@@ -463,7 +447,7 @@ mp_view_originals <- function(ids, maxn = 5, apikey = NULL, cache = TRUE) {
                   "of mp_view_originals"))
   } else {
     for (url in ids$url_original) {
-      browseURL(paste0(kmurl.originalsroot, url))
+      utils::browseURL(paste0(kmurl.originalsroot, url))
     }
   }
 
@@ -471,9 +455,58 @@ mp_view_originals <- function(ids, maxn = 5, apikey = NULL, cache = TRUE) {
 
 #' Print Manifesto Corpus citation information
 #'
+#' @param corpus_version corpus version for which citation should be printed
+#' @param core_versions core version for which citation should be printed
+#' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
+#'        the API key set via \code{\link{mp_setapikey}}.
 #' @export
-mp_cite <- function() {
-  message(paste0(kcitemessage, "\n\n",
-                 "You're currently using corpus version ",
-                    getn(kmetaversion, envir = mp_cache()), "."))
+mp_cite <- function(corpus_version = mp_which_corpus_version(),
+                    core_versions = mp_which_dataset_versions(),
+                    apikey = NULL) {
+  
+  cite_message <- kcitemessage
+  
+  if (is.null(apikey) && is.na(getn("apikey", envir = mp_globalenv))) {
+    cite_message <- paste0(cite_message, "\n\n",
+        "No API key specified. For generation as well as citation information ",
+        "please go to https://manifesto-project.wzb.eu.")
+  } else {
+    
+    if (!is.null(corpus_version) && !is.na(corpus_version)) {
+      cite_message <- paste0(cite_message, "\n\n",
+                             "You're currently using corpus version ", corpus_version, ", ",
+                             "please cite as\n\n",
+                             get_citation(corpus_version, kmtype.corpuscitation, apikey = apikey))
+      
+      corpus_cache <- manifestos_in_cache() %>%
+                        select(party, date) %>%
+                        mp_metadata(apikey = apikey)
+      if (!is.null(corpus_cache) && 
+          !is.null(corpus_cache$source) && 
+          any(corpus_cache$source == "CEMP")) {
+        cite_message <- paste0(cite_message, "\n\n",
+                               "You have downloaded uncoded machine-readable manifesto texts, ",
+                               "which have been originally created in the Comparative ",
+                               "Electronic Manifestos Project please cite additionally. ",
+                               "Please cite additionally", "\n\n",
+                               get_citation("CEMP", kmtype.corpuscitation, apikey = apikey))
+      }
+    } else {
+      cite_message <- paste0(cite_message, "\n\n",
+                             "You're manifestoR cache does not contain any corpus version identification. ",
+                             "Please load a cache, download data or specify the corpus version ",
+                             "manually in mp_cite() to obtain citation information.")
+    }
+    
+    if (length(core_versions) > 0) {
+      cite_message <- paste0(cite_message, "\n\n",
+                             "You are using Manifesto Project Dataset version(s) ",
+                             paste(core_versions, collapse = ", "), ", please cite as \n\n", 
+                             core_versions %>%
+                               sapply(get_citation, type = kmtype.corecitation, apikey = apikey) %>% 
+                               paste(sep = "\n\n"))
+    }
+  }
+
+  message(cite_message)
 }

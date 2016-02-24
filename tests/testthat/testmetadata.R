@@ -111,6 +111,16 @@ test_that("non-standard evaluation for metadata works", {
   
 })
 
+test_that("avialability for country without documents works", {
+
+  avl <- mp_availability(countryname == "Albania")
+  metadata_as_request(subset(mp_maindataset(), countryname == "Albania"),
+                      avl$availability,
+                      expected_names = c("party", "date", "annotations",
+                                         "manifestos", "originals"))
+
+})
+
 # ## get documents based on an old core data set version
 # # TODO This test is currently disabled, until the database formats are fixed
 # # mpdsold <- mp_maindataset("MPPI")

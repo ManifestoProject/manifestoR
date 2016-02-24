@@ -111,7 +111,7 @@ test_that("corpus and document scaling works", {
   mpds <- mp_maindataset()
   mpds.fr <- subset(mpds, countryname == "France")
   
-  corp <- mp_corpus(mpds.fr)
+  corp <- mp_corpus(mp_metadata(mpds.fr) %>% subset(annotations))
 
   scaling_as_expected(corp, rile, "rile")
   scaling_as_expected(corp, logit_rile, "logit_rile")
@@ -129,16 +129,29 @@ test_that("logit_rile scaling works", {
   expect_is(logit_scaled, "numeric")
   expect_false(any(is.na(logit_scaled)))
 
-  corp <- mp_corpus(mpds.fr)
-
+  corp <- mp_corpus(mp_metadata(mpds.fr) %>% subset(annotations))
+  
   scaling_as_expected(corp, logit_rile, "logit_rile")
 
 })
 
+test_that("Rile on Handbook version 5 data works", {
+  
+  mpds <- mp_maindataset()
+  mpds.cr <- subset(mpds, countryname == "Cyprus")
+  
+  corp <- mp_corpus(mp_metadata(mpds.cr) %>% subset(annotations))
+  
+  scaling_as_expected(corp, rile, "rile")
+  scaling_as_expected(corp, logit_rile, "logit_rile")
+})
+
 test_that("scalingname defaults to deparsed function name", {
+  
+  mpds.fr <- subset(mp_maindataset(), countryname == "France")
 
-  corp <- mp_corpus(countryname == "France")
-
+  corp <- mp_corpus(mp_metadata(mpds.fr) %>% subset(annotations))
+  
   scale_corp <- mp_scale(corp, scalingfun = rile)
   expect_true(all(c("party", "date", "rile") %in% names(scale_corp)))
 

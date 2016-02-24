@@ -101,8 +101,8 @@ test_that("versioning is respected in cache", {
 
   mp_load_cache()
   avl_cache <- suppressWarnings(mp_availability(mp_maindataset()))
-  expect_true(sum(avl$availability$annotations) >
-                sum(avl_cache$availability$annotations))
+  expect_true(sum(na.omit(avl$availability$annotations)) >
+                sum(na.omit(avl_cache$availability$annotations)))
 
   ## clean up
   file.remove("mp_cache.RData")
@@ -114,6 +114,18 @@ test_that("check_for_corpus_update works", {
   oldversion <- "20150218100957"
   mp_use_corpus_version(oldversion)
   expect_true(mp_check_for_corpus_update()$update_available)
+  
+})
+
+test_that("list dataset versions in cache works", {
+  
+  mp_maindataset("MPDS2015a") -> mpds2015a
+  mp_maindataset("MPDS2014b") -> mpds2014b
+  
+  in_cache <- mp_which_dataset_versions()
+  expect_equal(length(in_cache), 2)
+  expect_true("MPDS2014b" %in% in_cache)
+  expect_true("MPDS2015a" %in% in_cache)
   
 })
 

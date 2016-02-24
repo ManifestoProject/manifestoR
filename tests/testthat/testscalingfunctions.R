@@ -5,21 +5,16 @@ mpds <- mp_maindataset()
 
 test_that("Vanilla scaling produces no error", {
 
-  westeurope <- filter(mpds, country<70) %>% 
+  allpers <- filter(mpds, country<70) %>% 
     filter(date > 198000) %>%
-    select(1:76,rile)
-
-  allpers <- select(westeurope, starts_with("per")) %>%
-    select(-pervote) %>%
-    select(1:56)
+    select(matches("(^per(\\d{3}|(uncod))$)|(rile)"))
 
   ### vanilla test
 
-  westeurope$vanilla.inv <- vanilla(westeurope, invert=1)
-  westeurope$vanilla <- vanilla(westeurope, invert=0)
+  allpers$vanilla.inv <- vanilla(allpers, invert=1)
+  allpers$vanilla <- vanilla(allpers, invert=0)
 
 })
-
 
 test_that("Franzmann Kaiser scaling produces no error", {
   
@@ -31,7 +26,3 @@ test_that("Franzmann Kaiser scaling produces no error", {
   franzmann(sample,basevalues=TRUE,smoothing=TRUE) # does not work yet  
   
 })
-
-
-
-###

@@ -10,36 +10,47 @@
 #' category percentages and returns scaled positions, e.g. \code{\link{scale_weighted}}.
 #' @param ... further arguments passed on to the scaling function \code{scalingfun},
 #' or \code{\link{count_codes}}
+#' @param recode_v5_to_v4 recode handbook version 5 scheme to version 4 before scaling; this
+#' parameter is only relevant if data is a ManifestoDocument or ManifestoCorpus, but not for 
+#' data.frames with code percentages
+#' @seealso \code{\link{scale}}
 #' @export
 mp_scale <- function(data,
                      scalingfun = rile,
                      scalingname = as.character(substitute(scalingfun)),
+                     recode_v5_to_v4 = (scalingname == "rile"),
                      ...) {
   UseMethod("mp_scale", data)
 }
 
 #' @method mp_scale default
+#' @export
 mp_scale.default <- function(data,
                              scalingfun = rile,
                              scalingname = as.character(substitute(scalingfun)),
+                             recode_v5_to_v4 = (scalingname == "rile"),
                              ...) {
   scalingfun(data, ...)
 }
 
 #' @method mp_scale ManifestoDocument
+#' @export
 mp_scale.ManifestoDocument <- function(data,
         scalingfun = rile,
         scalingname = as.character(substitute(scalingfun)),
+        recode_v5_to_v4 = (scalingname == "rile"),
         ...) {
 
   do.call(document_scaling(scalingfun,
                            returndf = FALSE,
-                           scalingname = scalingname),
+                           scalingname = scalingname,
+                           recode_v5_to_v4),
           list(data, ...))
 
 }
 
 #' @method mp_scale ManifestoCorpus
+#' @export
 mp_scale.ManifestoCorpus <- function(data,
         scalingfun = rile,
         scalingname = as.character(substitute(scalingfun)),
@@ -59,6 +70,11 @@ default_list <- function(the_names, default_val = 0L) {
 
 #' Scaling functions
 #' 
+#' Scaling functions take a data.frame of variables with information about
+#' political parties/text and position the cases on a scale, i.e. output a
+#' vector of values. For applying scaling functions directly to text documents,
+#' refer to \code{\link{mp_scale}}.
+#'
 #' \code{scale_weighted} scales the data as a weighted sum of the variable values
 #' 
 #' @param data A data.frame with cases to be scaled
@@ -71,11 +87,11 @@ default_list <- function(the_names, default_val = 0L) {
 #' \code{scale_weighted} scales the data as a weighted sum of the category percentages
 #' 
 #' @param weights weights of the linear combination in the same order as `vars`.
-#' @seealso mp_scale
+#' @seealso \code{\link{mp_scale}}
 #' @export
 #' @rdname scale
 scale_weighted <- function(data,
-                     vars = grep("per\\d{3}$", names(data), value=TRUE),
+                     vars = grep("per((\\d{3}(_\\d)?)|\\d{4}|(uncod))$", names(data), value=TRUE),
                      weights = 1) {
 
   data <- select(data, one_of(vars[vars %in% names(data)]))
@@ -141,6 +157,18 @@ rep.data.frame <- function(x, times = 1, ...) {
   }
 }
 
+#' Convert NULL to NA
+#' 
+#' @param x element
+#' @return NA if the element is NULL, the element otherwise
+null_to_na <- function(x) {
+  if (is.null(x)) {
+    return(NA)
+  } else {
+    return(x)
+  }
+}
+
 
 #' \code{scale_logit} scales the data on a logit scale as described by Lowe et al. (2011).
 #'
@@ -148,14 +176,14 @@ rep.data.frame <- function(x, times = 1, ...) {
 #' @param neg variable names that should contribute to the denominator ("negatively")
 #' @param N vector of numbers of quasi sentences to convert percentages to counts
 #' @param zero_offset Constant to be added to prevent 0/0 and log(0); defaults to 0.5 (smaller than any possible non-zero count)
-#' (choose 1 if ) data is already in counts
 #' @param ... further parameters passed on to \code{\link{scale_weighted}}
 #' @references Lowe, W., Benoit, K., Mikhaylov, S., & Laver, M. (2011). Scaling Policy Preferences from Coded Political Texts. Legislative Studies Quarterly, 36(1), 123-155. 
 #' @rdname scale
+#' @export
 scale_logit <- function(data, pos, neg, N = data[,"total"], zero_offset = 0.5, ...) {
-  abs.data <- data[,intersect(union(pos, neg), names(data))]*unlist(N)
-  log( (scale_weighted(abs.data, pos) + zero_offset) /
-       (scale_weighted(abs.data, neg) + zero_offset) )
+  abs.data <- data[,intersect(union(pos, neg), names(data))]/100*unlist(N)  ## convert percentages to counts
+  log( (scale_weighted(abs.data, pos, ...) + zero_offset) /
+       (scale_weighted(abs.data, neg, ...) + zero_offset) )
 }
 
 #' \code{scale_bipolar} scales the data by adding up the variable
@@ -179,7 +207,7 @@ scale_bipolar <- function(data, pos, neg, ...) {
 #' @export
 scale_ratio <- function(data, pos, neg, ...) {
    scale_bipolar(data, pos = pos, neg = c(), ...) /
-      scale_bipolar(data, pos = pos, neg = c(), ...)
+      scale_bipolar(data, pos = neg, neg = c(), ...)
 }
 
 #' \code{document_scaling} creates a function applicable to
@@ -191,21 +219,28 @@ scale_ratio <- function(data, pos, neg, ...) {
 #' 
 #' @export
 #' @rdname mp_scale
-document_scaling <- function(scalingfun, returndf = FALSE, scalingname = "scaling", ...) {
+document_scaling <- function(scalingfun,
+                             returndf = FALSE,
+                             scalingname = "scaling",
+                             recode_v5_to_v4 = FALSE,
+                             ...) {
   
   count_codes_loc <- functional::Curry(count_codes, ...)
 
   return(function(x) {
+    
+    if (recode_v5_to_v4) {
+      x <- recode_v5_to_v4(x)
+    }
 
-    df <- data.frame(party=meta(x, "party"), date=meta(x, "date"))
-    df <- bind_cols(df, count_codes_loc(x))
+    df <- count_codes_loc(x)
 
     df[,scalingname] <- scalingfun(df)
 
     if (returndf) {
       return(df)
     } else {
-      return(df[1,scalingname])
+      return(df[[scalingname]][1])
     }
 
   })
@@ -217,15 +252,28 @@ document_scaling <- function(scalingfun, returndf = FALSE, scalingname = "scalin
 #' @export
 #' @rdname mp_scale
 corpus_scaling <- function(scalingfun, scalingname = "scaling", ...) {
-  
+
   doc_scale_loc <- document_scaling(scalingfun, ...)
-  
+
   function(x) {
-    df <- data.frame(party = unlist(lapply(content(x), function(doc) { meta(doc, "party")})),
-                     date = unlist(lapply(content(x), function(doc) { meta(doc, "date")})),
-                     scaling = unlist(lapply(content(x), doc_scale_loc)))
-    names(df)[3] <- scalingname
-    df
+    scalings <- lapply(content(x), doc_scale_loc)
+    
+    has_party_date <- unlist(lapply(scalings, function(scale) {
+      c("party" %in% names(scale), "date" %in% names(scale))
+    }))
+
+    if (all(has_party_date)) {
+      return(bind_rows(scalings))
+    } else {
+      if (any(has_party_date)) {
+        warning("Some scaled documents have party and date and some don't!")
+      }
+      df <- data.frame(party = unlist(lapply(content(x), function(doc) { null_to_na(meta(doc, "party")) })),
+                       date = unlist(lapply(content(x), function(doc) { null_to_na(meta(doc, "date")) })),
+                       scaling = unlist(scalings))
+      names(df)[3] <- scalingname
+      return(df)
+    }
   }
 }
 

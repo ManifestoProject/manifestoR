@@ -1,7 +1,7 @@
 #' Compute bootstrap distributions for scaling functions
 #' 
 #' Bootstrapping of distributions of scaling functions as described by
-#' Benoit, Mikhaylov, and Laver 2009. Given a dataset with percentages of CMP
+#' Benoit, Mikhaylov, and Laver (2009). Given a dataset with percentages of CMP
 #' categories, for each case the distribution of categories is resampled from
 #' a multinomial distribution and the scaling function computed for the resampled
 #' values. Arbitrary statistics of the resulting bootstrap distribution can be
@@ -17,10 +17,11 @@
 #' @param N number of resamples to use for bootstrap distribution
 #' @param ... more arguments passed on to \code{fun}
 #' @references Benoit, K., Laver, M., & Mikhaylov, S. (2009). Treating Words as Data with Error: Uncertainty in Text Statements of Policy Positions. American Journal of Political Science, 53(2), 495-513. http://doi.org/10.1111/j.1540-5907.2009.00383.x
+#' @importFrom stats sd
 #' @export
 mp_bootstrap <- function(data,
                          fun = rile,
-                         col_filter = "per(\\d{3,4}|(uncod))",
+                         col_filter = "per((\\d{3}(_\\d)?)|\\d{4}|(uncod))",
                          statistics = list(sd),
                          N = 1000,
                          ...) {  
@@ -32,7 +33,7 @@ mp_bootstrap <- function(data,
   stat_funs <- statistics
   stat_funs[quantiles] <- lapply(statistics[quantiles],
                                     function(q) {
-                                      functional::Curry(quantile, probs = q)
+                                      functional::Curry(stats::quantile, probs = q)
                                     })
   fun_name <- as.character(substitute(fun))
 
@@ -40,12 +41,13 @@ mp_bootstrap <- function(data,
   bootstrap_row <- function(row) {
 
     total <- row$total
-    row_permute <- select(row, matches(col_filter)) %>% mutate(rowid=1)
-    row_dontpermute <- select(row, -matches(col_filter)) %>% mutate(rowid=1)
+    to_permute <- grepl(col_filter, names(row)) & !is.na(row[1,])
+    row_permute <- row[,to_permute] %>% mutate(rowid=1)
+    row_dontpermute <- row[,!to_permute] %>% mutate(rowid=1)
     bootstrap_distribution <- do.call(
         fun,
         list(right_join(row_dontpermute, by = c("rowid"),
-                       as.data.frame(t(rmultinom(N, total, row_permute[1,])))/total * 100),
+                       as.data.frame(t(stats::rmultinom(N, total, row_permute[1,])))/total * 100),
              ...))
 
     df <- bind_cols(data.frame(do.call(fun, list(row, ...))),

@@ -1,0 +1,20 @@
+1.1-1 (2015-11-12)
+==================
+
+* Correct and extended startup messages
+* Nicheness measures by Meyer & Miller 2013 and Bischof 2015 implemented
+* Corpus documents can now be accessed via their manifesto_id (= party_date) and not only by number
+  * implementation change of tm Source and reader for ManifestoCorpus
+* counting codes reproduces dataset style for handbook version 5: subcategories + aggregated percentages
+* issue attention diversity measure after Greene implemented in issue_attention_diversity
+* More user-friendly error messages in case of incorrect requests (metadata, API key)
+  * fixes among others https://github.com/ManifestoProject/manifestoR/issues/1
+
+1.0-5 (2015-09-14)
+==================
+
+* Dependency increased to dplyr 0.4.3, since 0.4.2 contains a bug affecting manifestoR code
+* Codings are now treated as character vectors to work with handbook version 5 codings
+* Citation information is now requesting the API
+* Several small bugfixes
+
