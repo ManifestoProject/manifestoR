@@ -162,6 +162,34 @@ test_that("scalingname defaults to deparsed function name", {
 
 })
 
+test_that("Vanilla scaling produces no error", {
+  
+  allpers <- filter(mpds, country<70) %>% 
+    filter(date > 198000) %>%
+    select(matches("(^per(\\d{3}|(uncod))$)|(rile)"))
+  
+  ### vanilla test
+  
+  allpers$vanilla.inv <- vanilla(allpers, invert=1)
+  allpers$vanilla <- vanilla(allpers, invert=0)
+  
+})
+
+test_that("Franzmann Kaiser scaling produces no error", {
+  
+  sample <- mpds %>% filter(country==22, date> 198900, date < 200612)
+  
+  fk <- franzmann(sample,basevalues=FALSE,smoothing=FALSE)
+  s <- cbind(sample,fk)
+  
+  
+  franzmann(sample,basevalues=TRUE,smoothing=FALSE)
+  franzmann(sample,basevalues=FALSE,smoothing=TRUE)
+  franzmann(sample,basevalues=TRUE,smoothing=TRUE)
+  
+})
+
+
 test_that("Franzmann Kaiser scaling works", {
   
   fk_scores <- read.csv("../lrfranz.csv", sep = ";") %>%
@@ -175,18 +203,19 @@ test_that("Franzmann Kaiser scaling works", {
   test_scores <- mp_maindataset() %>%
     filter(country==22)
   
-  test_scores$manifestoR_fk <- franzmann(test_scores, basevalues = TRUE, smoothing = TRUE) 
+  test_scores$manifestoR_fk <- franzmann(test_scores, basevalues = TRUE, smoothing = TRUE, use_period_length = FALSE) 
   test_scores <- test_scores %>%
     subset(!is.na(manifestoR_fk)) %>%
     left_join(fk_scores, by = c("party", "edate")) %>%
-    select(one_of("party", "edate", "LR_general", "manifestoR_fk"))
+    select(one_of("party", "edate", "LR_general", "manifestoR_fk")) %>%
+    mutate(diff = abs(LR_general - manifestoR_fk))
   
-  browser()
+  test_scores %>%
+    subset(edate < as.Date("2000-01-01")) %>%
+    summarise(m = max(diff)) %>%
+    unlist() %>%
+    expect_less_than(0.12)
   
-#   qplot(LR_general, manifestoR_fk, data = test_scores) + geom_smooth(method = lm) + facet_grid(. ~ edate)
-
 })
 
-
-## TODO more tests, of other functions
 
