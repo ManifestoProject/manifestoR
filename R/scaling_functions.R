@@ -36,13 +36,13 @@ franzmann <- function(data,
          ungroup()
    }
 
-   data <- mutate(data, year = floor(date/100))
-   
-   weights <- select(data,one_of("country","year")) %>% left_join(fkweights)
-   wweights <- weights %>% ungroup() %>% select(one_of(vars))
-
-   fkscores <- (scale_weighted(data, vars = vars, weights = wweights) /
-                  scale_weighted(data, vars = vars, weights = 1))
+   data %>%
+     mutate(year = floor(date/100)) %>%
+     select(one_of("country","year")) %>%
+     left_join(fkweights) %>%
+     select(one_of(vars)) %>%
+     { scale_weighted(data, vars = vars, weights = .) /
+                  scale_weighted(data, vars = vars, weights = 1) } -> fkscores
    
    if (smoothing) {
       combined <- cbind(data, fkscores)
