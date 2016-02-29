@@ -173,7 +173,7 @@ test_that("Franzmann Kaiser scaling works", {
     select(-one_of("LR_economic", "LR_social"))
     
   test_scores <- mp_maindataset() %>%
-    subset(country == 41)
+    filter(country==22)
   
   test_scores$manifestoR_fk <- franzmann(test_scores, basevalues = TRUE, smoothing = TRUE) 
   test_scores <- test_scores %>%
@@ -181,7 +181,9 @@ test_that("Franzmann Kaiser scaling works", {
     left_join(fk_scores, by = c("party", "edate")) %>%
     select(one_of("party", "edate", "LR_general", "manifestoR_fk"))
   
-#   qplot(LR_general, manifestoR_fk, data = test_scores) + geom_smooth(method = lm)
+  browser()
+  
+#   qplot(LR_general, manifestoR_fk, data = test_scores) + geom_smooth(method = lm) + facet_grid(. ~ edate)
 
 })
 

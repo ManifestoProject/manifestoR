@@ -1,17 +1,27 @@
 #' Left-Right Scores based on Franzmann & Kaiser Method
 #' 
-#' Computes scores based on the Franzmann & Kaiser Method (see article..) 
-#' issue structures are not calculated from scratch but taken as given from f&k
+#' Computes left-right scores based on the Franzmann & Kaiser Method (see
+#' reference below). The issue structures are not calculated from scratch but
+#' taken as given from Franzmann 2009. Note that they are not available for the
+#' entire Manifesto Project Dataset, but only a subset of countries and elections.
+#' 
 #'
-#' @param data a dataframe or matrix
+#' @param data A data.frame with cases to be scaled, variables named "per..."
 #' @param basevalues flag for transforming data to be relative to the minimum
 #' @param smoothing flag for using smoothing
+#' @param fkweights alternative set of weights to use Franzmann & Kaiser method
+#' @references Franzmann, Simon/ Kaiser, André (2006): Locating Political Parties in Policy Space. A Reanalysis of Party Manifesto Data, Party Politics, 12:2, 163-188
+#' @references Franzmann, Simon (2009): The Change of Ideology: How the Left-Right Cleavage transforms into Issue Competition. An Analysis of Party Systems using Party Manifesto Data. PhD Thesis. Cologne.
 #' @export
 franzmann <- function(data,
                       basevalues = TRUE,
-                      smoothing = TRUE) {
+                      smoothing = TRUE,
+                      vars = grep("per\\d{3}$", names(data), value = TRUE),
+                      fkweights = read.csv(
+                        system.file("extdata", "fkweights.csv", package = "manifestoR"),
+                        sep=",")) {
    
-   vars <- grep("per\\d{3}$", names(data), value = TRUE)
+   
 
    if(!("country" %in% names(data)) & ("party" %in% names(data))) {
      data <- mutate(data, country = as.integer(substr(party, 1, 2)))
@@ -27,38 +37,33 @@ franzmann <- function(data,
    }
 
    data <- mutate(data, year = floor(date/100))
-   fkweights <- read.csv(
-     system.file("extdata", "fkweights.csv", package = "manifestoR"),
-     sep=",") ## fkweights are in the same structure as the main dataset with var-weights having the same variable names as vars
    
    weights <- select(data,one_of("country","year")) %>% left_join(fkweights)
    wweights <- weights %>% ungroup() %>% select(one_of(vars))
 
-   ## don't know why that works / I do not fully understand how the weighting matrix is used in the scale_weighted function, but it outputs something 
    fkscores <- (scale_weighted(data, vars = vars, weights = wweights) /
                   scale_weighted(data, vars = vars, weights = 1))
    
    if (smoothing) {
       combined <- cbind(data, fkscores)
-      fkscores <- smooth_scores(data = combined, score = "fkscores")
+      fkscores <- fk_smoothing(data = combined, score_name = "fkscores")
    }
    
-   return(fkscores)
+   return( (fkscores + 1)*5 )
 
 }
 
-smooth_scores <- function(data, score) {
-   
-   ## smoothing procedure
-   # smoothed score p_smoothed(t) = [ w(t-1)*p(t-1) + w(t)*p(t) + (w+1)*p(t+1) ] / 3
-   # w(t) = leglen(t) / [leglen(t-1) + leglen(t) + leglen(t+1)]/3
-   # leglen is the length of the electoral period in days
-
-      # how to deal with "holes" (if party drops out of parliament and then enters later, sorting by party date, does not reflect this...)
+#' @export
+#' @rdname franzmann
+#' @param score_name name of variable with LR Score values to be smoothed
+#' @param use_period_length whether to use electoral period length in weighting
+fk_smoothing <- function(data, score_name, use_period_length = TRUE) {
+  
+   # how to deal with "holes" (if party drops out of parliament and then enters later, sorting by party date, does not reflect this...)
 
    ## check if score is in data
-   if (!score %in% names(data)) {
-      stop("score not found in data")   
+   if (!score_name %in% names(data)) {
+      stop("score name not found in data")   
    }
    
    if (!"party" %in% names(data)) {
@@ -70,22 +75,25 @@ smooth_scores <- function(data, score) {
    if (!("Date" %in% class(data$edate))) {
       stop("variable date is not a date")
    }
-
-   data[,"festername"] <- data[,score]
+  
+   data[,"the_score"] <- data[,score_name]
    data$n <- c(1:nrow(data))
    smoothed <- data %>% 
       group_by(party) %>% 
-      select(one_of("country","edate","festername","n")) %>% 
+      select(one_of("country","edate","the_score","n")) %>% 
       arrange(edate) %>%
       mutate(
          leadedate = lead(edate),
          leglength = as.numeric(difftime(leadedate, edate, units="days")),
          w = leglength/((lag(leglength) + leglength + lead(leglength)/3)),
-         p_lag = lag(festername), 
-         p = festername ,
-         p_lead = lead(festername),
-         smooth=(lag(w)*p_lag + w*p + lead(w)*p_lead)/3) %>%
-      ungroup() %>% arrange(n)
+         p_lag = lag(the_score),
+         p = the_score ,
+         p_lead = lead(the_score),
+         smooth = ifelse(rep(use_period_length, n()),
+                         (lag(w)*p_lag + w*p + lead(w)*p_lead)/3,
+                         (lead(the_score) + the_score + lag(the_score))/3)) %>%
+      ungroup() %>%
+      arrange(n)
   
    return(smoothed$smooth)
 }
@@ -98,7 +106,7 @@ smooth_scores <- function(data, score) {
 #'
 #' @references Gabel, M. J., & Huber, J. D. (2000). Putting Parties in Their Place: Inferring Party Left-Right Ideological Positions from Party Manifestos Data. American Journal of Political Science, 44(1), 94-103.
 #'
-#' @param data a dataframe or matrix
+#' @param data A data.frame with cases to be scaled, variables named "per..."
 #' @param vars variable names that should be used for the scaling (usually the variables per101,per102,...)
 #' @param invert invert scores (to change the direction of the dimension to facilitate comparison with other indices) (default is FALSE)
 #' @export
