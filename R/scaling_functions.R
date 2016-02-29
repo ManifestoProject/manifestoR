@@ -76,6 +76,9 @@ fk_smoothing <- function(data, score_name, use_period_length = TRUE) {
       stop("variable date is not a date")
    }
   
+  lagl <- function(x) { dplyr::lag(x, default = first(x)) }
+  leadl <- function(x) { dplyr::lead(x, default = last(x)) }
+  
    data[,"the_score"] <- data[,score_name]
    data$n <- c(1:nrow(data))
    smoothed <- data %>% 
@@ -85,13 +88,13 @@ fk_smoothing <- function(data, score_name, use_period_length = TRUE) {
       mutate(
          leadedate = lead(edate),
          leglength = as.numeric(difftime(leadedate, edate, units="days")),
-         w = leglength/((lag(leglength) + leglength + lead(leglength)/3)),
-         p_lag = lag(the_score),
+         w = leglength/((lagl(leglength) + leglength + leadl(leglength)/3)),
+         p_lag = lagl(the_score),
          p = the_score ,
-         p_lead = lead(the_score),
+         p_lead = leadl(the_score),
          smooth = ifelse(rep(use_period_length, n()),
-                         (lag(w)*p_lag + w*p + lead(w)*p_lead)/3,
-                         (lead(the_score) + the_score + lag(the_score))/3)) %>%
+                         (lagl(w)*p_lag + w*p + leadl(w)*p_lead)/3,
+                         (leadl(the_score) + the_score + lagl(the_score))/3)) %>%
       ungroup() %>%
       arrange(n)
   
