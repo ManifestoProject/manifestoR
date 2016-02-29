@@ -10,6 +10,7 @@
 #' @param basevalues flag for transforming data to be relative to the minimum
 #' @param smoothing flag for using smoothing
 #' @param fkweights alternative set of weights to use Franzmann & Kaiser method
+#' @param ... passed on to fk_smoothing
 #' @references Franzmann, Simon/ Kaiser, André (2006): Locating Political Parties in Policy Space. A Reanalysis of Party Manifesto Data, Party Politics, 12:2, 163-188
 #' @references Franzmann, Simon (2009): The Change of Ideology: How the Left-Right Cleavage transforms into Issue Competition. An Analysis of Party Systems using Party Manifesto Data. PhD Thesis. Cologne.
 #' @export
@@ -19,7 +20,8 @@ franzmann <- function(data,
                       vars = grep("per\\d{3}$", names(data), value = TRUE),
                       fkweights = read.csv(
                         system.file("extdata", "fkweights.csv", package = "manifestoR"),
-                        sep=",")) {
+                        sep=","),
+                      ...) {
    
    
 
@@ -46,7 +48,7 @@ franzmann <- function(data,
    
    if (smoothing) {
       combined <- cbind(data, fkscores)
-      fkscores <- fk_smoothing(data = combined, score_name = "fkscores")
+      fkscores <- fk_smoothing(data = combined, score_name = "fkscores", ...)
    }
    
    return( (fkscores + 1)*5 )
@@ -88,12 +90,12 @@ fk_smoothing <- function(data, score_name, use_period_length = TRUE) {
       mutate(
          leadedate = lead(edate),
          leglength = as.numeric(difftime(leadedate, edate, units="days")),
-         w = leglength/((lagl(leglength) + leglength + leadl(leglength)/3)),
+         w = leglength/(lagl(leglength) + leglength + leadl(leglength)),
          p_lag = lagl(the_score),
          p = the_score ,
          p_lead = leadl(the_score),
          smooth = ifelse(rep(use_period_length, n()),
-                         (lagl(w)*p_lag + w*p + leadl(w)*p_lead)/3,
+                         (lagl(w)*p_lag + w*p + leadl(w)*p_lead),
                          (leadl(the_score) + the_score + lagl(the_score))/3)) %>%
       ungroup() %>%
       arrange(n)
