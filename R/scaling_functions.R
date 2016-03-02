@@ -3,13 +3,15 @@
 #' Computes left-right scores based on the Franzmann & Kaiser Method (see
 #' reference below). The issue structures are not calculated from scratch but
 #' taken as given from Franzmann 2009. Note that they are not available for the
-#' entire Manifesto Project Dataset, but only a subset of countries and elections.
+#' entire Manifesto Project Dataset, but only for a subset of countries and elections.
 #' 
 #'
 #' @param data A data.frame with cases to be scaled, variables named "per..."
 #' @param basevalues flag for transforming data to be relative to the minimum
 #' @param smoothing flag for using smoothing
-#' @param issue_structure alternative set of weights to use Franzmann & Kaiser method
+#' @param issue_structure issue structure to use for Franzmann & Kaiser method, default to original replication values
+#' @param party_system_split function to recode the country variable to re-partition
+#' party systems. Defaults to splitting Belgium into two halfs as done in Franzmann 2009
 #' @param ... passed on to fk_smoothing
 #' @references Franzmann, Simon/ Kaiser, André (2006): Locating Political Parties in Policy Space. A Reanalysis of Party Manifesto Data, Party Politics, 12:2, 163-188
 #' @references Franzmann, Simon (2009): The Change of Ideology: How the Left-Right Cleavage transforms into Issue Competition. An Analysis of Party Systems using Party Manifesto Data. PhD Thesis. Cologne.
@@ -19,8 +21,7 @@ franzmann <- function(data,
                       smoothing = TRUE,
                       vars = grep("per\\d{3}$", names(data), value = TRUE),
                       issue_structure = read_fk_issue_structure(),
-                      wallonia_parties = c(21111, 21322, 21422, 21423, 21425, 21426, 21522, 21911, 21912),
-                      flanders_parties = c(21112, 21221, 21320, 21321, 21330, 21420, 21421, 21424, 21430, 21520, 21521, 21913, 21914, 21915, 21916, 21917),
+                      party_system_split = split_belgium,
                       ...) {
    
    
@@ -38,12 +39,8 @@ franzmann <- function(data,
          ungroup()
    }
   
-  if (21 %in% data$country & !is.null(wallonia_parties) & !is.null(flanders_parties)) {
-    data <- data %>%
-      mutate(country = ifelse(country == 21,
-                              ifelse(party %in% wallonia_parties, 219,
-                              ifelse(party %in% flanders_parties, 218, country)),
-                              country))
+  if (!is.null(party_system_split) & is.function(party_system_split)) {
+    data <- party_system_split(data)
   }
 
    data %>%
@@ -71,6 +68,25 @@ read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_stru
     { set_names(., gsub("e(\\d+)_structure", "per\\1", names(.))) } %>%
     select(-countryname)
 
+}
+
+#' Split Belgium party system into two
+#' 
+#' recodes the country variable of a dataset to 218 (Flanders parties)
+#' and 219 (Wallonia parties) from 21 for Belgium
+#' 
+#' @param data data.frame in format of the Manifesto Project's Main Dataset
+#' @param wallonia_parties Party codes for the Wallonia half
+#' @param flanders_parties Party codes for the Flanders half
+#' @export
+split_belgium <- function(data,
+                          wallonia_parties = c(21111, 21322, 21422, 21423, 21425, 21426, 21522, 21911, 21912),
+                          flanders_parties = c(21112, 21221, 21320, 21321, 21330, 21420, 21421, 21424, 21430, 21520, 21521, 21913, 21914, 21915, 21916, 21917)) {
+  data %>%
+    mutate(country = ifelse(country == 21,
+                            ifelse(party %in% wallonia_parties, 219,
+                                   ifelse(party %in% flanders_parties, 218, country)),
+                            country))
 }
 
 #' @export
