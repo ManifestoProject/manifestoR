@@ -9,7 +9,7 @@
 #' @param data A data.frame with cases to be scaled, variables named "per..."
 #' @param basevalues flag for transforming data to be relative to the minimum
 #' @param smoothing flag for using smoothing
-#' @param fkweights alternative set of weights to use Franzmann & Kaiser method
+#' @param issue_structure alternative set of weights to use Franzmann & Kaiser method
 #' @param ... passed on to fk_smoothing
 #' @references Franzmann, Simon/ Kaiser, André (2006): Locating Political Parties in Policy Space. A Reanalysis of Party Manifesto Data, Party Politics, 12:2, 163-188
 #' @references Franzmann, Simon (2009): The Change of Ideology: How the Left-Right Cleavage transforms into Issue Competition. An Analysis of Party Systems using Party Manifesto Data. PhD Thesis. Cologne.
@@ -18,9 +18,9 @@ franzmann <- function(data,
                       basevalues = TRUE,
                       smoothing = TRUE,
                       vars = grep("per\\d{3}$", names(data), value = TRUE),
-                      fkweights = read.csv(
-                        system.file("extdata", "fkweights.csv", package = "manifestoR"),
-                        sep=","),
+                      issue_structure = read_fk_issue_structure(),
+                      wallonia_parties = c(21111, 21322, 21422, 21423, 21425, 21426, 21522, 21911, 21912),
+                      flanders_parties = c(21112, 21221, 21320, 21321, 21330, 21420, 21421, 21424, 21430, 21520, 21521, 21913, 21914, 21915, 21916, 21917),
                       ...) {
    
    
@@ -32,16 +32,23 @@ franzmann <- function(data,
    if (basevalues) {
       ## calculates positional scores = saliency scores - base value // pos scores = (x - min(x)) where x is saliency score
       data <- data %>%
-         group_by(country, date) %>%
+         group_by(country, edate) %>%
          #select(one_of(vars)) %>%
          mutate_each_(funs(base=.-min(., na.rm=TRUE)), vars) %>%
          ungroup()
    }
+  
+  if (21 %in% data$country & !is.null(wallonia_parties) & !is.null(flanders_parties)) {
+    data <- data %>%
+      mutate(country = ifelse(country == 21,
+                              ifelse(party %in% wallonia_parties, 219,
+                              ifelse(party %in% flanders_parties, 218, country)),
+                              country))
+  }
 
    data %>%
-     mutate(year = floor(date/100)) %>%
-     select(one_of("country","year")) %>%
-     left_join(fkweights) %>%
+     select(one_of("country", "edate")) %>%
+     left_join(issue_structure) %>%
      select(one_of(vars)) %>%
      { scale_weighted(data, vars = vars, weights = .) /
                   scale_weighted(data, vars = vars, weights = 1) } -> fkscores
@@ -52,6 +59,17 @@ franzmann <- function(data,
    }
    
    return( (fkscores + 1)*5 )
+
+}
+
+read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_structure.sav", package = "manifestoR")) {
+  require(haven)
+  path %>%
+    read_sav() %>%
+    mutate(edate = as.Date(edate/(24*60*60), origin = "1582-10-14"),
+           country = as.numeric(country)) %>%
+    { set_names(., gsub("e(\\d+)_structure", "per\\1", names(.))) } %>%
+    select(-countryname)
 
 }
 
