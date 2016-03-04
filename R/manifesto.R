@@ -515,7 +515,7 @@ mp_cite <- function(corpus_version = mp_which_corpus_version(),
                              paste(core_versions, collapse = ", "), ", please cite as \n\n", 
                              core_versions %>%
                                sapply(get_citation, type = kmtype.corecitation, apikey = apikey) %>% 
-                               paste(sep = "\n\n"))
+                               paste(collapse = "\n\n"))
     }
   }
 
