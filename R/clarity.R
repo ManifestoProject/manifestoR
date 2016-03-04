@@ -89,45 +89,27 @@ mp_clarity <- function(data,
         .
       }
     }
-
-  for (i in 1:length(dimensions)) {
-    data <- data %>%
-      mutate_(.dots = setNames(paste0(c(dimensions[[i]]$pole_1, 
-                                        dimensions[[i]]$pole_2) %>% 
-                                        paste0(collapse = " + ")), 
-                               paste0("sal_dim_", i))) %>%
-      mutate_(.dots = setNames(paste0("(",  
-                                      dimensions[[i]]$pole_1 %>% 
-                                        paste0(collapse = "+"),
-                                      "-", 
-                                      dimensions[[i]]$pole_2 %>%
-                                        paste0(collapse = "+"), 
-                                      ")"), 
-                               paste0("score_dim_", i))) %>%
-     {
-        if (weighting_kind == "country") {
-          mutate_(., 
-                  .dots = setNames(
-                    paste0("abs(score_dim_", i, ") / (sal_dim_", i, ")", 
-                           "* sum(", weighting_source, " * sal_dim_", i, ")"), 
-                    paste0("score_dim_", i)))
-        } else {
-          mutate_(., 
-                  .dots = setNames(
-                    paste0("abs(score_dim_", i, ") / (sal_dim_", i, ")", 
-                           "* sal_dim_", i), 
-                    paste0("score_dim_", i)))
-        }
-     }
-  }
   
-  data <- data %>%
-    mutate_each(funs(replace(., is.na(.), 0)), matches("^score_")) %>%
-    mutate_(.dots = setNames(
-              seq(1:length(dimensions)) %>% 
-                paste0("score_dim_", .) %>%
-                paste0(collapse = " + "), 
-              "pc"))
+  dimensions %>%
+    lapply(function(dimension) {
+      
+      score_dim <- abs(scale_bipolar(data,
+                                     pos = dimension$pole_1,
+                                     neg = dimension$pole_2))
+      
+      if (weighting_kind == "country") {
+        
+        sal_dim <- scale_weighted(data, unlist(dimension), weights = 1)
+        
+        return(score_dim/sal_dim * sum(data[,weighting_source] * sal_dim))
+        
+      } else {
+        
+        return(score_dim)
+        
+      }
+    }) %>%
+    as.data.frame() %>%
+    rowSums(na.rm = TRUE)
 
-  return(data$pc)
 }
