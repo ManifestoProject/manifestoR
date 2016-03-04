@@ -138,6 +138,7 @@ test_that("South America dataset can be downloaded", {
        mp_southamerica_dataset()) %>% lapply(function(mpdssa) {
   
     expect_true("candidatename" %in% names(mpdssa))
+    expect_false(all(is.na(mpdssa$candidatename)))
     expect_true(all(c("Chile", "Argentina", "Brazil") %in% mpdssa$countryname))
     expect_false("Germany" %in% mpdssa$countryname)
   })
