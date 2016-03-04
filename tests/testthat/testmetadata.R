@@ -103,6 +103,10 @@ test_that("non-standard evaluation for metadata works", {
   metadata_as_request(subset(mp_maindataset(), party == 64901),
                       nse_meta)
   
+  year_meta <- mp_metadata(year == 2001, cache = FALSE)
+  metadata_as_request(subset(mp_maindataset(), date > 200100 & date < 200200),
+                      year_meta)
+  
   nse_avl <- mp_availability(party == 61620, cache = FALSE)
   metadata_as_request(subset(mp_maindataset(), party == 61620),
                       nse_avl$availability,
