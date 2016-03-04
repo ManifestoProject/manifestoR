@@ -1,5 +1,12 @@
 mp_setapikey("../manifesto_apikey.txt")
 
+contains_factors <- function(mpds) {
+  mpds %>%
+    lapply(class) %>%
+    equals("factor") %>%
+    any()
+}
+
 test_that("main data set is formatted correctly", {
   
   mpds <- mp_maindataset()
@@ -8,6 +15,9 @@ test_that("main data set is formatted correctly", {
   expect_true(all(c("country", "countryname",
                     "date", "edate",
                     "party", "per101", "rile") %in% names(mpds)))
+  
+  expect_false(mpds %>%
+                 contains_factors())
   
 })
 
