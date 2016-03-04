@@ -182,7 +182,9 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
 
 
 ## ids must be quoted for this function
-as.metaids <- function(ids, apikey=NULL, cache=TRUE, envir = parent.frame(n = 2), attach_meta = TRUE) {
+as.metaids <- function(ids, apikey=NULL, cache=TRUE, envir = parent.frame(n = 2),
+                       attach_meta = TRUE,
+                       include_southamerica = TRUE) {
 
   ## non standard evaluation handling
   ## two frames up is where the user was, as.metaids is not exported
@@ -195,6 +197,7 @@ as.metaids <- function(ids, apikey=NULL, cache=TRUE, envir = parent.frame(n = 2)
   } else {
     
     search_data <- mp_maindataset(apikey = apikey, cache = cache) %>%
+      iff(include_southamerica, bind_rows, mp_southamerica_dataset(apikey = apikey, cache = cache)) %>%
       attach_year()
     
     ids <- search_data[eval(ids, envir = search_data,
