@@ -125,14 +125,7 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
 
   ## non standard evaluation handling
   ## one frame up is where the user was if we did not get a data.frame
-
-  id_is_df <- tryCatch(is.data.frame(ids), error = function(e) { FALSE } )
-  
-  if (!id_is_df) {
-    ids <- mp_maindataset()[eval(substitute(ids),
-                                 envir = mp_maindataset(),
-                                 enclos = parent.frame()),]
-  }
+  ids <- as.metaids(substitute(ids), apikey = apikey, cache = cache, envir = parent.frame(), attach_meta = FALSE)
 
   # convert ids to parameter list for the api call
   ids <- formatids(ids)  
@@ -169,22 +162,24 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
   
 }
 
+
+
 ## ids must be quoted for this function
-as.metaids <- function(ids, apikey=NULL, cache=TRUE) {
+as.metaids <- function(ids, apikey=NULL, cache=TRUE, envir = parent.frame(n = 2), attach_meta = TRUE) {
 
   ## non standard evaluation handling
   ## two frames up is where the user was, as.metaids is not exported
   
-  id_is_df <- tryCatch(is.data.frame(eval(ids, envir = parent.frame(n = 2))), error = function(e) { FALSE } )
+  id_is_df <- tryCatch(is.data.frame(eval(ids, envir = envir)), error = function(e) { FALSE } )
 
   if (id_is_df) {
-    ids <- eval(ids, envir = parent.frame(n = 2))
+    ids <- eval(ids, envir = envir)
   } else {
     ids <- mp_maindataset()[eval(ids, envir = mp_maindataset(),
-                                 enclos = parent.frame(n = 2)),]
+                                 enclos = envir),]
   } 
 
-  if ( !("ManifestoMetadata" %in% class(ids)) ) {
+  if (attach_meta && !("ManifestoMetadata" %in% class(ids))) {
     ids <- mp_metadata(ids, apikey=apikey, cache=cache)
   }
 
@@ -229,17 +224,11 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
   
   columns <- c("party", "date", "language", "annotations")
   
-  metadata <- suppressWarnings(as.metaids(substitute(ids), apikey=apikey, cache=cache))
+  metadata <- suppressWarnings(as.metaids(substitute(ids),
+                                          apikey=apikey,
+                                          cache=cache,
+                                          envir = parent.frame()))
   
-  ## handler for non standard evaluation: convert ids to subset of maindataset
-  ## one frame up is where the user was if we did not get a data.frame
-  id_is_df <- tryCatch(is.data.frame(ids), error = function(e) { FALSE } )
-  if (!id_is_df) {
-    ids <- mp_maindataset()[eval(substitute(ids),
-                                 envir = mp_maindataset(),
-                                 enclos = parent.frame()),]
-  }
-
   if (!("language" %in% names(metadata))) {
     metadata <- mutate(metadata, language = NA)
   }
@@ -255,7 +244,7 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
   availability$originals <- !is.naorstringna(metadata$url_original)
 
   availability <-
-      ids %>%
+      metadata %>%
         select(one_of("party", "date")) %>%
         anti_join(availability, by = c("party", "date")) %>%
         mutate(manifestos = FALSE,
@@ -264,7 +253,7 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
                language = NA) %>%
         bind_rows(availability)
 
-  availability <- list(query=ids, date=date(), availability=availability)
+  availability <- list(query=metadata, date=date(), availability=availability)
   class(availability) <- c("ManifestoAvailability", class(availability))
   return(availability)
 }
@@ -373,7 +362,7 @@ mp_corpus <- function(ids,
                       codefilter = NULL,
                       codefilter_layer = "cmp_code") {
 
-  ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache)
+  ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache, envir = parent.frame())
 
   if (nrow(ids) > 0) {
     ids <- base::subset(ids, !is.naorstringna(manifesto_id) &
@@ -437,7 +426,7 @@ is.nacode <- function(x) {
 #' @export
 mp_view_originals <- function(ids, maxn = 5, apikey = NULL, cache = TRUE) {
   
-  ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache)
+  ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache, envir = parent.frame())
   ids <- subset(ids, !is.na(url_original))
   
   if (nrow(ids) > maxn) {
