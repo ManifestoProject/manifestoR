@@ -41,7 +41,7 @@ mp_rmps <- function(data) {
 #' @param weighting_source name of variable with party importance weighting (can be rmps, pervote)
 #' @param auto_rescale_weight rescale weights to 0-1
 #' @param auto_rescale_variables rescale dimension variables to 0-1
-#' @param dimensions dimensions to be used
+#' @param dimensions dimensions to be used, must be in the format of the return value of \code{\link{clarity_dimensions}}
 #' @return a vector of clarity values
 #' @export
 mp_clarity <- function(data,
@@ -49,7 +49,7 @@ mp_clarity <- function(data,
                        weighting_source = NULL,
                        auto_rescale_weight = TRUE,
                        auto_rescale_variables = TRUE,
-                       dimensions) {
+                       dimensions = clarity_dimensions()) {
   
   # check validity of weighting value or make weigthing to be true/false dummies
   if (!(weighting_kind %in% c("party", "country"))) {
