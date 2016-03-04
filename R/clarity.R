@@ -1,44 +1,3 @@
-#' Default programmatic clarity dimensions from 
-#' Giebler/Lacewell/Regel/Werner 2015.
-#'
-#' @references Giebler/Lacewell/Regel/Werner (2015). Mass, Catch-all, or 
-#' Programmatic? Toward an Empirical Classification of Party Types. Manuscript.
-#'
-#' @export
-clarity_dimensions <- function() {
-  list(
-    "fsp" = list(pole_1 = c(101), pole_2 = c(102)),
-    "mil" = list(pole_1 = c(104), pole_2 = c(105)),
-    "int" = list(pole_1 = c(107), pole_2 = c(109)),
-    "eui" = list(pole_1 = c(108), pole_2 = c(110)),
-    "con" = list(pole_1 = c(203), pole_2 = c(204)),
-    "cen" = list(pole_1 = c(301), pole_2 = c(302)),
-    "mre" = list(pole_1 = c(401), pole_2 = c(403)),
-    "pro" = list(pole_1 = c(406), pole_2 = c(407)),
-    "fis" = list(pole_1 = c(409), pole_2 = c(414)),
-    "wel" = list(pole_1 = c(504), pole_2 = c(505)),
-    "edu" = list(pole_1 = c(506), pole_2 = c(507)),
-    "nwl" = list(pole_1 = c(601), pole_2 = c(602)),
-    "tmo" = list(pole_1 = c(603), pole_2 = c(604)),
-    "mul" = list(pole_1 = c(607), pole_2 = c(608)),
-    "lab" = list(pole_1 = c(701), pole_2 = c(702))
-  )
-}
-
-#' Prefix dimensions
-#'
-#' @param dimensions a dimensions object (named list with pole_1, pole_2)
-#' @param prefix a string prefix to use for all the values in pole_1, pole_2
-#'
-#' @export
-prefix_dimensions <- function(dimensions, prefix) {
-  return(dimensions %>%
-    lapply(function(x) { 
-      list(pole_1 = paste0(prefix, x$pole_1), pole_2 = paste0(prefix, x$pole_2))
-    })
-  )
-}
-
 #' Relative measure of party size (RMPS)
 #' 
 #' Computes the relative measure of party size as suggested by 
@@ -79,7 +38,7 @@ mp_rmps <- function(data) {
 #' 
 #' @param data a dataframe or matrix in format of Manifesto Project Main Dataset
 #' @param weighting_kind party or country-specific weighting of the dimensions
-#' @param weighting_source party importance weighting (can be rmps, pervote)
+#' @param weighting_source name of variable with party importance weighting (can be rmps, pervote)
 #' @param auto_rescale_weight rescale weights to 0-1
 #' @param auto_rescale_variables rescale dimension variables to 0-1
 #' @param dimensions dimensions to be used

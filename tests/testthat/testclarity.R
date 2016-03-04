@@ -40,7 +40,7 @@ test_that("Programmatic clarity works and produces correct results", {
       "dim1" = list(pole_1 = c("issue1", "issue2"), pole_2 = c("issue3")),
       "dim2" = list(pole_1 = c("issue4"), pole_2 = c("issue5"))
     )
-
+  
   fake_data %>%
     mutate(rmps = mp_rmps(pervote)) %>%
     mp_clarity(weighting_kind = "country", 
@@ -63,8 +63,7 @@ test_that("Programmatic clarity works and produces correct results", {
     mutate(., pc2 = mp_clarity(., 
                                 weighting_kind = "country", 
                                 weighting_source = "rmps",
-                                dimensions = clarity_dimensions() %>%
-                                  prefix_dimensions("per"))) %>%
+                                dimensions = clarity_dimensions())) %>%
     { expect_equal(.$pc2, .$pc, tolerance = 0.01) }
 
   expect_error(
