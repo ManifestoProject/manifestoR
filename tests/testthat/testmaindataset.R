@@ -18,6 +18,8 @@ test_that("main data set is formatted correctly", {
   
   expect_false(mpds %>%
                  contains_factors())
+  expect_false(mp_southamerica_dataset() %>%
+                 contains_factors())
   
 })
 
