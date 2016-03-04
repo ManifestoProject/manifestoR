@@ -132,3 +132,18 @@ test_that("median voter works on main data set", {
   
 })
 
+test_that("South America dataset can be downloaded", {
+  
+  list(mp_maindataset(south_america = TRUE),
+       mp_southamerica_dataset()) %>% lapply(function(mpdssa) {
+  
+    expect_true("candidatename" %in% names(mpdssa))
+    expect_true(all(c("Chile", "Argentina", "Brazil") %in% mpdssa$countryname))
+    expect_false("Germany" %in% mpdssa$countryname)
+  })
+  
+  expect_warning(mp_southamerica_dataset(version = "MPDS2012a"))
+  
+  
+})
+

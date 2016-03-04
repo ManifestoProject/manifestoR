@@ -2,11 +2,16 @@
 #' 
 #' Gets the Manifesto Project's Main Dataset from the project's web API or
 #' the local cache, if it was already downloaded before.
+#' 
+#' \code{mp_southamerica_dataset} is a shorthand for getting the Manifesto
+#' Project's South America Dataset (it is equivalent to 
+#' \code{mp_maindataset(..., south_america = TRUE)}).
 #'
 #' @param version Specify the version of the dataset you want to access. Use
 #'                "current" to obtain the most recent, or use
 #'                \code{\link{mp_coreversions}} for a list of available
 #'                versions.
+#' @param south_america flag whether to download corresponding South America dataset instead of Main Dataset
 #' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
 #'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
@@ -22,11 +27,19 @@
 #' median(subset(mpds, countryname == "Switzerland")$rile, na.rm = TRUE)
 #' }
 #' @export
-mp_maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
+mp_maindataset <- function(version="current", south_america = FALSE, apikey=NULL, cache=TRUE) {
   
   if (version == "current") {
     versions <- mp_coreversions(apikey=apikey, cache=cache)
     version <- as.character(versions[nrow(versions), "datasets.id"]) # TODO date in dataset
+  }
+  
+  if (south_america) {
+    if (as.numeric(gsub(".*?(\\d+).*", "\\1", version)) < 2015) {
+      warning("No south america dataset available before 2015!")
+      return(tbl_df(data.frame()))
+    }
+    version <- gsub("MPDS", "MPDSSA", version)
   }
   
   parameters <- list(key=version)
@@ -37,6 +50,10 @@ mp_maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
   return(tbl_df(mpds))
   
 }
+
+#' @rdname mp_maindataset
+#' @export
+mp_southamerica_dataset <- functional::Curry(mp_maindataset, south_america = TRUE)
 
 
 #' List the available versions of the Manifesto Project's Main Dataset
@@ -171,11 +188,16 @@ as.metaids <- function(ids, apikey=NULL, cache=TRUE, envir = parent.frame(n = 2)
   ## two frames up is where the user was, as.metaids is not exported
   
   id_is_df <- tryCatch(is.data.frame(eval(ids, envir = envir)), error = function(e) { FALSE } )
+  
 
   if (id_is_df) {
     ids <- eval(ids, envir = envir)
   } else {
-    ids <- mp_maindataset()[eval(ids, envir = mp_maindataset(),
+    
+    search_data <- mp_maindataset(apikey = apikey, cache = cache) %>%
+      attach_year()
+    
+    ids <- search_data[eval(ids, envir = search_data,
                                  enclos = envir),]
   } 
 
