@@ -205,6 +205,7 @@ as.metaids <- function(ids, apikey=NULL, cache=TRUE, envir = parent.frame(n = 2)
   } 
 
   if (attach_meta && !("ManifestoMetadata" %in% class(ids))) {
+    ## TODO fix south america disappearance here
     ids <- mp_metadata(ids, apikey=apikey, cache=cache)
   }
 
@@ -234,8 +235,8 @@ is.naorstringna <- function(v) {
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
 #' @return an object of class \code{\link{ManifestoAvailability}}
-#'         containing availability information. Accessing \code{$availability}
-#'         on it gives a \code{data.frame} with detailed availability information
+#'         containing availability information. Can be treated as a
+#'         \code{data.frame} and contains detailed availability information
 #'         per document
 #' @examples
 #' \dontrun{
@@ -253,7 +254,7 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
                                           apikey=apikey,
                                           cache=cache,
                                           envir = parent.frame()))
-  
+
   if (!("language" %in% names(metadata))) {
     metadata <- mutate(metadata, language = NA)
   }
@@ -278,7 +279,11 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
                language = NA) %>%
         bind_rows(availability)
 
-  availability <- list(query=metadata, date=date(), availability=availability)
+  
+  attr(availability, "query") <- metadata
+  attr(availability, "date") <- date()
+  attr(availability, "corpus_version") <- mp_which_corpus_version()
+  
   class(availability) <- c("ManifestoAvailability", class(availability))
   return(availability)
 }
@@ -289,10 +294,16 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
 #' Objects returned by \code{\link{mp_availability}}.
 #' 
 #' @details
-#' ManifestoAvailability objects are lists with a key \code{query}, containing
-#' the original id set which was queried, and a key \code{availability},
-#' containing information derived from the Manifesto Project's document metadata 
-#' database about which types of documents are available for the query.
+#' ManifestoAvailability objects are data.frames with variables \code{party}
+#' and \code{date} identifying the requested manifestos as in the Manifesto
+#' Project's Main & South America Datasets. The additional variables
+#' specify whether a machine readable document is available (\code{manifestos}),
+#' whether digital CMP coding annotations are available (\code{annotations}) or
+#' whether an orignal PDF is available (\code{originals}).
+#' 
+#' Additional a ManifestoAvailability object has attributes \code{query}, containing
+#' the original id set which was queried, \code{corpus_version}, specifying the
+#' Corpus version ID used for the query, and \code{date} with the timestamp of the query. 
 #' 
 #' @name ManifestoAvailability
 #' @docType class
@@ -310,22 +321,38 @@ print.ManifestoAvailability <- function(x, ...) {
   avl <- x ## for better readability but S3 consistency of parameters
   decs <- 3
   
-  nqueried <- nrow(unique(avl$query)[,c("party", "date")])
-  ncoveredtexts <- length(which(unique(avl$availability[which(
-    avl$availability$manifestos),])$manifestos))
-  ncovereddocs <- nrow(avl$availability[which(avl$availability$annotations),])
-  ncoveredorigs <- length(which(unique(avl$availability[which(
-                             avl$availability$originals),])$originals))
-  languages <- stats::na.omit(unique(avl$availability$language))
+  nqueried <- avl %>%
+    attr("query") %>%
+    select(party, date) %>%
+    unique() %>%
+    nrow()
+    
+  ncoveredtexts <- avl %>%
+    subset(manifestos) %>%
+    unique() %>%
+    nrow()
+    
+  ncovereddocs <- avl %>%
+    subset(annotations) %>%
+    unique() %>%
+    nrow()
+  
+  ncoveredorigs <- avl %>%
+    subset(originals) %>%
+    unique() %>%
+    nrow()
+  
+  languages <- stats::na.omit(unique(avl$language))
   
   summary <- list('Queried for'=nqueried,
-                  'Documents found'=paste(length(which(avl$availability$manifestos)),
+                  'Corpus Version'=attr(avl, "corpus_version"),
+                  'Documents found'=paste(sum(avl$manifestos, na.rm = TRUE),
                                           " (", round(100*ncoveredtexts/nqueried, decs), "%)",
                                           sep=""),
-                  'Coded Documents found'=paste(length(which(avl$availability$annotations)),
+                  'Coded Documents found'=paste(sum(avl$annotations, na.rm = TRUE),
                                       " (", round(100*ncovereddocs/nqueried, decs), "%)",
                                       sep=""),
-                  'Originals found'=paste(length(which(avl$availability$originals)),
+                  'Originals found'=paste(sum(avl$originals, na.rm = TRUE),
                                         " (", round(100*ncoveredorigs/nqueried, decs), "%)",
                                         sep=""),
                   Languages=paste(length(languages),
