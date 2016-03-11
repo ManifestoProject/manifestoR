@@ -212,3 +212,13 @@ median_voter_single <- function(positions,
       as.numeric()
 }
 
+
+#' Compute year from date variable in MPDS
+#' 
+#' @param mpds a dataframe in format of Manifesto Project Main Dataset
+#' @return input data with year variable attached
+#' @export
+attach_year <- function(mpds) {
+  mpds %>%
+    mutate(year = substr(date, 1, 4))
+}

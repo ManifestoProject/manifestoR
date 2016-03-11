@@ -89,9 +89,7 @@ test_that("availability summary works", {
   swe <- subset(mpds, countryname == "Sweden")
   avl <- mp_availability(swe)
   
-  expect_true("availability" %in% names(avl))
-  
-  metadata_as_request(swe, avl$availability,
+  metadata_as_request(swe, avl,
                       expected_names = c("party", "date", "annotations",
                                          "manifestos", "originals"))
 
@@ -103,9 +101,13 @@ test_that("non-standard evaluation for metadata works", {
   metadata_as_request(subset(mp_maindataset(), party == 64901),
                       nse_meta)
   
+  year_meta <- mp_metadata(year == 2001, cache = FALSE)
+  metadata_as_request(subset(mp_maindataset(), date > 200100 & date < 200200),
+                      year_meta)
+  
   nse_avl <- mp_availability(party == 61620, cache = FALSE)
   metadata_as_request(subset(mp_maindataset(), party == 61620),
-                      nse_avl$availability,
+                      nse_avl,
                       expected_names = c("party", "date", "annotations",
                                          "manifestos", "originals"))
   
@@ -115,7 +117,7 @@ test_that("avialability for country without documents works", {
 
   avl <- mp_availability(countryname == "Albania")
   metadata_as_request(subset(mp_maindataset(), countryname == "Albania"),
-                      avl$availability,
+                      avl,
                       expected_names = c("party", "date", "annotations",
                                          "manifestos", "originals"))
 
