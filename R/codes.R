@@ -165,12 +165,16 @@ meyer_miller_2013_policy_dimensions <- function() {
 #' (as given in the name); see default value for an example of the format
 #' @param na.rm passed on to \code{\link{sum}}
 #' @param keep keep variables that were aggregated in result?
+#' @param overwrite Names of the variables that are allowed to be overwritten by
+#' aggregate. Defaults to all aggregate variable names. If a variable is
+#' overwritten, a message is issued in any case.
 #' 
 #' @export
 aggregate_pers <- function(data,
                            groups = v5_v4_aggregation_relations(),
                            na.rm = FALSE,
-                           keep = FALSE) {
+                           keep = FALSE,
+                           overwrite = names(groups)) {
   
   data <- 
     Reduce(function(data, aggregate) {
@@ -178,16 +182,17 @@ aggregate_pers <- function(data,
           select(one_of(intersect(groups[[aggregate]], names(data))))
         if (ncol(aggregated) != 0L) {
           aggregated <- rowSums(aggregated, na.rm = na.rm)
-          if (aggregate %in% names(data) &&
-              aggregate != "peruncod" &&
+          if (!aggregate %in% setdiff(names(data), overwrite)) {
+            if (aggregate %in% names(data) &&
                 any(!is.na(data[,aggregate]) & 
-                   data[,aggregate] != 0.0 & 
-                   data[,aggregate] != aggregated)) {
-            warning(paste0("Changing non-zero supercategory per value ", aggregate, 
-                           "when aggregating subcateogory percentages"),
-                    call. = FALSE)
+                    data[,aggregate] != 0.0 & 
+                    data[,aggregate] != aggregated)) {
+              message(paste0("Changing non-zero supercategory per value ", aggregate, 
+                             "when aggregating subcateogory percentages"),
+                      call. = FALSE)
+            }
+            data[,aggregate] <- aggregated
           }
-          data[,aggregate] <- aggregated
         }
         data
       },

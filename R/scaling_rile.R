@@ -22,9 +22,12 @@ rile_l <- function() {
 #' @export
 rile <- function(x) { UseMethod("rile", x) }
 #' @export
-rile.default <- functional::Curry(scale_bipolar,
-                                  pos=paste0("per", rile_r()),
-                                  neg=paste0("per", rile_l()))
+rile.default <- function(x) {
+  x %>%
+    { suppressMessages(aggregate_pers(., overwrite = "peruncod")) } %>%  ## Aggregation from Handbook 5 to 4, peruncod might change
+    scale_bipolar(pos = paste0("per", rile_r()), neg = paste0("per", rile_l()))
+}
+
 #' @export
 rile.ManifestoDocument <- function(x) {
   .Deprecated("mp_scale(doc, scalingfun = rile)")
