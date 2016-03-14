@@ -27,7 +27,7 @@ install: all
 	R -e "install.packages('../$(pkgname)_$(pkgversion).tar.gz')"
 	
 test:
-	R -e "library(devtools); library(testthat); test()"
+	R -e "library(devtools); library(testthat); with_reporter('stop', test())"
 	
 pushdeploy:
 	git checkout deploy
