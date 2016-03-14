@@ -3,7 +3,7 @@ mp_setapikey("../manifesto_apikey.txt")
 contains_factors <- function(mpds) {
   mpds %>%
     lapply(class) %>%
-    equals("factor") %>%
+    magrittr::equals("factor") %>%
     any()
 }
 
