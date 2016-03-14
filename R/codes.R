@@ -182,18 +182,20 @@ aggregate_pers <- function(data,
           select(one_of(intersect(groups[[aggregate]], names(data))))
         if (ncol(aggregated) != 0L) {
           aggregated <- rowSums(aggregated, na.rm = na.rm)
-          if (!aggregate %in% setdiff(names(data), overwrite)) {
             if (aggregate %in% names(data) &&
                 any(!is.na(data[,aggregate]) & 
                     data[,aggregate] != 0.0 & 
-                    data[,aggregate] != aggregated)) {
-              message(paste0("Changing non-zero supercategory per value ", aggregate, 
-                             "when aggregating subcateogory percentages"),
-                      call. = FALSE)
+                    na_replace(data[,aggregate] != aggregated), TRUE)) {
+              if (aggregate %in% overwrite) {
+                message(paste0("Changing non-zero supercategory per value ", aggregate, 
+                               "when aggregating subcateogory percentages"),
+                        call. = FALSE)
+                data[,aggregate] <- aggregated
+              }
+            } else {
+              data[,aggregate] <- aggregated
             }
-            data[,aggregate] <- aggregated
           }
-        }
         data
       },
       names(groups),
