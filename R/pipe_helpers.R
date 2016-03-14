@@ -37,3 +37,12 @@ iffn <- function(obj, test, fun, ...) {
     obj
   }
 }
+
+
+#' Replace NAs in vector with fixed value
+#' 
+#' @rdname na_action
+na_replace <- function(vec, value = 0L) {
+  vec[is.na(vec)] <- value
+  return(vec)
+}
