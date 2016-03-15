@@ -523,14 +523,23 @@ mp_cite <- function(corpus_version = mp_which_corpus_version(),
                         select(party, date) %>%
                         mp_metadata(apikey = apikey)
       if (!is.null(corpus_cache) && 
-          !is.null(corpus_cache$source) && 
-          any(corpus_cache$source == "CEMP")) {
-        cite_message <- paste0(cite_message, "\n\n",
-                               "You have downloaded uncoded machine-readable manifesto texts, ",
-                               "which have been originally created in the Comparative ",
-                               "Electronic Manifestos Project please cite additionally. ",
-                               "Please cite additionally", "\n\n",
-                               get_citation("CEMP", kmtype.corpuscitation, apikey = apikey))
+          !is.null(corpus_cache$source)) {
+        if(any(corpus_cache$source == "CEMP")) {
+          cite_message <- paste0(cite_message, "\n\n",
+                                 "You have downloaded uncoded machine-readable manifesto texts, ",
+                                 "which have been originally created in the Comparative ",
+                                 "Electronic Manifestos Project. ",
+                                 "Please cite additionally", "\n\n",
+                                 get_citation("CEMP", kmtype.corpuscitation, apikey = apikey))
+        }
+        if(any(corpus_cache$source == "MZES")) {
+          cite_message <- paste0(cite_message, "\n\n",
+                                 "You have downloaded uncoded machine-readable manifesto texts, ",
+                                 "which have been originally created in cooperation with the ",
+                                 "Mannheimer Zentrum für Europäische Sozialforschung.",
+                                 "Please cite additionally", "\n\n",
+                                 get_citation("MZES", kmtype.corpuscitation, apikey = apikey))
+        }
       }
     } else {
       cite_message <- paste0(cite_message, "\n\n",
