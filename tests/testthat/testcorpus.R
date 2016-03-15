@@ -43,6 +43,20 @@ test_that("non-standard evaluation corpus download works", {
   
 })
 
+test_that("South America Corpus Download works", {
+  
+  old_version <- mp_which_corpus_version()
+  
+  mp_use_corpus_version("20160315172932")
+  
+  corp <- mp_corpus(countryname == "Brazil")
+  expect_is(corp, c("ManifestoCorpus", "Corpus"))
+  expect_more_than(length(corp), 3)
+  
+  mp_use_corpus_version(old_version)
+  
+})
+
 test_that("getting codes works", {
 
   eu_corp <- mp_corpus(party == 15328 & date == 200705)
