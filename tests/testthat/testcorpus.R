@@ -32,14 +32,28 @@ test_that("non-standard evaluation corpus download works", {
   partycorp <- mp_corpus(party == 80510)
   expect_is(partycorp, c("ManifestoCorpus", "Corpus"))
   expect_equal(length(partycorp), nrow(subset(mp_availability(
-    subset(mp_maindataset(), party == 80510))$availability,
+    subset(mp_maindataset(), party == 80510)),
     manifestos)))  
   
   rilecorp <- mp_corpus(rile > 40.0 & edate > as.Date("2000-01-01"))
   expect_is(rilecorp, c("ManifestoCorpus", "Corpus"))
   expect_equal(length(rilecorp), nrow(subset(mp_availability(
-    subset(mp_maindataset(), rile > 40.0 & edate > as.Date("2000-01-01")))$availability,
+    subset(mp_maindataset(), rile > 40.0 & edate > as.Date("2000-01-01"))),
     manifestos)))
+  
+})
+
+test_that("South America Corpus Download works", {
+  
+  old_version <- mp_which_corpus_version()
+  
+  mp_use_corpus_version("20160315172932")
+  
+  corp <- mp_corpus(countryname == "Brazil")
+  expect_is(corp, c("ManifestoCorpus", "Corpus"))
+  expect_more_than(length(corp), 3)
+  
+  mp_use_corpus_version(old_version)
   
 })
 
@@ -107,7 +121,7 @@ test_that("caching of corpus works correctly", {
   corpswe <- mp_corpus(swe)
   
   ## check that corpus parts are now in cache
-  corpids <- mp_metadata(subset(mp_availability(swe)$availability, annotations))
+  corpids <- mp_metadata(subset(mp_availability(swe), annotations))
   vnames <- cache_vname(corpids$party, corpids$date, corpids$manifesto_id)
   expect_true(all(exists(vnames, envir = mp_cache())))
   

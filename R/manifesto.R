@@ -2,11 +2,16 @@
 #' 
 #' Gets the Manifesto Project's Main Dataset from the project's web API or
 #' the local cache, if it was already downloaded before.
+#' 
+#' \code{mp_southamerica_dataset} is a shorthand for getting the Manifesto
+#' Project's South America Dataset (it is equivalent to 
+#' \code{mp_maindataset(..., south_america = TRUE)}).
 #'
 #' @param version Specify the version of the dataset you want to access. Use
 #'                "current" to obtain the most recent, or use
 #'                \code{\link{mp_coreversions}} for a list of available
 #'                versions.
+#' @param south_america flag whether to download corresponding South America dataset instead of Main Dataset
 #' @param apikey API key to use. Defaults to \code{NULL}, resulting in using
 #'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
@@ -22,11 +27,19 @@
 #' median(subset(mpds, countryname == "Switzerland")$rile, na.rm = TRUE)
 #' }
 #' @export
-mp_maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
+mp_maindataset <- function(version="current", south_america = FALSE, apikey=NULL, cache=TRUE) {
   
   if (version == "current") {
     versions <- mp_coreversions(apikey=apikey, cache=cache)
     version <- as.character(versions[nrow(versions), "datasets.id"]) # TODO date in dataset
+  }
+  
+  if (south_america) {
+    if (as.numeric(gsub(".*?(\\d+).*", "\\1", version)) < 2015) {
+      warning("No south america dataset available before 2015!")
+      return(tbl_df(data.frame()))
+    }
+    version <- gsub("MPDS", "MPDSSA", version)
   }
   
   parameters <- list(key=version)
@@ -37,6 +50,10 @@ mp_maindataset <- function(version="current", apikey=NULL, cache=TRUE) {
   return(tbl_df(mpds))
   
 }
+
+#' @rdname mp_maindataset
+#' @export
+mp_southamerica_dataset <- functional::Curry(mp_maindataset, south_america = TRUE)
 
 
 #' List the available versions of the Manifesto Project's Main Dataset
@@ -125,14 +142,7 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
 
   ## non standard evaluation handling
   ## one frame up is where the user was if we did not get a data.frame
-
-  id_is_df <- tryCatch(is.data.frame(ids), error = function(e) { FALSE } )
-  
-  if (!id_is_df) {
-    ids <- mp_maindataset()[eval(substitute(ids),
-                                 envir = mp_maindataset(),
-                                 enclos = parent.frame()),]
-  }
+  ids <- as.metaids(substitute(ids), apikey = apikey, cache = cache, envir = parent.frame(), attach_meta = FALSE)
 
   # convert ids to parameter list for the api call
   ids <- formatids(ids)  
@@ -169,22 +179,33 @@ mp_metadata <- function(ids, apikey=NULL, cache=TRUE) {
   
 }
 
+
+
 ## ids must be quoted for this function
-as.metaids <- function(ids, apikey=NULL, cache=TRUE) {
+as.metaids <- function(ids, apikey=NULL, cache=TRUE, envir = parent.frame(n = 2),
+                       attach_meta = TRUE,
+                       include_southamerica = TRUE) {
 
   ## non standard evaluation handling
   ## two frames up is where the user was, as.metaids is not exported
   
-  id_is_df <- tryCatch(is.data.frame(eval(ids, envir = parent.frame(n = 2))), error = function(e) { FALSE } )
+  id_is_df <- tryCatch(is.data.frame(eval(ids, envir = envir)), error = function(e) { FALSE } )
+  
 
   if (id_is_df) {
-    ids <- eval(ids, envir = parent.frame(n = 2))
+    ids <- eval(ids, envir = envir)
   } else {
-    ids <- mp_maindataset()[eval(ids, envir = mp_maindataset(),
-                                 enclos = parent.frame(n = 2)),]
+    
+    search_data <- mp_maindataset(apikey = apikey, cache = cache) %>%
+      iff(include_southamerica, bind_rows, mp_southamerica_dataset(apikey = apikey, cache = cache)) %>%
+      attach_year()
+    
+    ids <- search_data[eval(ids, envir = search_data,
+                                 enclos = envir),]
   } 
 
-  if ( !("ManifestoMetadata" %in% class(ids)) ) {
+  if (attach_meta && !("ManifestoMetadata" %in% class(ids))) {
+    ## TODO fix south america disappearance here
     ids <- mp_metadata(ids, apikey=apikey, cache=cache)
   }
 
@@ -214,8 +235,8 @@ is.naorstringna <- function(v) {
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
 #' @return an object of class \code{\link{ManifestoAvailability}}
-#'         containing availability information. Accessing \code{$availability}
-#'         on it gives a \code{data.frame} with detailed availability information
+#'         containing availability information. Can be treated as a
+#'         \code{data.frame} and contains detailed availability information
 #'         per document
 #' @examples
 #' \dontrun{
@@ -229,16 +250,10 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
   
   columns <- c("party", "date", "language", "annotations")
   
-  metadata <- suppressWarnings(as.metaids(substitute(ids), apikey=apikey, cache=cache))
-  
-  ## handler for non standard evaluation: convert ids to subset of maindataset
-  ## one frame up is where the user was if we did not get a data.frame
-  id_is_df <- tryCatch(is.data.frame(ids), error = function(e) { FALSE } )
-  if (!id_is_df) {
-    ids <- mp_maindataset()[eval(substitute(ids),
-                                 envir = mp_maindataset(),
-                                 enclos = parent.frame()),]
-  }
+  metadata <- suppressWarnings(as.metaids(substitute(ids),
+                                          apikey=apikey,
+                                          cache=cache,
+                                          envir = parent.frame()))
 
   if (!("language" %in% names(metadata))) {
     metadata <- mutate(metadata, language = NA)
@@ -255,7 +270,7 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
   availability$originals <- !is.naorstringna(metadata$url_original)
 
   availability <-
-      ids %>%
+      metadata %>%
         select(one_of("party", "date")) %>%
         anti_join(availability, by = c("party", "date")) %>%
         mutate(manifestos = FALSE,
@@ -264,7 +279,11 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
                language = NA) %>%
         bind_rows(availability)
 
-  availability <- list(query=ids, date=date(), availability=availability)
+  
+  attr(availability, "query") <- metadata
+  attr(availability, "date") <- date()
+  attr(availability, "corpus_version") <- mp_which_corpus_version()
+  
   class(availability) <- c("ManifestoAvailability", class(availability))
   return(availability)
 }
@@ -275,10 +294,16 @@ mp_availability <- function(ids, apikey=NULL, cache=TRUE) {
 #' Objects returned by \code{\link{mp_availability}}.
 #' 
 #' @details
-#' ManifestoAvailability objects are lists with a key \code{query}, containing
-#' the original id set which was queried, and a key \code{availability},
-#' containing information derived from the Manifesto Project's document metadata 
-#' database about which types of documents are available for the query.
+#' ManifestoAvailability objects are data.frames with variables \code{party}
+#' and \code{date} identifying the requested manifestos as in the Manifesto
+#' Project's Main & South America Datasets. The additional variables
+#' specify whether a machine readable document is available (\code{manifestos}),
+#' whether digital CMP coding annotations are available (\code{annotations}) or
+#' whether an orignal PDF is available (\code{originals}).
+#' 
+#' Additional a ManifestoAvailability object has attributes \code{query}, containing
+#' the original id set which was queried, \code{corpus_version}, specifying the
+#' Corpus version ID used for the query, and \code{date} with the timestamp of the query. 
 #' 
 #' @name ManifestoAvailability
 #' @docType class
@@ -296,22 +321,38 @@ print.ManifestoAvailability <- function(x, ...) {
   avl <- x ## for better readability but S3 consistency of parameters
   decs <- 3
   
-  nqueried <- nrow(unique(avl$query)[,c("party", "date")])
-  ncoveredtexts <- length(which(unique(avl$availability[which(
-    avl$availability$manifestos),])$manifestos))
-  ncovereddocs <- nrow(avl$availability[which(avl$availability$annotations),])
-  ncoveredorigs <- length(which(unique(avl$availability[which(
-                             avl$availability$originals),])$originals))
-  languages <- stats::na.omit(unique(avl$availability$language))
+  nqueried <- avl %>%
+    attr("query") %>%
+    select(party, date) %>%
+    unique() %>%
+    nrow()
+    
+  ncoveredtexts <- avl %>%
+    subset(manifestos) %>%
+    unique() %>%
+    nrow()
+    
+  ncovereddocs <- avl %>%
+    subset(annotations) %>%
+    unique() %>%
+    nrow()
+  
+  ncoveredorigs <- avl %>%
+    subset(originals) %>%
+    unique() %>%
+    nrow()
+  
+  languages <- stats::na.omit(unique(avl$language))
   
   summary <- list('Queried for'=nqueried,
-                  'Documents found'=paste(length(which(avl$availability$manifestos)),
+                  'Corpus Version'=attr(avl, "corpus_version"),
+                  'Documents found'=paste(sum(avl$manifestos, na.rm = TRUE),
                                           " (", round(100*ncoveredtexts/nqueried, decs), "%)",
                                           sep=""),
-                  'Coded Documents found'=paste(length(which(avl$availability$annotations)),
+                  'Coded Documents found'=paste(sum(avl$annotations, na.rm = TRUE),
                                       " (", round(100*ncovereddocs/nqueried, decs), "%)",
                                       sep=""),
-                  'Originals found'=paste(length(which(avl$availability$originals)),
+                  'Originals found'=paste(sum(avl$originals, na.rm = TRUE),
                                         " (", round(100*ncoveredorigs/nqueried, decs), "%)",
                                         sep=""),
                   Languages=paste(length(languages),
@@ -373,7 +414,7 @@ mp_corpus <- function(ids,
                       codefilter = NULL,
                       codefilter_layer = "cmp_code") {
 
-  ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache)
+  ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache, envir = parent.frame())
 
   if (nrow(ids) > 0) {
     ids <- base::subset(ids, !is.naorstringna(manifesto_id) &
@@ -437,7 +478,7 @@ is.nacode <- function(x) {
 #' @export
 mp_view_originals <- function(ids, maxn = 5, apikey = NULL, cache = TRUE) {
   
-  ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache)
+  ids <- as.metaids(substitute(ids), apikey=apikey, cache=cache, envir = parent.frame())
   ids <- subset(ids, !is.na(url_original))
   
   if (nrow(ids) > maxn) {
@@ -482,14 +523,23 @@ mp_cite <- function(corpus_version = mp_which_corpus_version(),
                         select(party, date) %>%
                         mp_metadata(apikey = apikey)
       if (!is.null(corpus_cache) && 
-          !is.null(corpus_cache$source) && 
-          any(corpus_cache$source == "CEMP")) {
-        cite_message <- paste0(cite_message, "\n\n",
-                               "You have downloaded uncoded machine-readable manifesto texts, ",
-                               "which have been originally created in the Comparative ",
-                               "Electronic Manifestos Project please cite additionally. ",
-                               "Please cite additionally", "\n\n",
-                               get_citation("CEMP", kmtype.corpuscitation, apikey = apikey))
+          !is.null(corpus_cache$source)) {
+        if(any(corpus_cache$source == "CEMP")) {
+          cite_message <- paste0(cite_message, "\n\n",
+                                 "You have downloaded uncoded machine-readable manifesto texts, ",
+                                 "which have been originally created in the Comparative ",
+                                 "Electronic Manifestos Project. ",
+                                 "Please cite additionally", "\n\n",
+                                 get_citation("CEMP", kmtype.corpuscitation, apikey = apikey))
+        }
+        if(any(corpus_cache$source == "MZES")) {
+          cite_message <- paste0(cite_message, "\n\n",
+                                 "You have downloaded uncoded machine-readable manifesto texts, ",
+                                 "which have been originally created in cooperation with the ",
+                                 "Mannheimer Zentrum für Europäische Sozialforschung.",
+                                 "Please cite additionally", "\n\n",
+                                 get_citation("MZES", kmtype.corpuscitation, apikey = apikey))
+        }
       }
     } else {
       cite_message <- paste0(cite_message, "\n\n",
@@ -504,7 +554,7 @@ mp_cite <- function(corpus_version = mp_which_corpus_version(),
                              paste(core_versions, collapse = ", "), ", please cite as \n\n", 
                              core_versions %>%
                                sapply(get_citation, type = kmtype.corecitation, apikey = apikey) %>% 
-                               paste(sep = "\n\n"))
+                               paste(collapse = "\n\n"))
     }
   }
 

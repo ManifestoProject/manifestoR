@@ -1,5 +1,12 @@
 mp_setapikey("../manifesto_apikey.txt")
 
+contains_factors <- function(mpds) {
+  mpds %>%
+    lapply(class) %>%
+    magrittr::equals("factor") %>%
+    any()
+}
+
 test_that("main data set is formatted correctly", {
   
   mpds <- mp_maindataset()
@@ -8,6 +15,11 @@ test_that("main data set is formatted correctly", {
   expect_true(all(c("country", "countryname",
                     "date", "edate",
                     "party", "per101", "rile") %in% names(mpds)))
+  
+  expect_false(mpds %>%
+                 contains_factors())
+  expect_false(mp_southamerica_dataset() %>%
+                 contains_factors())
   
 })
 
@@ -129,6 +141,22 @@ test_that("median voter works on main data set", {
   median_voter_as_expected(median_voter(mpds, adjusted = TRUE), mpds, adjusted = TRUE)
 
   median_voter_as_expected(median_voter(mpds, scale = "per104"), mpds, scale = "per104")
+  
+})
+
+test_that("South America dataset can be downloaded", {
+  
+  list(mp_maindataset(south_america = TRUE),
+       mp_southamerica_dataset()) %>% lapply(function(mpdssa) {
+  
+    expect_true("candidatename" %in% names(mpdssa))
+    expect_false(all(is.na(mpdssa$candidatename)))
+    expect_true(all(c("Chile", "Argentina", "Brazil") %in% mpdssa$countryname))
+    expect_false("Germany" %in% mpdssa$countryname)
+  })
+  
+  expect_warning(mp_southamerica_dataset(version = "MPDS2012a"))
+  
   
 })
 

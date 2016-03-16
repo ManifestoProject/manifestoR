@@ -1,6 +1,6 @@
 #' Issue Attention Diversity
 #' 
-#' Effective number of Manifesto Issues suggested by Zac Greene. When using the measure please cite:
+#' Effective number of Manifesto Issues suggested by Zac Greene. When using the measure please cite Greene 2015 (see reference below)
 #' @references Greene, Z. (2015). Competing on the Issues How Experience in Government and Economic Conditions Influence the Scope of Parties' Policy Messages. Party Politics.
 #'
 #' @param data a data.frame in format of Manifesto Project Main Dataset

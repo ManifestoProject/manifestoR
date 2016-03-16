@@ -1,7 +1,7 @@
 ---
 title: "Working with the manifestoR package"
 author: "Jirka Lewandowski <jirka.lewandowski@wzb.eu>"
-date: "14/09/2015"
+date: "04/03/2016"
 output:
   pdf_document:
     number_sections: yes
@@ -69,7 +69,8 @@ the key in public repositories.
 You can download the Manifesto Project Dataset (MPDS) with the function `mp_maindataset()`.
 By default the most recent update is returned, but you can specify older versions
 to get for reproducibility (type `mp_coreversions()` for a list of version and `?mp_maindataset`
-for usage information). For analysing the dataset using scaling functions, refer
+for usage information). You can get the Manifesto Project South America Dataset using the function `mp_southamerica_dataset()` that works analogously to `mp_maindataset()`.
+For analysing the dataset using scaling functions, refer
 to the section [Using manifestoR's scaling functions](#using-manifestors-scaling-functions) below.
 
 ## Downloading documents
