@@ -17,7 +17,7 @@
 #' the mean of the output values, since all subsequent transformations are linear). This step
 #' is required to replicate the Franzmann 2009 dataset.
 #' @param ... passed on to fk_smoothing and \code{\link{party_system_split}}
-#' @references Franzmann, Simon/ Kaiser, André (2006): Locating Political Parties in Policy Space. A Reanalysis of Party Manifesto Data, Party Politics, 12:2, 163-188
+#' @references Franzmann, Simon/Kaiser, Andre (2006): Locating Political Parties in Policy Space. A Reanalysis of Party Manifesto Data, Party Politics, 12:2, 163-188
 #' @references Franzmann, Simon (2009): The Change of Ideology: How the Left-Right Cleavage transforms into Issue Competition. An Analysis of Party Systems using Party Manifesto Data. PhD Thesis. Cologne.
 #' @export
 franzmann_kaiser <- function(data,

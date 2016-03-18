@@ -536,7 +536,7 @@ mp_cite <- function(corpus_version = mp_which_corpus_version(),
           cite_message <- paste0(cite_message, "\n\n",
                                  "You have downloaded uncoded machine-readable manifesto texts, ",
                                  "which have been originally created in cooperation with the ",
-                                 "Mannheimer Zentrum für Europäische Sozialforschung.",
+                                 "Mannheimer Zentrum fuer Europaeische Sozialforschung.",
                                  "Please cite additionally", "\n\n",
                                  get_citation("MZES", kmtype.corpuscitation, apikey = apikey))
         }
