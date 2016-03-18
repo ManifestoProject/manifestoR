@@ -30,6 +30,7 @@ Depends:
 Imports:
     utils,
     stats,
+    magrittr,
     httr (>= 1.0.0),
     jsonlite (>= 0.9.12),
     functional (>= 0.6),

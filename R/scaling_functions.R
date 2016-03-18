@@ -59,6 +59,7 @@ franzmann <- function(data,
 
 }
 
+#' @import magrittr
 read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_structure.sav", package = "manifestoR")) {
   require(haven)
   path %>%
