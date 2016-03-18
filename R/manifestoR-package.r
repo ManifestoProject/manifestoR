@@ -28,10 +28,10 @@ NULL
 ## cf. http://stackoverflow.com/questions/9439256/how-can-i-handle-r-cmd-check-no-visible-binding-for-global-variable-notes-when
 globalVariables(c("one_of", ".", "matches", "starts_with", "contains", # dplyr
                   "manifesto_id", "country", "party", "edate", "per0", # general dataset
-                  "md5sum_text.x", "md5sum_text.y", "code", # & metadata & api download
-                  "download", "url_original", "is_primary_doc",
+                  "md5sum_text.x", "md5sum_text.y", "code", "manifestos", # & metadata & api download
+                  "download", "url_original", "is_primary_doc", "originals",
                   "name", "tag", # metadata versions
-                  "leadedate", "leglength", "festername", "w", "p", # scaling
+                  "leadedate", "leglength", "countryname", "w", "p", # scaling
                   "p_lead", "p_lag", "lrcorescores", # median_voter_single
                   "position", "voteshare", "cumvoteshare",
                   "above50", "contains_median", "leftbound", "rightbound",
