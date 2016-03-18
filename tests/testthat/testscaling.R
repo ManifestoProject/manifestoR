@@ -216,7 +216,7 @@ check_fk_results <- function(test_scores,
 
 test_that("Franzmann Kaiser scaling works", {
   
-  fk_scores <- read.csv("../lrfranz.csv", sep = ";") %>%
+  fk_scores <- read.csv("../data/lrfranz.csv", sep = ";") %>%
     mutate(date = as.integer(format(as.Date(edate, format = "%d.%m.%Y"), format = "%Y%m")),
            edate = as.Date(edate, format = "%d.%m.%Y"),
            year = as.integer(substr(date, 1, 4)),
