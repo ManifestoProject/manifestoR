@@ -118,7 +118,7 @@ split_belgium <- function(data,
 }
 
 #' @export
-#' @rdname franzmann_kaise
+#' @rdname franzmann_kaiser
 #' @param score_name name of variable with LR Score values to be smoothed
 #' @param use_period_length whether to use electoral period length in weighting
 fk_smoothing <- function(data, score_name, use_period_length = TRUE, ...) {
