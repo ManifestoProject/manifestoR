@@ -64,7 +64,7 @@ franzmann_kaiser <- function(data,
 
 }
 
-#' @import magrittr
+#' @importFrom magrittr set_names
 #' @export
 #' @rdname franzmann_kaiser
 read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_structure.sav", package = "manifestoR"),

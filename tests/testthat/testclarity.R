@@ -1,7 +1,5 @@
 mp_setapikey("../manifesto_apikey.txt")
 
-require(magrittr)
-
 test_that("Relative measure of party size works and produces correct results", {
 
   c(1, 2, 5) %>%
