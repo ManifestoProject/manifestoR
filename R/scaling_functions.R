@@ -12,24 +12,33 @@
 #' @param issue_structure issue structure to use for Franzmann & Kaiser method, default to original replication values
 #' @param party_system_split function to recode the country variable to re-partition
 #' party systems. Defaults to splitting Belgium into two halfs as done in Franzmann 2009
-#' @param ... passed on to fk_smoothing
+#' @param mean_presplit if TRUE, for Belgium as a whole (before the split into two
+#' party systems) the mean of the issue weights is used (which is equal to taking
+#' the mean of the output values, since all subsequent transformations are linear). This step
+#' is required to replicate the Franzmann 2009 dataset.
+#' @param ... passed on to fk_smoothing and \code{\link{party_system_split}}
 #' @references Franzmann, Simon/ Kaiser, André (2006): Locating Political Parties in Policy Space. A Reanalysis of Party Manifesto Data, Party Politics, 12:2, 163-188
 #' @references Franzmann, Simon (2009): The Change of Ideology: How the Left-Right Cleavage transforms into Issue Competition. An Analysis of Party Systems using Party Manifesto Data. PhD Thesis. Cologne.
 #' @export
-franzmann <- function(data,
-                      basevalues = TRUE,
-                      smoothing = TRUE,
-                      vars = grep("per\\d{3}$", names(data), value = TRUE),
-                      issue_structure = read_fk_issue_structure(),
-                      party_system_split = split_belgium,
-                      ...) {
-   
+franzmann_kaiser <- function(data,
+                             basevalues = TRUE,
+                             smoothing = TRUE,
+                             vars = grep("per\\d{3}$", names(data), value = TRUE),
+                             issue_structure = read_fk_issue_structure(mean_presplit = mean_presplit),
+                             party_system_split = split_belgium,
+                             mean_presplit = TRUE,
+                             ...) {
+           
    
 
    if(!("country" %in% names(data)) & ("party" %in% names(data))) {
      data <- mutate(data, country = as.integer(substr(party, 1, 2)))
    }
 
+  if (!is.null(party_system_split) & is.function(party_system_split)) {
+    data <- party_system_split(data, ...)
+  }
+  
    if (basevalues) {
       ## calculates positional scores = saliency scores - base value // pos scores = (x - min(x)) where x is saliency score
       data <- data %>%
@@ -38,10 +47,6 @@ franzmann <- function(data,
          mutate_each_(funs(base=.-min(., na.rm=TRUE)), vars) %>%
          ungroup()
    }
-  
-  if (!is.null(party_system_split) & is.function(party_system_split)) {
-    data <- party_system_split(data)
-  }
 
    data %>%
      select(one_of("country", "edate")) %>%
@@ -60,44 +65,63 @@ franzmann <- function(data,
 }
 
 #' @import magrittr
-read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_structure.sav", package = "manifestoR")) {
+#' @export
+#' @rdname franzmann_kaiser
+read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_structure.sav", package = "manifestoR"),
+                                    mean_presplit = TRUE) {
   require(haven)
   path %>%
     read_sav() %>%
     mutate(edate = as.Date(edate/(24*60*60), origin = "1582-10-14"),
            country = as.numeric(country)) %>%
     { set_names(., gsub("e(\\d+)_structure", "per\\1", names(.))) } %>%
-    select(-countryname)
+    mutate_each(funs(as.numeric), -edate, -country) %>%
+    select(-countryname) %>%
+    iff(mean_presplit, function(data) {
+      data %>%
+        { (select(subset(., country == 218), starts_with("per"))  + 
+             select(subset(., country == 219), starts_with("per")))/2 } %>%
+        set_names(subset(names(data), grepl("^per", names(data)))) %>%
+        mutate(country = 21) %>%
+        bind_cols(data %>% subset(country == 218) %>% select(edate)) %>%
+        bind_rows(data)
+    })
 
 }
 
-#' Split Belgium party system into two
+#' Split Belgium party system into separate groups
 #' 
-#' recodes the country variable of a dataset to 218 (Flanders parties)
+#' Recodes the country variable of a dataset to 218 (Flanders parties)
 #' and 219 (Wallonia parties) from 21 for Belgium
 #' 
 #' @param data data.frame in format of the Manifesto Project's Main Dataset
 #' @param wallonia_parties Party codes for the Wallonia half
 #' @param flanders_parties Party codes for the Flanders half
+#' @param brussels_parties Party codes for Brussel specific parties, are recoded to NA
+#' @param belgium_parties Party codes for complete system, coded as presplit_countrycode
+#' @param presplit_countrycode Country code for the belgium_parties
 #' @export
 split_belgium <- function(data,
                           wallonia_parties = c(21111, 21322, 21422, 21423, 21425, 21426, 21522, 21911),
                           brussels_parties = c(21424, 21912),
-                          none_parties = c(21221, 21330, 21430),
                           belgium_parties = c(21320, 21420, 21520),
-                          flanders_parties = c(21112, 21321, 21421, 21521, 21913, 21914, 21915, 21916, 21917)) {
+                          flanders_parties = c(21112, 21221, 21321, 21330, 21421, 21430, 21521, 21913, 21914, 21915, 21916, 21917),
+                          presplit_countrycode = 21,
+                          ...) {
   data %>%
     mutate(country = ifelse(country == 21,
                             ifelse(party %in% wallonia_parties, 219,
-                                   ifelse(party %in% flanders_parties, 218, country)),
+                            ifelse(party %in% flanders_parties, 218,
+                            ifelse(party %in% brussels_parties, NA,
+                            presplit_countrycode))),
                             country))
 }
 
 #' @export
-#' @rdname franzmann
+#' @rdname franzmann_kaise
 #' @param score_name name of variable with LR Score values to be smoothed
 #' @param use_period_length whether to use electoral period length in weighting
-fk_smoothing <- function(data, score_name, use_period_length = TRUE) {
+fk_smoothing <- function(data, score_name, use_period_length = TRUE, ...) {
   
    # how to deal with "holes" (if party drops out of parliament and then enters later, sorting by party date, does not reflect this...)
 

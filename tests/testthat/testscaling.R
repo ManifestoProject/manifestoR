@@ -179,19 +179,42 @@ test_that("Franzmann Kaiser scaling produces no error", {
   
   sample <- mpds %>% filter(country==22, date> 198900, date < 200612)
   
-  fk <- franzmann(sample,basevalues=FALSE,smoothing=FALSE)
+  fk <- franzmann_kaiser(sample,basevalues=FALSE,smoothing=FALSE)
   s <- cbind(sample,fk)
   
   
-  franzmann(sample,basevalues=TRUE,smoothing=FALSE)
-  franzmann(sample,basevalues=FALSE,smoothing=TRUE)
-  franzmann(sample,basevalues=TRUE,smoothing=TRUE)
+  franzmann_kaiser(sample,basevalues=TRUE,smoothing=FALSE)
+  franzmann_kaiser(sample,basevalues=FALSE,smoothing=TRUE)
+  franzmann_kaiser(sample,basevalues=TRUE,smoothing=TRUE)
   
 })
 
 
-test_that("Franzmann Kaiser scaling works", {
+check_fk_results <- function(test_scores,
+                             fk_scores,
+                             min_date = as.Date("1982-01-01"),
+                             max_date = as.Date("2000-01-01"),
+                             tolerance = 0.11) {
+              
+  test_scores$manifestoR_fk <- franzmann_kaiser(test_scores, basevalues = TRUE, smoothing = TRUE, use_period_length = FALSE, mean_presplit = TRUE, presplit_countrycode = 21) 
+  test_scores <- test_scores %>%
+    subset(!is.na(manifestoR_fk)) %>%
+    left_join(fk_scores, by = c("party", "edate")) %>%
+    select(one_of("party", "edate", "LR_general", "manifestoR_fk")) %>%
+    mutate(diff = abs(LR_general - manifestoR_fk))
   
+  # qplot(LR_general, manifestoR_fk, data = test_scores) + geom_smooth(method = lm) + facet_grid(. ~ edate)
+  
+  test_scores %>%
+    subset(edate < max_date & edate > min_date) %>%
+    summarise(m = max(diff)) %>%
+    unlist() %>%
+    expect_less_than(tolerance)
+  
+}
+
+
+test_that("Franzmann Kaiser scaling works", {
   
   fk_scores <- read.csv("../lrfranz.csv", sep = ";") %>%
     mutate(date = as.integer(format(as.Date(edate, format = "%d.%m.%Y"), format = "%Y%m")),
@@ -201,30 +224,16 @@ test_that("Franzmann Kaiser scaling works", {
     rename(country = Country) %>%
     select(-one_of("LR_economic", "LR_social"))
     
-  test_scores <- mp_maindataset() %>%
-#    dplyr::filter(country==22, edate > as.Date("1980-01-01"))
-     dplyr::filter(country==21, edate > as.Date("1950-01-01"), edate < as.Date("1990-01-01"))
+  mp_maindataset() %>%
+    dplyr::filter(country==22, edate > as.Date("1980-01-01")) %>%
+    check_fk_results(fk_scores)
   
-  fk_scores %>% subset(grepl("Belgium", country_name)) %>% select(country, country_name, party) %>% unique() %>% print()
-  
-  test_scores$manifestoR_fk <- franzmann(test_scores, basevalues = TRUE, smoothing = TRUE, use_period_length = FALSE) 
-  test_scores <- test_scores %>%
-    subset(!is.na(manifestoR_fk)) %>%
-    left_join(fk_scores, by = c("party", "edate")) %>%
-    select(one_of("party", "edate", "LR_general", "manifestoR_fk")) %>%
-    mutate(diff = abs(LR_general - manifestoR_fk))
-  
-  browser()
-  
-  # qplot(LR_general, manifestoR_fk, data = test_scores) + geom_smooth(method = lm) + facet_grid(. ~ edate)
-  
-  test_scores %>%
-    subset(edate < as.Date("2000-01-01") & edate > as.Date("1982-01-01")) %>%
-    summarise(m = max(diff)) %>%
-    unlist() %>%
-    expect_less_than(0.11)
-  
-  
+  mp_maindataset() %>%
+    dplyr::filter(country==21, edate > as.Date("1960-01-01"), edate < as.Date("1990-01-01")) %>%
+    check_fk_results(fk_scores,
+                     min_date = as.Date("1971-01-01"),
+                     max_date = as.Date("1982-01-01"),
+                     tolerance = 1.1)
   
 })
 
