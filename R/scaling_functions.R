@@ -80,8 +80,11 @@ read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_stru
 #' @param flanders_parties Party codes for the Flanders half
 #' @export
 split_belgium <- function(data,
-                          wallonia_parties = c(21111, 21322, 21422, 21423, 21425, 21426, 21522, 21911, 21912),
-                          flanders_parties = c(21112, 21221, 21320, 21321, 21330, 21420, 21421, 21424, 21430, 21520, 21521, 21913, 21914, 21915, 21916, 21917)) {
+                          wallonia_parties = c(21111, 21322, 21422, 21423, 21425, 21426, 21522, 21911),
+                          brussels_parties = c(21424, 21912),
+                          none_parties = c(21221, 21330, 21430),
+                          belgium_parties = c(21320, 21420, 21520),
+                          flanders_parties = c(21112, 21321, 21421, 21521, 21913, 21914, 21915, 21916, 21917)) {
   data %>%
     mutate(country = ifelse(country == 21,
                             ifelse(party %in% wallonia_parties, 219,

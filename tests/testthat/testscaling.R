@@ -192,6 +192,7 @@ test_that("Franzmann Kaiser scaling produces no error", {
 
 test_that("Franzmann Kaiser scaling works", {
   
+  
   fk_scores <- read.csv("../lrfranz.csv", sep = ";") %>%
     mutate(date = as.integer(format(as.Date(edate, format = "%d.%m.%Y"), format = "%Y%m")),
            edate = as.Date(edate, format = "%d.%m.%Y"),
@@ -201,7 +202,10 @@ test_that("Franzmann Kaiser scaling works", {
     select(-one_of("LR_economic", "LR_social"))
     
   test_scores <- mp_maindataset() %>%
-    dplyr::filter(country==22, edate > as.Date("1980-01-01"))
+#    dplyr::filter(country==22, edate > as.Date("1980-01-01"))
+     dplyr::filter(country==21, edate > as.Date("1950-01-01"), edate < as.Date("1990-01-01"))
+  
+  fk_scores %>% subset(grepl("Belgium", country_name)) %>% select(country, country_name, party) %>% unique() %>% print()
   
   test_scores$manifestoR_fk <- franzmann(test_scores, basevalues = TRUE, smoothing = TRUE, use_period_length = FALSE) 
   test_scores <- test_scores %>%
@@ -209,6 +213,8 @@ test_that("Franzmann Kaiser scaling works", {
     left_join(fk_scores, by = c("party", "edate")) %>%
     select(one_of("party", "edate", "LR_general", "manifestoR_fk")) %>%
     mutate(diff = abs(LR_general - manifestoR_fk))
+  
+  browser()
   
   # qplot(LR_general, manifestoR_fk, data = test_scores) + geom_smooth(method = lm) + facet_grid(. ~ edate)
   
