@@ -377,7 +377,7 @@ get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
                                     versionid = versionid,
                                     ...),
                            version = versionid)
-    return(single_var_caching(paste0(kdatasetname, ids$key), call,
+    return(single_var_caching(paste0(kdatasetname, ids$key, ids$type), call,
                               cache = cache))
     
   } else if (type == kmtype.meta) {

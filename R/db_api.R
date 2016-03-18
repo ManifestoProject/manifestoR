@@ -219,10 +219,14 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     return(fromJSON(jsonstr)$versions)    
 
   } else if (type == kmtype.main) {
-
-    mpds <- formatmpds(data.frame(fromJSON(jsonstr), stringsAsFactors = FALSE))
-  
-    return(mpds)
+    
+    if (is.null(parameters$kind)) {
+      return(formatmpds(data.frame(fromJSON(jsonstr), stringsAsFactors = FALSE)))
+    } else {
+      return(jsonstr %>%
+               fromJSON() %>%
+               getElement("content"))
+    }
 
   } else if (type == kmtype.meta) {
 

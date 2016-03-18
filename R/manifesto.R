@@ -16,6 +16,8 @@
 #'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
+#' @param format Download format. Defaults NULL, meaning csv, but can can be
+#' "dta" for STATA as well. 
 #'              
 #' @return The Manifesto Project Main Dataset with classes \code{data.frame} and
 #' \code{\link[dplyr]{tbl_df}}
@@ -27,7 +29,7 @@
 #' median(subset(mpds, countryname == "Switzerland")$rile, na.rm = TRUE)
 #' }
 #' @export
-mp_maindataset <- function(version="current", south_america = FALSE, apikey=NULL, cache=TRUE) {
+mp_maindataset <- function(version="current", south_america = FALSE,  format = NULL, apikey=NULL, cache=TRUE) {
   
   if (version == "current") {
     versions <- mp_coreversions(apikey=apikey, cache=cache)
@@ -42,12 +44,20 @@ mp_maindataset <- function(version="current", south_america = FALSE, apikey=NULL
     version <- gsub("MPDS", "MPDSSA", version)
   }
   
-  parameters <- list(key=version)
+  parameters <- list(key=version, kind=format)
 
   mpds <- get_viacache(kmtype.main, ids = parameters,
                        cache = cache, apikey = apikey)
   
-  return(tbl_df(mpds))
+  if (!is.null(format)) {
+    tmp <- tempfile(fileext = paste0(".", format))
+    mpds %>%
+      base64enc::base64decode() %>%
+      writeBin(tmp)
+    return(tmp)
+  } else {
+    return(tbl_df(mpds))
+  }
   
 }
 
