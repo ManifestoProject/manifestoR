@@ -69,23 +69,30 @@ franzmann_kaiser <- function(data,
 #' @rdname franzmann_kaiser
 read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_structure.sav", package = "manifestoR"),
                                     mean_presplit = TRUE) {
-  require(haven)
-  path %>%
-    read_sav() %>%
-    mutate(edate = as.Date(edate/(24*60*60), origin = "1582-10-14"),
-           country = as.numeric(country)) %>%
-    { set_names(., gsub("e(\\d+)_structure", "per\\1", names(.))) } %>%
-    mutate_each(funs(as.numeric), -edate, -country) %>%
-    select(-countryname) %>%
-    iff(mean_presplit, function(data) {
-      data %>%
+  
+  if (requireNamespace("haven", quietly = TRUE)) {
+    path %>%
+      haven::read_sav() %>%
+      mutate(edate = as.Date(edate/(24*60*60), origin = "1582-10-14"),
+             country = as.numeric(country)) %>%
+             { set_names(., gsub("e(\\d+)_structure", "per\\1", names(.))) } %>%
+      mutate_each(funs(as.numeric), -edate, -country) %>%
+      select(-countryname) %>%
+      iff(mean_presplit, function(data) {
+        data %>%
         { (select(subset(., country == 218), starts_with("per"))  + 
              select(subset(., country == 219), starts_with("per")))/2 } %>%
-        set_names(subset(names(data), grepl("^per", names(data)))) %>%
-        mutate(country = 21) %>%
-        bind_cols(data %>% subset(country == 218) %>% select(edate)) %>%
-        bind_rows(data)
-    })
+          set_names(subset(names(data), grepl("^per", names(data)))) %>%
+          mutate(country = 21) %>%
+          bind_cols(data %>% subset(country == 218) %>% select(edate)) %>%
+          bind_rows(data)
+      })
+  } else {
+    stop('Using the original Franzmann 2009 issue structure requires the package haven.
+         Install package haven with install.packages("haven") provide issue structures
+         from an alternative source.')
+  }
+  
 
 }
 
