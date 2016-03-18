@@ -9,6 +9,8 @@
 #' @param data A data.frame with cases to be scaled, variables named "per..."
 #' @param basevalues flag for transforming data to be relative to the minimum
 #' @param smoothing flag for using smoothing
+#' @param vars Variables/Categories to use for computation of score. Defaults to all
+#' available handbook version 4 categories.
 #' @param issue_structure issue structure to use for Franzmann & Kaiser method, default to original replication values
 #' @param party_system_split function to recode the country variable to re-partition
 #' party systems. Defaults to splitting Belgium into two halfs as done in Franzmann 2009
@@ -16,7 +18,7 @@
 #' party systems) the mean of the issue weights is used (which is equal to taking
 #' the mean of the output values, since all subsequent transformations are linear). This step
 #' is required to replicate the Franzmann 2009 dataset.
-#' @param ... passed on to fk_smoothing and \code{\link{party_system_split}}
+#' @param ... passed on to fk_smoothing and \code{party_system_split}
 #' @references Franzmann, Simon/Kaiser, Andre (2006): Locating Political Parties in Policy Space. A Reanalysis of Party Manifesto Data, Party Politics, 12:2, 163-188
 #' @references Franzmann, Simon (2009): The Change of Ideology: How the Left-Right Cleavage transforms into Issue Competition. An Analysis of Party Systems using Party Manifesto Data. PhD Thesis. Cologne.
 #' @export
@@ -65,6 +67,9 @@ franzmann_kaiser <- function(data,
 }
 
 #' @importFrom magrittr set_names
+#' @param path path from were to read issue structures (as SPSS data file). Defaults
+#' to the file bundled in the manifestoR package from the replication material of
+#' Franzmann 2009.
 #' @export
 #' @rdname franzmann_kaiser
 read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_structure.sav", package = "manifestoR"),
@@ -107,6 +112,7 @@ read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_stru
 #' @param brussels_parties Party codes for Brussel specific parties, are recoded to NA
 #' @param belgium_parties Party codes for complete system, coded as presplit_countrycode
 #' @param presplit_countrycode Country code for the belgium_parties
+#' @param ... ignored
 #' @export
 split_belgium <- function(data,
                           wallonia_parties = c(21111, 21322, 21422, 21423, 21425, 21426, 21522, 21911),

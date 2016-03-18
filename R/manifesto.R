@@ -52,6 +52,7 @@ mp_maindataset <- function(version="current", south_america = FALSE, apikey=NULL
 }
 
 #' @rdname mp_maindataset
+#' @param ... all arguments of \code{mp_southamerica_data} are passed on to \code{mp_maindataset}
 #' @export
 mp_southamerica_dataset <- functional::Curry(mp_maindataset, south_america = TRUE)
 
