@@ -57,6 +57,7 @@ Collate:
     scaling_functions.R
     issue_attention.R
     nicheness.R
+    clarity.R
     scaling_bootstrap.R
     dataset.R
 License: GPL (>= 3)

@@ -152,6 +152,34 @@ meyer_miller_2013_policy_dimensions <- function() {
   })
 }
 
+#' Default programmatic clarity dimensions from 
+#' Giebler/Lacewell/Regel/Werner 2015.
+#'
+#' @references Giebler/Lacewell/Regel/Werner (2015). Mass, Catch-all, or 
+#' Programmatic? Toward an Empirical Classification of Party Types. Manuscript.
+#'
+#' @export
+clarity_dimensions <- function() {
+  list(
+    "fsp" = list(pole_1 = c(101), pole_2 = c(102)),
+    "mil" = list(pole_1 = c(104), pole_2 = c(105)),
+    "int" = list(pole_1 = c(107), pole_2 = c(109)),
+    "eui" = list(pole_1 = c(108), pole_2 = c(110)),
+    "con" = list(pole_1 = c(203), pole_2 = c(204)),
+    "cen" = list(pole_1 = c(301), pole_2 = c(302)),
+    "mre" = list(pole_1 = c(401), pole_2 = c(403)),
+    "pro" = list(pole_1 = c(406), pole_2 = c(407)),
+    "fis" = list(pole_1 = c(409), pole_2 = c(414)),
+    "wel" = list(pole_1 = c(504), pole_2 = c(505)),
+    "edu" = list(pole_1 = c(506), pole_2 = c(507)),
+    "nwl" = list(pole_1 = c(601), pole_2 = c(602)),
+    "tmo" = list(pole_1 = c(603), pole_2 = c(604)),
+    "mul" = list(pole_1 = c(607), pole_2 = c(608)),
+    "lab" = list(pole_1 = c(701), pole_2 = c(702))
+  ) %>%
+    lapply(lapply, prefix, "per")
+}
+
 
 #' Aggregate category percentages in groups
 #' 

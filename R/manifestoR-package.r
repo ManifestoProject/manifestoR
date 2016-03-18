@@ -37,5 +37,6 @@ globalVariables(c("one_of", ".", "matches", "starts_with", "contains", # dplyr
                   "above50", "contains_median", "leftbound", "rightbound",
                   "min_divers", "max_divers", "nicheness", "min_nic", ## nicheness
                   "max_nic", "specialization", "min_spec", "max_spec",
-                  "specialization_stand", "specialization_stand_two", "nicheness_stand"
+                  "specialization_stand", "specialization_stand_two", "nicheness_stand",
+                  "tmp_mp_clarity_sum", "data_2", "score" # clarity measure
                 ))
