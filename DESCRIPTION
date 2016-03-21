@@ -35,13 +35,15 @@ Imports:
     jsonlite (>= 0.9.12),
     functional (>= 0.6),
     zoo (>= 1.7-11),
-    psych
+    psych,
+    base64enc
 Suggests:
     knitr,
     rmarkdown,
     testthat,
     R.rsp,
     haven,
+    readxl,
     devtools (>= 1.7.0)
 VignetteBuilder: R.rsp
 Collate:

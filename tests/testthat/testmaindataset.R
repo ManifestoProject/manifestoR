@@ -7,14 +7,19 @@ contains_factors <- function(mpds) {
     any()
 }
 
-test_that("main data set is formatted correctly", {
-  
-  mpds <- mp_maindataset()
+mpds_large_enough <- function(mpds) {
   expect_more_than(nrow(mpds), 3800)
   expect_more_than(ncol(mpds), 130)
   expect_true(all(c("country", "countryname",
                     "date", "edate",
                     "party", "per101", "rile") %in% names(mpds)))
+  
+}
+
+test_that("main data set is formatted correctly", {
+  
+  mpds <- mp_maindataset()
+  mpds_large_enough(mpds)
   
   expect_false(mpds %>%
                  contains_factors())
@@ -160,3 +165,27 @@ test_that("South America dataset can be downloaded", {
   
 })
 
+
+test_that("Foreign format dataset downloads work", {
+  
+  require(haven)
+  mp_maindataset(download_format = "dta") %>%
+    read_dta() %>%
+    { expect_is(.$party, "labelled");
+      mpds_large_enough(.) }
+  
+  mp_maindataset(download_format = "sav") %>%
+    read_sav() %>%
+    mpds_large_enough()
+  
+  require(readxl)
+  mp_maindataset(download_format = "xlsx") %>%
+    read_excel() %>%
+    mpds_large_enough()
+  
+  ## Test that cache is not broken
+  mp_maindataset() %>%
+    getElement("party") %>%
+    expect_is("numeric")
+  
+})

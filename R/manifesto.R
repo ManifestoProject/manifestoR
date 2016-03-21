@@ -16,8 +16,10 @@
 #'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
-#' @param format Download format. Defaults NULL, meaning csv, but can can be
-#' "dta" for STATA as well. 
+#' @param download_format Download format. If not NULL, instead of the dataset
+#' being returned as an R data.frame, a file path to a temporary file in the specified
+#' binary format is returned. Can be one of \code{c("dta", "xlsx", "sav")}. With
+#' the "dta" option, labeled columns can be obtained.
 #'              
 #' @return The Manifesto Project Main Dataset with classes \code{data.frame} and
 #' \code{\link[dplyr]{tbl_df}}
@@ -28,8 +30,12 @@
 #' head(mpds)
 #' median(subset(mpds, countryname == "Switzerland")$rile, na.rm = TRUE)
 #' }
+#' \dontrun{
+#' mp_maindataset(download_format = "dta") %>% read_dta() ## requires package haven
+#' }
 #' @export
-mp_maindataset <- function(version="current", south_america = FALSE,  format = NULL, apikey=NULL, cache=TRUE) {
+#' @import base64enc
+mp_maindataset <- function(version="current", south_america = FALSE, download_format = NULL, apikey=NULL, cache=TRUE) {
   
   if (version == "current") {
     versions <- mp_coreversions(apikey=apikey, cache=cache)
@@ -44,13 +50,13 @@ mp_maindataset <- function(version="current", south_america = FALSE,  format = N
     version <- gsub("MPDS", "MPDSSA", version)
   }
   
-  parameters <- list(key=version, kind=format)
+  parameters <- c(key=version, kind=download_format) %>% as.list()
 
   mpds <- get_viacache(kmtype.main, ids = parameters,
                        cache = cache, apikey = apikey)
   
-  if (!is.null(format)) {
-    tmp <- tempfile(fileext = paste0(".", format))
+  if (!is.null(download_format)) {
+    tmp <- tempfile(fileext = paste0(".", download_format))
     mpds %>%
       base64enc::base64decode() %>%
       writeBin(tmp)
