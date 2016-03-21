@@ -1,3 +1,24 @@
+1.2 (2016-03-21)
+================
+* South America Dataset and Corpus are now available in manifestoR.
+The respective documents are availabe since corpus version 2016-2 and
+require manifestoR 1.2 to be accessible.
+* mp_availability now returns a data.frame with attributes and not a
+list. This might break code backwards, you cannot acces mp_availability()$availability
+any longer. What was there before is now directly the return value of
+mp_availability.
+* You can download the Manifesto Project Main Dataset now also
+in binary formats (dta, xlsx, sav) and read it from there in order to
+obtain labelled columns as in STATA.
+* codes() now returns a vector and not a data.frame()
+* main dataset uses strings not factors
+* programmatic clarity measure implemented by Sven Regel
+* Franzmann & Kaiser 2009 scaling procedure included
+* With this a new function to split the Belgium party system is introduced
+* Subsetting metadata now works also by year
+* Citation handling for MZES documents implemented
+
+
 1.1-1 (2015-11-12)
 ==================
 
