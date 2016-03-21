@@ -31,7 +31,7 @@ globalVariables(c("one_of", ".", "matches", "starts_with", "contains", # dplyr
                   "md5sum_text.x", "md5sum_text.y", "code", "manifestos", # & metadata & api download
                   "download", "url_original", "is_primary_doc", "originals",
                   "name", "tag", # metadata versions
-                  "leadedate", "leglength", "countryname", "w", "p", # scaling
+                  "the_score", "leadedate", "leglength", "countryname", "w", "p", # scaling
                   "p_lead", "p_lag", "lrcorescores", # median_voter_single
                   "position", "voteshare", "cumvoteshare",
                   "above50", "contains_median", "leftbound", "rightbound",
