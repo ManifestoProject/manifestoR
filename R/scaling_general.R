@@ -225,7 +225,7 @@ document_scaling <- function(scalingfun,
                              recode_v5_to_v4 = FALSE,
                              ...) {
   
-  count_codes_loc <- functional::Curry(count_codes, ...)
+  count_codes_loc <- functional::Curry(count_codes, aggregate_v5_subcategories = FALSE, ...)
 
   return(function(x) {
     

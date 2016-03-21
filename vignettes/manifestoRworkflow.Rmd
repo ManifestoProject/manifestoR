@@ -1,7 +1,7 @@
 ---
 title: "Working with the manifestoR package"
 author: "Jirka Lewandowski <jirka.lewandowski@wzb.eu>"
-date: "04/03/2016"
+date: "21/03/2016"
 output:
   pdf_document:
     number_sections: yes
@@ -467,6 +467,10 @@ The following functions are currently available:
 * RILE according to Laver & Budge (1992): `rile`
 * logit rile according to Lowe et al. (2011): `logit_rile`
 * Vanilla scaling according to Gabel & Huber (2000): `vanilla`
+* Franzmann & Kaiser (2009): `franzmann_kaiser`
+* Issue attention diversity according to Greene (2015): `issue_attention_diversity`
+* Programmatic clarity measure according to Giebeler et al. (2015): `mp_clarity`
+* Nicheness measures according to Bischof (2015) or Meyer and Miller (2013): `mp_nicheness`
 * ... (more scaling functions are planned and contributions are welcome, see
 [Contributing to manifestoR](#contributing-to-manifestor)).
 
@@ -568,9 +572,17 @@ of the github repository.
 
 Benoit, K., Laver, M., & Mikhaylov, S. (2009). Treating Words as Data with Error: Uncertainty in Text Statements of Policy Positions. American Journal of Political Science, 53(2), 495-513. http://doi.org/10.1111/j.1540-5907.2009.00383.x
 
+Bischof, D. (2015). Towards a Renewal of the Niche Party Concept Parties, Market Shares and Condensed Offers. Party Politics.
+
 Feinerer, I., & Hornik, K. (2015). Tm: Text Mining Package. http://cran.r-project.org/web/packages/tm/index.html
 
+Franzmann, S., & Kaiser, A. (2006): Locating Political Parties in Policy Space. A Reanalysis of Party Manifesto Data, Party Politics, 12:2, 163-188
+
 Gabel, M. J., & Huber, J. D. (2000). Putting Parties in Their Place: Inferring Party Left-Right Ideological Positions from Party Manifestos Data. American Journal of Political Science, 44(1), 94-103.
+
+Giebler, H., Lacewell, O.P., Regel, S., and Werner, A. (2015). Niedergang oder Wandel? Parteitypen und die Krise der repraesentativen Demokratie. In Steckt die Demokratie in der Krise?, ed. Wolfgang Merkel, 181-219. Wiesbaden: Springer VS
+
+Greene, Z. (2015). Competing on the Issues How Experience in Government and Economic Conditions Influence the Scope of Parties' Policy Messages. Party Politics.
 
 Grimmer, J., & Stewart, B.. 2013. Text as Data: The Promise and Pitfalls of Automatic Content Analysis Methods for Political Texts. Political Analysis 21(3): 267–97.
 
@@ -583,6 +595,8 @@ Laver, M., & Garry, J. (2000). Estimating Policy Positions from Political Texts.
 Lehmann, P.,  Matthieß, T., Merz, N., Regel, S., & Werner, A. (2015): Manifesto Corpus. Version: 2015-4. Berlin: WZB Berlin Social Science Center.
 
 Lowe, W., Benoit, K., Mikhaylov, S., & Laver, M. (2011). Scaling Policy Preferences from Coded Political Texts. Legislative Studies Quarterly, 36(1), 123-155.
+
+Meyer, T.M., & Miller, B. (2013). The Niche Party Concept and Its Measurement. Party Politics 21(2): 259-271.
 
 Volkens, A., Lehmann, P., Matthieß, T., Merz, N., Regel, S., & Werner, A (2015): The Manifesto Data Collection. Manifesto Project (MRG/CMP/MARPOR). Version 2015a. Berlin: Wissenschaftszentrum Berlin für Sozialforschung (WZB)
 

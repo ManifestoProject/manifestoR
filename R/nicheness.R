@@ -1,6 +1,6 @@
 #' Party nicheness measures
 #' 
-#' Computes party nicheness measures suggested by Bischof 2015, Meyer and Miller 2013 and Wagner 2012. 
+#' Computes party nicheness measures suggested by Bischof 2015 and Meyer and Miller 2013. 
 #'
 #' @references Bischof, D. (2015). Towards a Renewal of the Niche Party Concept Parties, Market Shares and Condensed Offers. Party Politics.
 #' @references Meyer, T.M., & Miller, B. (2013). The Niche Party Concept and Its Measurement. Party Politics 21(2): 259-271.
