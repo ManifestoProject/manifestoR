@@ -28,8 +28,8 @@ issue_attention_diversity <- function(data,
                                                                   c(607, 608),
                                                                   c(701, 702))) {
   
-  methods <- list(shannon = function(.) { exp(-rowSums(. * log_0(.))) },
-                  herfindahl = function(.) { 1/rowSums(.*.) })
+  methods <- list(shannon = function(x) { x %>% mutate_each(funs(. * log_0(.))) %>% rowSums() %>% { exp(-.)} },
+                  herfindahl = function(x) { 1/rowSums(x*x) })
   
   prefix_cat <- function(cat) { paste0(prefix, cat)}
   
