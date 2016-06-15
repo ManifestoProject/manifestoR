@@ -92,7 +92,7 @@ nicheness_meyer_miller <- function(data,
     transform <- function(x) { log(x + 1) }
   } 
   
-  nicheness <- data %>%
+  data %>%
     aggregate_pers(groups = groups,
                    keep = TRUE) %>%
     iff(!is.null(transform), mutate_each_, funs = funs(transform), vars = names(groups)) %>%
@@ -103,17 +103,16 @@ nicheness_meyer_miller <- function(data,
     { split(., factor(paste0(.$country, .$date, sep = "_"))) } %>%
     lapply(arrange_, "party") %>%
     lapply(as.data.frame) %>%  ## fix necessary due to split
-    lapply(meyer_miller_single_election,
-           vars = names(groups),
-           weights = weights,
-           party_system_normalization = party_system_normalization,
-           only_non_zero = only_non_zero) %>%
-    unlist()
-  
-  data %>%
-    select(one_of(c("country", "party", "date"))) %>%
-    arrange(country, date, party) %>%
-    mutate(nicheness = nicheness)
+    lapply(function(data) {
+            data %>%
+              mutate(nicheness = meyer_miller_single_election(data,
+                vars = names(groups),
+                weights = weights,
+                party_system_normalization = party_system_normalization,
+                only_non_zero = only_non_zero))}) %>%
+    bind_rows() %>%
+    select(one_of(c("country", "party", "date", "nicheness"))) %>%
+    arrange(country, date, party)
     
 }
 

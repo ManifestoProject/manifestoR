@@ -122,12 +122,15 @@ test_that("Meyer Miller nicheness", {
     unlist() %>%
     expect_equivalent(sigma_p - rival_mean(sigma_p))
   
-  suppressWarnings(expect_equivalent(
+  suppressWarnings(left_join(
     fake_data %>% 
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = c("issue2", "issue3"))),
     fake_data_agg %>%
-      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"))
-  ))
+      nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")),
+    by = c("party", "date")) %>%
+    mutate(diff = abs(nicheness.x - nicheness.y)) %$%
+    expect_less_than(diff, 0.0001)
+  )
   
   expect_equivalent(
     fake_data %>% 
