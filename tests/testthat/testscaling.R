@@ -195,7 +195,7 @@ check_fk_results <- function(test_scores,
                              min_date = as.Date("1982-01-01"),
                              max_date = as.Date("2000-01-01"),
                              tolerance = 0.11) {
-              
+
   test_scores$manifestoR_fk <- franzmann_kaiser(test_scores, basevalues = TRUE, smoothing = TRUE, use_period_length = FALSE, mean_presplit = TRUE, presplit_countrycode = 21) 
   test_scores <- test_scores %>%
     subset(!is.na(manifestoR_fk)) %>%
@@ -206,7 +206,7 @@ check_fk_results <- function(test_scores,
   # qplot(LR_general, manifestoR_fk, data = test_scores) + geom_smooth(method = lm) + facet_grid(. ~ edate)
   
   test_scores %>%
-    subset(edate < max_date & edate > min_date) %>%
+    subset(edate < max_date & edate > min_date & !is.na(diff)) %>%
     summarise(m = max(diff)) %>%
     unlist() %>%
     expect_less_than(tolerance)
@@ -224,11 +224,11 @@ test_that("Franzmann Kaiser scaling works", {
     rename(country = Country) %>%
     select(-one_of("LR_economic", "LR_social"))
     
-  mp_maindataset() %>%
+  mp_maindataset(version = "MPDS2015a") %>%
     dplyr::filter(country==22, edate > as.Date("1980-01-01")) %>%
     check_fk_results(fk_scores)
   
-  mp_maindataset() %>%
+  mp_maindataset(version = "MPDS2015a") %>%
     dplyr::filter(country==21, edate > as.Date("1960-01-01"), edate < as.Date("1990-01-01")) %>%
     check_fk_results(fk_scores,
                      min_date = as.Date("1971-01-01"),
