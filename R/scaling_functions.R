@@ -76,9 +76,17 @@ read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_stru
                                     mean_presplit = TRUE) {
   
   if (requireNamespace("haven", quietly = TRUE)) {
+    
+    convert_date <- function(edate) {
+      tryCatch(as.Date(edate),
+               error = function(e) {
+                 as.Date(edate/(24*60*60), origin = "1582-10-14")
+               })
+    }
+    
     path %>%
       haven::read_sav() %>%
-      mutate(edate = as.Date(edate/(24*60*60), origin = "1582-10-14"),
+      mutate(edate = convert_date(edate),
              country = as.numeric(country)) %>%
              { set_names(., gsub("e(\\d+)_structure", "per\\1", names(.))) } %>%
       mutate_each(funs(as.numeric), -edate, -country) %>%
