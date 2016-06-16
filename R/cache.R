@@ -29,8 +29,8 @@ clear_env <- function(env) {
 single_var_caching <- function(varname, call, cache = TRUE) {
   
   if (cache) {
-    if (exists(varname, envir = mp_cache())) {
-      data <- get(varname, envir = mp_cache())
+    if (exists(varname, envir = mp_cache(), inherits = FALSE)) {
+      data <- get(varname, envir = mp_cache(), inherits = FALSE)
     } else {
       data <- call()
       assign(varname, data, envir = mp_cache())
@@ -59,7 +59,7 @@ read_multivar_from_cache <- function(varnames) {
   
   Reduce(function(df, id) {
       
-      bind_rows(df, get(id, envir = mp_cache()))
+      bind_rows(df, get(id, envir = mp_cache(), inherits = FALSE))
       
     },
     varnames,
@@ -73,7 +73,7 @@ multi_var_caching <- function(ids, get_fun, varname_fun,
   
   ids <- within(ids, {
      cache_varname <- varname_fun(ids)
-     is_cached <- sapply(cache_varname, Curry(exists, envir = mp_cache()))
+     is_cached <- sapply(cache_varname, Curry(exists, envir = mp_cache(), inherits = FALSE))
   })
   
   fromcache <- read_multivar_from_cache(subset(ids, is_cached)$cache_varname)
@@ -96,10 +96,10 @@ table_caching <- function(varname, fun, ids,
   if (cache) {
 
     ## load cache, create if !exists
-    if (!exists(varname, envir = mp_cache())) {
+    if (!exists(varname, envir = mp_cache(), inherits = FALSE)) {
       assign(varname, filter(ids, FALSE), envir = mp_cache())
     }
-    cachedata <- get(varname, envir = mp_cache())
+    cachedata <- get(varname, envir = mp_cache(), inherits = FALSE)
 
     ## check which ids are and are not already in cache
     datatoget <- anti_join(ids, cachedata, by = id.names)
@@ -165,7 +165,7 @@ table_caching <- function(varname, fun, ids,
 #' @export
 mp_check_for_corpus_update <- function(apikey = NULL, only_stable = TRUE) {
   
-  cacheversion <- getn(kmetaversion, envir = mp_cache())
+  cacheversion <- getn(kmetaversion, envir = mp_cache(), inherits = FALSE)
   dbversion <- last_corpus_version(apikey = apikey, onlytag = only_stable)
   
   return(list(update_available = (is.null(cacheversion) || (cacheversion != dbversion)),
@@ -180,7 +180,7 @@ mp_check_for_corpus_update <- function(apikey = NULL, only_stable = TRUE) {
 #' @export
 mp_which_corpus_version <- function(cache_env = mp_cache()) {
   
-  cacheversion <- getn(kmetaversion, envir = cache_env)
+  cacheversion <- getn(kmetaversion, envir = cache_env, inherits = FALSE)
   
   if (is.null(cacheversion)) {
     return(NA)
@@ -213,7 +213,7 @@ mp_which_dataset_versions <- function(cache_env = mp_cache()) {
 #' @export
 mp_use_corpus_version <- function(versionid, apikey=NULL) {
 
-  cache_versionid <- getn(kmetaversion, envir = mp_cache())
+  cache_versionid <- getn(kmetaversion, envir = mp_cache(), inherits = FALSE)
   
   if (is.null(cache_versionid) || versionid != cache_versionid) {
 
@@ -221,7 +221,7 @@ mp_use_corpus_version <- function(versionid, apikey=NULL) {
     new_cache <- new.env()
     assign(kmetaversion, versionid, envir = new_cache)
 
-    meta_from_cache <- getn(kmetadata, envir = mp_cache())
+    meta_from_cache <- getn(kmetadata, envir = mp_cache(), inherits = FALSE)
     texts_in_cache <- manifestos_in_cache(mp_cache())
 
     if (!is.null(meta_from_cache)) {
@@ -307,7 +307,7 @@ manifestos_in_cache <- function(cache_env = mp_cache()) {
 
 copy_to_env <- function(vars, env1, env2) {
   for (var in vars) {
-    assign(var, get(var, envir = env1), envir = env2)
+    assign(var, get(var, envir = env1, inherits = FALSE), envir = env2)
   }
 }
 
@@ -348,9 +348,9 @@ get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
     if (is.null(versionid)) {
       
       ## check for versionid in cache
-      if (exists(kmetaversion, envir = mp_cache())) {
+      if (exists(kmetaversion, envir = mp_cache(), inherits = FALSE)) {
         
-        versionid <- get(kmetaversion, envir = mp_cache())
+        versionid <- get(kmetaversion, envir = mp_cache(), inherits = FALSE)
         
       } else { ## This case should never happen
         
