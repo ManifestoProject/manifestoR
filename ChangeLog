@@ -1,3 +1,7 @@
+1.2.1 (2016-06-20)
+==================
+* mp_cite now not only prints a message but returns a data frame with citations
+
 1.2 (2016-03-21)
 ================
 * South America Dataset and Corpus are now available in manifestoR.
