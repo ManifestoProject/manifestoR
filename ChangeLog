@@ -1,3 +1,11 @@
+1.2.1 (2016-06-20)
+==================
+* Important bugfix in nicheness_meyer_miller (also mp_nicheness): Nicheness values according
+to Meyer & Miller were wrongly assigned to datapoints!
+* Bugfix in issue_attention_diversity: Error list of length ... not meaningful
+* franzmann_kaiser scaling now works also for future versions of haven (> 0.2.0)
+* Fixed that mp_coreversions returned corpus versions instead under certain circumstances
+
 1.2 (2016-03-21)
 ================
 * South America Dataset and Corpus are now available in manifestoR.
