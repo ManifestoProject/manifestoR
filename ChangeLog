@@ -5,6 +5,7 @@ to Meyer & Miller were wrongly assigned to datapoints!
 * Bugfix in issue_attention_diversity: Error list of length ... not meaningful
 * franzmann_kaiser scaling now works also for future versions of haven (> 0.2.0)
 * Fixed that mp_coreversions returned corpus versions instead under certain circumstances
+* mp_cite now not only prints a message but returns a data frame with citations
 
 1.2 (2016-03-21)
 ================

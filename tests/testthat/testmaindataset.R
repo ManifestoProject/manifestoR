@@ -189,3 +189,19 @@ test_that("Foreign format dataset downloads work", {
     expect_is("numeric")
   
 })
+
+test_that("mp_cite returns data.frame", {
+  
+  mp_cite() %>%
+    expect_is("data.frame")
+  
+  mp_maindataset()
+  mp_maindataset("MPDS2014a")
+  mp_cite() %>%
+    expect_named(c("data", "source", "version"))
+  
+  mp_cite() %>%
+    subset(data == "dataset") %>%
+    nrow() %>%
+    expect_more_than(1)
+})
