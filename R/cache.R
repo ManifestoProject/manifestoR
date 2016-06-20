@@ -194,7 +194,9 @@ mp_which_corpus_version <- function(cache_env = mp_cache()) {
 #' versions which are in the cache, i.e. have been downloaded
 #' @export
 mp_which_dataset_versions <- function(cache_env = mp_cache()) {
-  gsub(paste0(kdatasetname, "(.*)"), "\\1", ls(cache_env, pattern = kdatasetname))
+  gsub(paste0(kdatasetname, "(.*)"), "\\1", ls(cache_env, pattern = kdatasetname)) %>%
+  { gsub("(xlsx$)|(dta$)|(sav$)", "", .) } %>%
+    unique()
 }
 
 
