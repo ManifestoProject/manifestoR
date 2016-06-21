@@ -367,9 +367,15 @@ get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
   
   if (type == kmtype.versions) {
     
-    call <- wrap_mpdb_call(get_mpdb(kmtype.versions, versionid = versionid, ...))
+    call <- wrap_mpdb_call(get_mpdb(kmtype.versions, versionid = versionid, parameters = list(...)))
     
-    return(single_var_caching(kversions, call,
+    if ("kind" %in% names(list(...))) {
+      varname <- paste0(kversions, "_", list(...)$kind)
+    } else {
+      varname <- kversions
+    }
+    
+    return(single_var_caching(varname, call,
                               cache = cache))
     
   } else if (type == kmtype.main) {

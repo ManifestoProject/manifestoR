@@ -261,7 +261,7 @@ get_citation <- function(version, type, apikey = NULL) {
            apikey = apikey)$citation %>% unlist()
 }
 
-last_corpus_version <- function(onlytag = TRUE, apikey = NULL) {
+last_corpus_version <- function(onlytag = TRUE, apikey = NULL, ...) {
   mp_corpusversions(apikey = apikey) %>%
     subset(!onlytag | !is.na(tag)) %>%
     arrange(name) %>%

@@ -9,7 +9,9 @@ test_that("simple caching of listversions() works", {
   
   expect_equal(list1, list2)
   expect_true(length(setdiff(before_caching, after_caching)) > 0)  ## connection message
-  expect_true(exists(kversions, envir = mp_cache()))
+  expect_true(ls(envir = mp_cache()) %>%
+                { grepl(kversions, .) } %>%
+                any())
   
   mp_emptycache()
   expect_equal(length(ls(envir = mp_cache())), 0)

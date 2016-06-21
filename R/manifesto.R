@@ -38,17 +38,17 @@
 mp_maindataset <- function(version="current", south_america = FALSE, download_format = NULL, apikey=NULL, cache=TRUE) {
   
   if (version == "current") {
-    versions <- mp_coreversions(apikey=apikey, cache=cache)
+    versions <- mp_coreversions(apikey=apikey, cache=cache, kind = ifelse(south_america, "south_america", "main"))
     version <- as.character(versions[nrow(versions), "datasets.id"]) # TODO date in dataset
   }
   
-  if (south_america) {
-    if (as.numeric(gsub(".*?(\\d+).*", "\\1", version)) < 2015) {
-      warning("No south america dataset available before 2015!")
-      return(tbl_df(data.frame()))
-    }
-    version <- gsub("MPDS", "MPDSSA", version)
-  }
+  # if (south_america) {
+    # if (as.numeric(gsub(".*?(\\d+).*", "\\1", version)) < 2015) {
+      # warning("No south america dataset available before 2015!")
+      # return(tbl_df(data.frame()))
+    # }
+    # version <- gsub("MPDS", "MPDSSA", version)
+  # }
   
   parameters <- c(key=version, kind=download_format) %>% as.list()
 
@@ -86,9 +86,9 @@ mp_southamerica_dataset <- functional::Curry(mp_maindataset, south_america = TRU
 #' @examples
 #' \dontrun{mp_coreversions()}
 #' @export
-mp_coreversions <- function(apikey=NULL, cache=TRUE) {
+mp_coreversions <- function(apikey=NULL, cache=TRUE, kind = "main") {
   
-  versions <- get_viacache(kmtype.versions, apikey=apikey, cache=cache)
+  versions <- get_viacache(kmtype.versions, apikey=apikey, cache=cache, kind=kind)
   
   return(versions)
 }
