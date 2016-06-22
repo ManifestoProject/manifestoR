@@ -204,4 +204,13 @@ test_that("mp_cite returns data.frame", {
     subset(data == "dataset") %>%
     nrow() %>%
     expect_more_than(1)
+  
+  mp_southamerica_dataset()
+  mp_cite() %>%
+    subset(data == "dataset" &
+             grepl("MPDSSA", version) &
+             grepl("South America", citation, fixed = TRUE)) %>%
+    nrow() %>%
+    expect_more_than(0L)
+  
 })
