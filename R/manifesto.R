@@ -120,12 +120,12 @@ formatids <- function(ids) {
   names(ids) <- tolower(names(ids))
   ids <- ids[,intersect(c("party", "date", "edate"), names(ids))]
   
-  suppressWarnings({
-    nodate.idxs <- which( ("date" %in% names(ids) | is.na(ids$date)) & "edate" %in% names(ids) )
-    ids$date[nodate.idxs] <- as.numeric(format(ids[nodate.idxs,]$edate,
-                                               format="%Y%m"))
-  })
-  
+  if ("date" %in% names(ids) & "edate" %in% names(ids)) {
+    ids <- mutate(ids, date = ifelse(is.na(date),
+                                     as.numeric(format(edate, format="%Y%m")),
+                                     date))
+  }
+
   n.before <- nrow(ids)
   suppressWarnings(ids <- ids[which(!is.na(ids$party) & !is.na(ids$date)),])
   n.after <- nrow(ids)
