@@ -92,6 +92,8 @@ mp_southamerica_dataset <- functional::Curry(mp_maindataset, south_america = TRU
 #'        the API key set via \code{\link{mp_setapikey}}.
 #' @param cache Boolean flag indicating whether to use locally cached data if
 #'              available.
+#' @param kind one of "main" (default) or "south_america" to discrimante the Main Dataset
+#' and the South America Dataset
 #'
 #' @details
 #' For the available versions of the corpus, see \code{\link{mp_corpusversions}}

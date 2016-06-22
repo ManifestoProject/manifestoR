@@ -42,8 +42,9 @@ ManifestoCorpus <- function(csource = ManifestoJSONSource()) {
 #' modified via the \code{meta} function, as well as content, accessible via
 #' \code{content}. Additionally, via \code{\link{codes}()}, the coding of the
 #' (quasi-)sentence ccording to the CMP category scheme can be accessed 
-#' (and modified).The CMP category scheme can be found online at
-#' \url{https://manifesto-project.wzb.eu/coding_schemes/1}.
+#' (and modified). The CMP category scheme can be found online at
+#' \url{https://manifesto-project.wzb.eu/coding_schemes/mp_v4} (version 4)
+#' or \url{https://manifesto-project.wzb.eu/coding_schemes/mp_v5} (version 5).
 #' 
 
 #' 
