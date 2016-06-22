@@ -121,7 +121,7 @@ formatids <- function(ids) {
   ids <- ids[,intersect(c("party", "date", "edate"), names(ids))]
   
   suppressWarnings({
-    nodate.idxs <- which( (is.null(ids$date) | is.na(ids$date)) & !is.null(ids$edate) )
+    nodate.idxs <- which( ("date" %in% names(ids) | is.na(ids$date)) & "edate" %in% names(ids) )
     ids$date[nodate.idxs] <- as.numeric(format(ids[nodate.idxs,]$edate,
                                                format="%Y%m"))
   })
@@ -560,7 +560,7 @@ mp_cite <- function(corpus_version = mp_which_corpus_version(),
                         select(party, date) %>%
                         mp_metadata(apikey = apikey)
       if (!is.null(corpus_cache) && 
-          !is.null(corpus_cache$source)) {
+          "source" %in% names(corpus_cache)) {
         if(any(corpus_cache$source == "CEMP")) {
           cite_string <- get_citation("CEMP", kmtype.corpuscitation, apikey = apikey)
           cite_message <- paste0(cite_message, "\n\n",
