@@ -198,7 +198,7 @@ test_that("mp_cite returns data.frame", {
   mp_maindataset()
   mp_maindataset("MPDS2014a")
   mp_cite() %>%
-    expect_named(c("data", "source", "version"))
+    expect_named(c("data", "source", "version", "citation"))
   
   mp_cite() %>%
     subset(data == "dataset") %>%
