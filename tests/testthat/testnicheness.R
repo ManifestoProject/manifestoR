@@ -51,7 +51,7 @@ test_that("Bischof nicheness works and produces correct results", {
               niche_err = replication_niche - nicheness,
               niche_two_err = replication_niche_two - nicheness_two) %>%
     mutate_each(funs(abs(.) < 0.001), vars = one_of("spec_err", "niche_err")) %>%
-    mutate(niche_two_err = abs(niche_two_err) < 0.5) %>%  ## some error is allows
+    transmute(niche_two_err = abs(niche_two_err) < 0.5) %>%  ## some error is allows
                                                           ## since we are not using
                                                           ## Bischof's original bounds
     unlist() %>%
@@ -156,6 +156,7 @@ test_that("Meyer Miller nicheness", {
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")) %>%
       group_by(country, party) %>%
       summarise(nicheness = unique(nicheness)) %>%
+      ungroup() %>%
       mutate(date = 1) %>%
       select(country, party, date, nicheness),
     fake_data %>%
