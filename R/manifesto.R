@@ -40,6 +40,19 @@ mp_maindataset <- function(version="current", south_america = FALSE, download_fo
   if (version == "current") {
     versions <- mp_coreversions(apikey=apikey, cache=cache, kind = ifelse(south_america, "south_america", "main"))
     version <- as.character(versions[nrow(versions), "datasets.id"]) # TODO date in dataset
+  } else if (!grepl("MPDS", version)) {
+    version <- paste0(ifelse(south_america, "MPDSSA", "MPDS"), version)
+  }
+  
+  if (south_america & !grepl("MPDSSA", version)) {
+    warning(paste("The specified version string", version,
+                  "does not identify a South America dataset, although south_america = TRUE.",
+                  "The returned dataset might be incorrect!"))
+  }
+  if (!south_america & grepl("MPDSSA", version)) {
+    warning(paste("The specified version string", version,
+                  "does identify a South America dataset, but south_america = FALSE.",
+                  "The returned dataset might be incorrect!"))
   }
   
   # if (south_america) {
