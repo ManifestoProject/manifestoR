@@ -108,7 +108,7 @@ formatids <- function(ids) {
   ids <- ids[,intersect(c("party", "date", "edate"), names(ids))]
   
   suppressWarnings({
-    nodate.idxs <- which(is.null(ids$date) | is.na(ids$date))
+    nodate.idxs <- which( (is.null(ids$date) | is.na(ids$date)) & !is.null(ids$edate) )
     ids$date[nodate.idxs] <- as.numeric(format(ids[nodate.idxs,]$edate,
                                                format="%Y%m"))
   })
