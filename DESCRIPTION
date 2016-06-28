@@ -1,7 +1,7 @@
 Package: manifestoR
 Title: Access and Process Data and Documents of the Manifesto Project
-Date: 2016-06-20
-Version: 1.2.1
+Date: 2016-06-28
+Version: 1.2.2
 Authors@R: c(person("Jirka", "Lewandowski",
 		    role = c("aut", "cre"),
 		    email = "jirka.lewandowski@wzb.eu"),

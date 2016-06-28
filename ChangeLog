@@ -1,3 +1,8 @@
+1.2.2 (2016-06-28)
+==================
+* small but important bugfix to give full access to new dataset version 2016a: new
+variables partyabbrev and datasetversion should not be converted to numeric automatically
+
 1.2.1 (2016-06-20)
 ==================
 * Important bugfix in nicheness_meyer_miller (also mp_nicheness): Nicheness values according
