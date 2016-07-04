@@ -1,8 +1,14 @@
+prepare_environment:
+  stage: prepare
+  script:
+    - R -e "dir.create('~/.Rlib'); library(devtools); with_libpaths('~/.Rlib/', {
+        install_deps(dependencies = c('Depends', 'Imports','Suggests'), repos = 'http://r-cran.manifesto-project.wzb.eu');
+        document();})"
+
 pack_manifestoR:
   stage: build
   script:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
-    - R -e "library(devtools); document()"
     - mkdir inst/doc
     - make Rmdvignette
     - R CMD build ./
@@ -23,6 +29,7 @@ test_manifestoR:
     - make test
 
 stages:
+  - prepare
   - build
 
   
