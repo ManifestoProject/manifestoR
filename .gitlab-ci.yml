@@ -3,7 +3,7 @@ prepare_environment:
   script:
     - R -e "dir.create('~/.Rlib'); library(devtools); with_libpaths('~/.Rlib/', {
         install_deps(dependencies = c('Depends', 'Imports','Suggests'), repos = 'http://r-cran.manifesto-project.wzb.eu');
-        document();})
+        document();})"
         
 compile_vignette:
   stage: vignette
