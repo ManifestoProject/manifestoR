@@ -3,14 +3,25 @@ prepare_environment:
   script:
     - R -e "dir.create('~/.Rlib'); library(devtools); with_libpaths('~/.Rlib/', {
         install_deps(dependencies = c('Depends', 'Imports','Suggests'), repos = 'http://r-cran.manifesto-project.wzb.eu');
-        document();})"
+        document();})
+        
+compile_vignette:
+  stage: vignette
+  script:
+    - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
+    - mkdir inst/doc
+  	- sed -i '/VignetteBuilder: R.rsp/c\VignetteBuilder: knitr' DESCRIPTION
+	- R -e "library(devtools); with_libpaths('~/.Rlib', build_vignettes());"
+	- cp inst/doc/manifestoRworkflow.pdf vignettes/
+	- sed -i '/VignetteBuilder: knitr/c\VignetteBuilder: R.rsp' DESCRIPTION
+  artifacts:
+    - vignettes/manifestoRworkflow.pdf
 
 pack_manifestoR:
   stage: build
   script:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
     - mkdir inst/doc
-    - make Rmdvignette
     - R CMD build ./
     - mv manifestoR*.tar.gz manifestoR.tar.gz
     - R CMD check --as-cran manifestoR.tar.gz > check_results.txt
@@ -19,7 +30,6 @@ pack_manifestoR:
     paths:
     - manifestoR.tar.gz
     - check_results.txt
-    - vignettes/manifestoRworkflow.pdf
 
 test_manifestoR:
   stage: build
@@ -30,6 +40,7 @@ test_manifestoR:
 
 stages:
   - prepare
+  - vignette
   - build
 
   
