@@ -10,10 +10,10 @@ compile_vignette:
   script:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
     - mkdir inst/doc
-  	- sed -i '/VignetteBuilder: R.rsp/c\VignetteBuilder: knitr' DESCRIPTION
-	- R -e "library(devtools); with_libpaths('~/.Rlib', build_vignettes());"
-	- cp inst/doc/manifestoRworkflow.pdf vignettes/
-	- sed -i '/VignetteBuilder: knitr/c\VignetteBuilder: R.rsp' DESCRIPTION
+    - sed -i '/VignetteBuilder: R.rsp/c\VignetteBuilder: knitr' DESCRIPTION
+    - R -e "library(devtools); with_libpaths('~/.Rlib', build_vignettes());"
+    - cp inst/doc/manifestoRworkflow.pdf vignettes/
+    - sed -i '/VignetteBuilder: knitr/c\VignetteBuilder: R.rsp' DESCRIPTION
   artifacts:
     - vignettes/manifestoRworkflow.pdf
 
