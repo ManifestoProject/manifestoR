@@ -10,12 +10,13 @@ compile_vignette:
   script:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
     - mkdir inst/doc
-    - sed -i '/VignetteBuilder: R.rsp/c\VignetteBuilder: knitr' DESCRIPTION
+    - R -e "library(magrittr); 'DESCRIPTION' %>% readLines() %>% { gsub('(VignetteBuilder.)\\sR.rsp', \\1 knitr', .) } %>% writeLines('DESCRIPTION')"
     - R -e "library(devtools); with_libpaths('~/.Rlib', build_vignettes());"
     - cp inst/doc/manifestoRworkflow.pdf vignettes/
-    - sed -i '/VignetteBuilder: knitr/c\VignetteBuilder: R.rsp' DESCRIPTION
+    - R -e "library(magrittr); 'DESCRIPTION' %>% readLines() %>% { gsub('(VignetteBuilder.)\\sknitr', '\\1 R.rsp', .) } %>% writeLines('DESCRIPTION')"
   artifacts:
-    - vignettes/manifestoRworkflow.pdf
+    paths:
+      - vignettes/manifestoRworkflow.pdf
 
 pack_manifestoR:
   stage: build
@@ -42,5 +43,3 @@ stages:
   - prepare
   - vignette
   - build
-
-  
