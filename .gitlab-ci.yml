@@ -23,15 +23,14 @@ test_manifestoR:
   stage: test
   script:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
-    - R -e "library(devtools); with_libpaths('~/.Rlib', { document(); library(testthat); with_reporter('stop', test()) })"
+    - R -e "library(devtools); with_libpaths('~/.Rlib', { document(); library(testthat); test(reporter = 'stop') })"
 
 pack_manifestoR:
   stage: pack
   script:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
     - mkdir inst/doc
-    - R CMD build ./
-    - mv manifestoR*.tar.gz manifestoR.tar.gz
+    - R -e "library(devtools); with_libpaths('~/.Rlib', { document(); file.copy(build(path = './'), 'manifestoR.tar.gz') })"
     - R CMD check --as-cran manifestoR.tar.gz > check_results.txt
     - cat check_results.txt
   artifacts:
