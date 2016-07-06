@@ -54,6 +54,7 @@ mp_setapikey("manifesto_apikey.txt")
 ```
 ```{r eval=TRUE, include=FALSE}
 library(devtools)
+document("../")
 load_all("../")
 mp_setapikey(key.file = "../tests/manifesto_apikey.txt")
 ```
