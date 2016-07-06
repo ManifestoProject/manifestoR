@@ -46,10 +46,10 @@ franzmann_kaiser <- function(data,
       data <- data %>%
          group_by(country, edate) %>%
          #select(one_of(vars)) %>%
-         mutate_each_(funs(base=.-min(., na.rm=TRUE)), vars) %>%
+         mutate_each_(funs(.-min(., na.rm=TRUE)), vars) %>%
          ungroup()
    }
-
+  
    data %>%
      select(one_of("country", "edate")) %>%
      left_join(issue_structure) %>%

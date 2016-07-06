@@ -78,7 +78,7 @@ test_that("aggregating handbook version 5 codes works", {
 code_table_as_expected <- function(code_table, partydate = TRUE, prefix = "per",
                                    include_codes = v4_categories(),
                                    sum_regex = paste0(prefix, "(\\d{3}|(uncod))$")) {
-  
+
   expect_is(code_table, "data.frame")
   expect_true("total" %in% names(code_table))
   if (partydate) {
@@ -94,10 +94,12 @@ code_table_as_expected <- function(code_table, partydate = TRUE, prefix = "per",
                 anyNA())
   code_table %>% 
     subset(total > 0L) %>%
-    select(matches(sum_regex)) %>%
+    select(dplyr::matches(sum_regex)) %>%
     apply(1, sum) %>%
     na.omit() %>%
-    sapply(expect_equal, 100)
+    { format(.) == "100" } %>%  ## Workaround for rounding errors
+    all() %>%
+    expect_true()
   code_table %>%
     subset(total == 0L) %>%
     select(starts_with(prefix)) %>%

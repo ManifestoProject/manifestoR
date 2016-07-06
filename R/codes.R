@@ -269,20 +269,36 @@ count_codes <- function(doc,
 
 fix_names_code_table <- function(df, prefix, include_codes) {
   
-  ensure_names <- paste0(prefix, include_codes) %>%
-    { gsub(".", "_", ., fixed = TRUE)}
-  ensure_names <- ensure_names %>%
-      subset(!grepl(paste0("$(", prefix, ").+^"), ensure_names)) %>%
-    as.character()
-
-  the_order <- order(names(df))
-  df %>%
-    select(the_order) %>%
-    select(matches("party"),
-           matches("date"),
-           starts_with(prefix),
-           one_of(ensure_names),
-           matches("total"))
+  if (length(include_codes) > 0) {
+    
+    ensure_names <- paste0(prefix, include_codes) %>%
+    { gsub(".", "_", ., fixed = TRUE)} %>%
+    { subset(., !grepl(paste0("$(", prefix, ").+^"), .)) } %>%
+      as.character() %>%
+      paste(collapse = ")|(") %>%
+      { paste0("^(", . , ")$") }
+    
+    the_order <- order(names(df))
+    df %>%
+      select(the_order) %>%
+      select(dplyr::matches("party"),
+             dplyr::matches("date"),
+             dplyr::starts_with(prefix),
+             dplyr::matches(ensure_names),
+             dplyr::matches("total"))
+    
+    
+  } else {
+    
+    the_order <- order(names(df))
+    df %>%
+      select(the_order) %>%
+      select(dplyr::matches("party"),
+             dplyr::matches("date"),
+             dplyr::starts_with(prefix),
+             dplyr::matches("total"))
+    
+  }
   
 }
 
