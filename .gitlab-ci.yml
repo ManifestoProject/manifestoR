@@ -18,6 +18,7 @@ compile_vignette:
   artifacts:
     paths:
       - vignettes/manifestoRworkflow.pdf
+      - inst/doc/manifestoRworkflow.pdf
       
 test_manifestoR:
   stage: test
