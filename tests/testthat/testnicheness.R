@@ -1,4 +1,5 @@
 mp_setapikey("../manifesto_apikey.txt")
+library(magrittr)
 
 test_that("Bischof nicheness works and produces correct results", {
   
