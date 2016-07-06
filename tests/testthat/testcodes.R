@@ -94,7 +94,7 @@ code_table_as_expected <- function(code_table, partydate = TRUE, prefix = "per",
                 anyNA())
   code_table %>% 
     subset(total > 0L) %>%
-    select(matches(sum_regex)) %>%
+    select(dplyr::matches(sum_regex)) %>%
     apply(1, sum) %>%
     na.omit() %>%
     sapply(expect_equal, 100)

@@ -166,7 +166,7 @@ test_that("Vanilla scaling produces no error", {
   
   allpers <- filter(mpds, country<70) %>% 
     filter(date > 198000) %>%
-    select(matches("(^per(\\d{3}|(uncod))$)|(rile)"))
+    select(dplyr::matches("(^per(\\d{3}|(uncod))$)|(rile)"))
   
   ### vanilla test
   
