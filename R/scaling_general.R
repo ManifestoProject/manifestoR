@@ -93,7 +93,7 @@ default_list <- function(the_names, default_val = 0L) {
 scale_weighted <- function(data,
                      vars = grep("per((\\d{3}(_\\d)?)|\\d{4}|(uncod))$", names(data), value=TRUE),
                      weights = 1) {
-
+  
   data <- select(data, one_of(vars[vars %in% names(data)]))
 
   if (is.matrix(weights)) {
@@ -119,24 +119,24 @@ scale_weighted <- function(data,
     }
 
     if (is.list(weights)) {
+      if (is.null(names(weights))) {
+        names(weights) <- names(data)      
+      }
       weights <- as.data.frame(weights)
       if (nrow(weights) == 1 && nrow(data) > 1) {
         weights <- rep(weights, nrow(data))
       }
     } else {
-      weights <- matrix(weights, ncol = ncol(data), nrow = nrow(data), byrow = TRUE)
+      weights <- matrix(weights, ncol = ncol(data), nrow = nrow(data), byrow = TRUE, dimnames = list(NULL, names(data)))
     }
 
     weights <- as.data.frame(weights)
-    if (is.null(names(weights))) {
-      names(weights) <- names(data)      
-    }
   }
 
   vars <- vars[vars %in% names(data)]
   data <- select(data, one_of(vars))
   weights <- select(weights, one_of(vars))
-
+  
   rowSums(data*weights) # apply weighting to rows, sum
 
 }
