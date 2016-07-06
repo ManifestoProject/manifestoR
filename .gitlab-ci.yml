@@ -18,9 +18,15 @@ compile_vignette:
   artifacts:
     paths:
       - vignettes/manifestoRworkflow.pdf
+      
+test_manifestoR:
+  stage: test
+  script:
+    - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
+    - R -e "library(devtools); with_libpaths('~/.Rlib', { document(); library(testthat); with_reporter('stop', test()) })"
 
 pack_manifestoR:
-  stage: build
+  stage: pack
   script:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
     - mkdir inst/doc
@@ -33,14 +39,8 @@ pack_manifestoR:
     - manifestoR.tar.gz
     - check_results.txt
 
-test_manifestoR:
-  stage: build
-  script:
-    - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
-    - R -e "library(devtools); document()"
-    - make test
-
 stages:
   - prepare
+  - test
   - vignette
-  - build
+  - pack
