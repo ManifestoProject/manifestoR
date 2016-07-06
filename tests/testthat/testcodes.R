@@ -89,7 +89,7 @@ code_table_as_expected <- function(code_table, partydate = TRUE, prefix = "per",
     expect_true(all(gsub(".", "_", paste0(prefix, include_codes), fixed = TRUE) %in% names(code_table)))
   }
   expect_false(code_table %>%
-                select(starts_with(prefix), matches("total")) %>%
+                select(starts_with(prefix), dplyr::matches("total")) %>%
                 subset(total > 0L) %>%
                 anyNA())
   code_table %>% 
