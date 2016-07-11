@@ -37,7 +37,7 @@ pack_manifestoR:
     - cp inst/doc/manifestoRworkflow.pdf vignettes/
     - R -e "library(magrittr); 'DESCRIPTION' %>% readLines() %>% { gsub('(VignetteBuilder.)\\\\sknitr', '\\\\1 R.rsp', .) } %>% writeLines('DESCRIPTION')"
     - R -e "library(devtools); with_libpaths('~/.Rlib', { document(); file.copy(build(path = './'), 'manifestoR.tar.gz') })"
-    - (R_LIBS_USER='~/.Rlib'; R CMD check --as-cran manifestoR.tar.gz)
+    - (R_LIBS_USER='~/.Rlib';  _R_CHECK_FORCE_SUGGESTS_=false; echo ${R_LIBS_USER}; R -e ".libPaths()"; R CMD check --as-cran manifestoR.tar.gz)
   artifacts:
     paths:
     - manifestoR.tar.gz
