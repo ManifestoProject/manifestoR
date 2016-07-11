@@ -38,6 +38,8 @@ pack_manifestoR:
     paths:
     - manifestoR.tar.gz
     - check_results.txt
+  dependencies:
+    - compile_vignette
 
 stages:
   - prepare
