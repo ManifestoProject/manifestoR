@@ -1,7 +1,7 @@
 prepare_environment:
   stage: prepare
   script:
-    - R -e "dir.create('~/.Rlib'); library(devtools); library(withr); withr::with_libpaths('~/.Rlib/', action = 'replace', { .libPaths();
+    - R -e "dir.create('~/.Rlib'); library(devtools); library(withr); withr::with_libpaths('~/.Rlib/', action = 'replace', { cat(.libPaths());
         install_deps(dependencies = c('Depends', 'Imports','Suggests'), repos = 'http://r-cran.manifesto-project.wzb.eu');
         document();})"
         
