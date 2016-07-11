@@ -1,7 +1,7 @@
 prepare_environment:
   stage: prepare
   script:
-    - (export R_LIBS_USER='~/.Rlib'; export R_LIBS_SITE='~/.Rlib'; R --vanilla -e "install.packages('devtools', repos = 'http://r-cran.manifesto-project.wzb.eu'); library(devtools); cat(.libPaths()); install_deps(dependencies = c('Depends', 'Imports','Suggests'), repos = 'http://r-cran.manifesto-project.wzb.eu');")
+    - (export R_LIBS_USER='~/.Rlib'; export R_LIBS_SITE='~/.Rlib'; R --vanilla -e "library(devtools); install_deps(dependencies = c('Depends', 'Imports','Suggests'), repos = 'http://r-cran.manifesto-project.wzb.eu');")
 
 compile_vignette:
   stage: vignette
@@ -36,6 +36,7 @@ pack_manifestoR:
     - R -e "library(magrittr); 'DESCRIPTION' %>% readLines() %>% { gsub('(VignetteBuilder.)\\\\sknitr', '\\\\1 R.rsp', .) } %>% writeLines('DESCRIPTION')"
     - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib', { document(); file.copy(build(path = './'), 'manifestoR.tar.gz') })"
     - (export R_LIBS_SITE='~/.Rlib';  R -e ".libPaths()"; R CMD check --as-cran manifestoR.tar.gz)
+    - cat manifestoR.Rcheck/00install.out
   artifacts:
     paths:
     - manifestoR.tar.gz
