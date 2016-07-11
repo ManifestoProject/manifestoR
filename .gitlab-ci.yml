@@ -1,7 +1,7 @@
 prepare_environment:
   stage: prepare
   script:
-    - (export R_LIBS_USER='~/.Rlib'; export R_LIBS_SITE='~/.Rlib'; R --vanilla -e "install.packages('devtools'); library(devtools); cat(.libPaths()); install_deps(dependencies = c('Depends', 'Imports','Suggests'), repos = 'http://r-cran.manifesto-project.wzb.eu');")
+    - (export R_LIBS_USER='~/.Rlib'; export R_LIBS_SITE='~/.Rlib'; R --vanilla -e "install.packages('devtools', repos = 'http://r-cran.manifesto-project.wzb.eu'); library(devtools); cat(.libPaths()); install_deps(dependencies = c('Depends', 'Imports','Suggests'), repos = 'http://r-cran.manifesto-project.wzb.eu');")
 
 compile_vignette:
   stage: vignette
