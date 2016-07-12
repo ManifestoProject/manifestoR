@@ -39,11 +39,11 @@ mp_bootstrap <- function(data,
 
   ## how to bootstrap a single row
   bootstrap_row <- function(row) {
-
+    
     total <- row$total
     to_permute <- grepl(col_filter, names(row)) & !is.na(row[1,])
-    row_permute <- row[,to_permute] %>% mutate(rowid=1)
-    row_dontpermute <- row[,!to_permute] %>% mutate(rowid=1)
+    row_permute <- row %>% select(which(to_permute)) %>% mutate(rowid=1)
+    row_dontpermute <- row %>% select(which(!to_permute)) %>% mutate(rowid=1)
     bootstrap_distribution <- do.call(
         fun,
         list(right_join(row_dontpermute, by = c("rowid"),
