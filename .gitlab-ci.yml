@@ -23,7 +23,7 @@ test_manifestoR:
   stage: test
   script:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
-    - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib', { document(); library(testthat); test(reporter = 'stop') })"
+    - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib', { document(); library(testthat); test() })"
 
 pack_manifestoR:
   stage: pack
