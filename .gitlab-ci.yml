@@ -35,7 +35,7 @@ pack_manifestoR:
     - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib', build_vignettes());"
     - cp inst/doc/manifestoRworkflow.pdf vignettes/
     - R -e "library(magrittr); 'DESCRIPTION' %>% readLines() %>% { gsub('(VignetteBuilder.)\\\\sknitr', '\\\\1 R.rsp', .) } %>% writeLines('DESCRIPTION')"
-    - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib', { document(); pkg_path <- build(path = './'); file.copy(pkg_path, 'manifestoR.tar.gz')'; file.copy(pkg_path, '/srv/r-cran.manifesto-project.wzb.eu/src/contrib/');  library(miniCRAN); updateRepoIndex('/srv/r-cran.manifesto-project.wzb.eu/')})"
+    - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib', { document(); pkg_path <- build(path = './'); file.copy(pkg_path, 'manifestoR.tar.gz'); file.copy(pkg_path, '/srv/r-cran.manifesto-project.wzb.eu/src/contrib/');  library(miniCRAN); updateRepoIndex('/srv/r-cran.manifesto-project.wzb.eu/')})"
     - (export R_LIBS_SITE='~/.Rlib';  R -e ".libPaths()"; R CMD check --as-cran manifestoR.tar.gz > check_results.txt)
     - cat check_results.txt
   artifacts:
