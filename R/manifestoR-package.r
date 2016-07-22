@@ -18,6 +18,7 @@
 #' @import zoo
 #' @importFrom psych fa
 #' @import NLP
+#' @import tibble
 #' @import dplyr
 #' @import functional
 #' @import tm

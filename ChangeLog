@@ -1,3 +1,7 @@
+1.2.3 (2016-07-22)
+==================
+* changes in the use of dplyr function to be compatible with dplyr 0.5 and tibble 1.1
+
 1.2.2 (2016-06-28)
 ==================
 * small but important bugfix to give full access to new dataset version 2016a: new
