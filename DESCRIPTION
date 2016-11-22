@@ -43,7 +43,7 @@ Suggests:
     rmarkdown,
     testthat,
     R.rsp,
-    haven,
+    haven (>= 1.0.0),
     readxl,
     devtools (>= 1.7.0),
     formatR,
