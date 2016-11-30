@@ -95,9 +95,9 @@ For both, corpus and documents, `tm` provides accessor functions to the corpus
 and documents content and metadata:
 
 ```{r}
-head(content(my_corpus[["42110_200209"]]))
+head(content(my_corpus[["42110_200211"]]))
 head(content(my_corpus[[1]]))
-meta(my_corpus[["42110_200209"]])
+meta(my_corpus[["42110_200211"]])
 ```
 
 For more information on the available metadata per document, refer to the section
