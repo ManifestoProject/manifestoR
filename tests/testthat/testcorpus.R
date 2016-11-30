@@ -154,12 +154,12 @@ test_that("Different ways of indexing corpus work", {
   expect_true(all(grepl("\\d{5}_\\d{4}", names(corpus))))
   
   expect_is(corpus[[1]], "ManifestoDocument")
-  expect_is(corpus[["41320_2002"]], "ManifestoDocument")
-  expect_equivalent(corpus[["41320_2002"]], corpus[[1]])
+  expect_is(corpus[["41320_200209"]], "ManifestoDocument")
+  expect_equivalent(corpus[["41320_200209"]], corpus[[1]])
   
   expect_is(corpus[1], "ManifestoCorpus")
   expect_is(corpus[1:2], "ManifestoCorpus")
-  expect_is(corpus[c("41320_2005", "41320_2009")], "ManifestoCorpus")
+  expect_is(corpus[c("41320_200509", "41320_200909")], "ManifestoCorpus")
   
 
 })
@@ -178,7 +178,7 @@ test_that("corpus does tm stuff", {
   
   tdm <- TermDocumentMatrix(corpus)
   expect_is(tdm, "TermDocumentMatrix")
-  expect_true(all(as.vector(tdm["spd",c("41320_2002", "41320_2005" )]) > 0)) ## spd should appear in both docs
+  expect_true(all(as.vector(tdm["spd",c("41320_200209", "41320_200509" )]) > 0)) ## spd should appear in both docs
   
   ## specific ManifestoDocument functionality
   expect_true(all(valid_code(codes(corpus))))
