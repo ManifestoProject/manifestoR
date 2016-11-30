@@ -121,7 +121,7 @@ test_that("caching of corpus works correctly", {
   corpswe <- mp_corpus(swe)
   
   ## check that corpus parts are now in cache
-  corpids <- mp_metadata(subset(mp_availability(swe), annotations))
+  corpids <- mp_metadata(subset(mp_availability(swe), manifestos))
   vnames <- cache_vname(corpids$party, corpids$date, corpids$manifesto_id)
   expect_true(all(exists(vnames, envir = mp_cache())))
   
