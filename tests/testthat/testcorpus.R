@@ -9,7 +9,8 @@ cache_vname <- function(party, date, manifesto_id) {
 check_cache_mapping <- function(doc) {
   vname <- cache_vname(meta(doc, "party"), meta(doc, "date"), meta(doc, "manifesto_id"))
   cachedoc <- get(vname, envir = mp_cache())
-  expect_equal(head(cachedoc$items[[1]]$content), head(content(doc)))
+  text_name <- intersect(names(cachedoc$items[[1]]), c("text", "content"))
+  expect_equal(head(cachedoc$items[[1]][[text_name]]), head(content(doc)))
 }
 
 valid_code <- function(x) {
