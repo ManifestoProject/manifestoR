@@ -2,7 +2,7 @@ prepare_environment:
   stage: prepare
   script:
     - R -e "dir.create('~/.Rlib-dev')"
-    - (export R_LIBS_USER='~/.Rlib-dev'; export R_LIBS_SITE='~/.Rlib-dev'; R --vanilla -e "options(repos = 'http://r-cran.manifesto-project.wzb.eu'); install.packages('devtools', lib = '~/.Rlib-dev'); library(devtools); withr::with_libpaths('~/.Rlib-dev', install.packages('pkgconfig', lib = '~/.Rlib-dev'); install_github('krlmlr/plogr'); install_github('krlmlr/bindrcpp'); install_github('hadley/dplyr')); install_deps(dependencies = c('Depends', 'Imports','Suggests'), lib = '~/.Rlib-dev');")
+    - (export R_LIBS_USER='~/.Rlib-dev'; export R_LIBS_SITE='~/.Rlib-dev'; R --vanilla -e "options(repos = 'http://r-cran.manifesto-project.wzb.eu'); install.packages('devtools', lib = '~/.Rlib-dev'); library(devtools); withr::with_libpaths('~/.Rlib-dev', {install.packages('pkgconfig', lib = '~/.Rlib-dev'); install_github('krlmlr/plogr'); install_github('krlmlr/bindrcpp'); install_github('hadley/dplyr')}); install_deps(dependencies = c('Depends', 'Imports','Suggests'), lib = '~/.Rlib-dev');")
 
 compile_vignette:
   stage: vignette
