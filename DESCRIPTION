@@ -44,7 +44,7 @@ Suggests:
     testthat,
     R.rsp,
     haven (>= 1.0.0),
-    readxl,
+    readxl (>= 1.0.0),
     devtools (>= 1.7.0),
     formatR,
     highr
