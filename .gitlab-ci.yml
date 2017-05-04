@@ -11,7 +11,7 @@ compile_vignette:
     - mkdir -p inst/doc
     - R -e "library(magrittr); 'DESCRIPTION' %>% readLines() %>% { gsub('(VignetteBuilder.)\\\\sR.rsp', '\\\\1 knitr', .) } %>% writeLines('DESCRIPTION')"
     - cat DESCRIPTION
-    - R --vanilla -e "library(devtools); with_libpaths('~/.Rlib-dev', build_vignettes());"
+    - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib-dev', build_vignettes());"
     - cp inst/doc/manifestoRworkflow.pdf vignettes/
     - R -e "library(magrittr); 'DESCRIPTION' %>% readLines() %>% { gsub('(VignetteBuilder.)\\\\sknitr', '\\\\1 R.rsp', .) } %>% writeLines('DESCRIPTION')"
   artifacts:
