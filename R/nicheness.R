@@ -175,11 +175,11 @@ nicheness_bischof <- function(data,
   data %>%
     aggregate_pers(groups = groups,
                    keep = TRUE) %>%
-    mutate_each_(funs(log(. + 1)), vars = names(groups)) %>%
+    mutate_at(.cols = names(groups), .funs = funs(log(. + 1))) %>%
     # smooth with lag
     group_by(party) %>%
     arrange(date) %>%
-    iff(is.function(smooth), mutate_each_, funs(smooth), vars = names(groups)) %>%
+    iff(is.function(smooth), mutate_at, .cols = names(groups), .funs = funs(smooth)) %>%
     ungroup() %>%
     { mutate(., diversification = diversification(., names(groups))) } %>%
     mutate(
