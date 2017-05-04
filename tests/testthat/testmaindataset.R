@@ -61,7 +61,7 @@ test_that("interpolation works", {
     df  %>%
       select(one_of("party", vars)) %>%
       group_by(party) %>%
-      summarise_each(funs(sd(unique(.))))
+      summarise_all(funs(sd(unique(.))))
   }
   expect_equal(all_unique_sd(mpds), all_unique_sd(c_interpol))
   
