@@ -121,7 +121,7 @@ diversification <- function(data, groups) {
   data %>%
     select(one_of(groups)) %>%
     { . / rowSums(.) } %>%
-    mutate_each_(funs( -. * log_0(.)), vars = groups) %>%
+    mutate_at(.cols = groups, .funs = funs( -. * log_0(.)))
     rowSums()
 }
 
