@@ -89,7 +89,7 @@ read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_stru
       mutate(edate = convert_date(edate),
              country = as.numeric(country)) %>%
              { set_names(., gsub("e(\\d+)_structure", "per\\1", names(.))) } %>%
-      mutate_each(funs(as.numeric), -edate, -country) %>%
+      mutate_at(.cols= vars(-edate, -country), .funs = funs(as.numeric)) %>%
       select(-countryname) %>%
       iff(mean_presplit, function(data) {
         data %>%
