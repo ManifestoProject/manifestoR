@@ -46,7 +46,7 @@ franzmann_kaiser <- function(data,
       data <- data %>%
          group_by(country, edate) %>%
          #select(one_of(vars)) %>%
-         mutate_each_(funs(.-min(., na.rm=TRUE)), vars) %>%
+        mutate_at(.cols = vars, .funs = funs(.-min(., na.rm=TRUE))) %>%
          ungroup()
    }
   
