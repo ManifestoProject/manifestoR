@@ -95,10 +95,10 @@ nicheness_meyer_miller <- function(data,
   data %>%
     aggregate_pers(groups = groups,
                    keep = TRUE) %>%
-    iff(!is.null(transform), mutate_each_, funs = funs(transform), vars = names(groups)) %>%
+    iff(!is.null(transform), mutate_at, .cols = names(groups), .funs = funs(transform)) %>%
     group_by(party) %>%
     arrange(date) %>%
-    iff(smooth, mutate_each_, funs = funs((. + lag(.))/2), vars = names(groups)) %>%  ## TODO think about this
+    iff(smooth, mutate_at, .cols = names(groups), .funs = funs((. + lag(.))/2)) %>%  ## TODO think about this
     ungroup() %>%
     { split(., factor(paste0(.$country, .$date, sep = "_"))) } %>%
     lapply(arrange_, "party") %>%
