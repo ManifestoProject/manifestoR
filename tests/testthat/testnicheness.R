@@ -49,7 +49,8 @@ test_that("Bischof nicheness works and produces correct results", {
     transmute(spec_err = replication_spec - specialization,
               niche_err = replication_niche - nicheness,
               niche_two_err = replication_niche_two - nicheness_two) %>%
-    mutate_each(funs(abs(.) < 0.001), vars = one_of("spec_err", "niche_err")) %>%
+    #mutate_each(funs(abs(.) < 0.001), vars = one_of("spec_err", "niche_err")) %>%
+    #the line above mutates two columns that are dropped in the next line
     transmute(niche_two_err = abs(niche_two_err) < 0.5) %>%  ## some error is allows
                                                           ## since we are not using
                                                           ## Bischof's original bounds
