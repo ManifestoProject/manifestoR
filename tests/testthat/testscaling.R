@@ -209,7 +209,7 @@ check_fk_results <- function(test_scores,
     subset(edate < max_date & edate > min_date & !is.na(diff)) %>%
     summarise(m = max(diff)) %>%
     unlist() %>%
-    expect_less_than(tolerance)
+    expect_lt(tolerance)
   
 }
 

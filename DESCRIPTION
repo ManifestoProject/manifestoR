@@ -41,7 +41,7 @@ Imports:
 Suggests:
     knitr,
     rmarkdown,
-    testthat,
+    testthat (>= 1.0.2),
     R.rsp,
     haven (>= 1.0.0),
     readxl (>= 1.0.0),

@@ -8,8 +8,8 @@ contains_factors <- function(mpds) {
 }
 
 mpds_large_enough <- function(mpds) {
-  expect_more_than(nrow(mpds), 3800)
-  expect_more_than(ncol(mpds), 130)
+  expect_gt(nrow(mpds), 3800)
+  expect_gt(ncol(mpds), 130)
   expect_true(all(c("country", "countryname",
                     "date", "edate",
                     "party", "per101", "rile") %in% names(mpds)))
@@ -203,7 +203,7 @@ test_that("mp_cite returns data.frame", {
   mp_cite() %>%
     subset(data == "dataset") %>%
     nrow() %>%
-    expect_more_than(1)
+    expect_gt(1)
   
   mp_southamerica_dataset()
   mp_cite() %>%
@@ -211,6 +211,6 @@ test_that("mp_cite returns data.frame", {
              grepl("MPDSSA", version) &
              grepl("South America", citation, fixed = TRUE)) %>%
     nrow() %>%
-    expect_more_than(0L)
+    expect_gt(0L)
   
 })
