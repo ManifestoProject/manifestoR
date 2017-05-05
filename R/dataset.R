@@ -43,8 +43,8 @@ mp_interpolate <- function(df,
         right_join(data.frame(edate = seq_Date_multi(df$edate, by = by),
                               party = the_party),
                    by = c("edate", "party")) %>%
-        mutate_each_(funs(zoo(., edate) %>% the_approx() %>% as.numeric()),
-                     vars = grep(vars, names(df), value = TRUE))
+        mutate_at(.cols = grep(vars, names(df), value = TRUE),
+                  .funs = funs(zoo::zoo(., edate) %>% the_approx() %>% as.numeric()))
   
     } else {
       return(df)
