@@ -28,6 +28,8 @@ mp_interpolate <- function(df,
   the_approx <- function(x) {
     if (all(is.na(x))) {
       return(NA)
+    } else if (identical(approx, zoo::na.approx)) {
+      approx(x, na.rm=FALSE, ...)
     } else {
       approx(x, ...)
     }
