@@ -95,10 +95,10 @@ nicheness_meyer_miller <- function(data,
   data %>%
     aggregate_pers(groups = groups,
                    keep = TRUE) %>%
-    iff(!is.null(transform), mutate_at, .cols = names(groups), .funs = funs(transform)) %>%
+    iff(!is.null(transform), mutate_at, names(groups), .funs = funs(transform)) %>%
     group_by(party) %>%
     arrange(date) %>%
-    iff(smooth, mutate_at, .cols = names(groups), .funs = funs((. + lag(.))/2)) %>%  ## TODO think about this
+    iff(smooth, mutate_at, names(groups), .funs = funs((. + lag(.))/2)) %>%  ## TODO think about this
     ungroup() %>%
     { split(., factor(paste0(.$country, .$date, sep = "_"))) } %>%
     lapply(arrange_, "party") %>%
@@ -121,7 +121,7 @@ diversification <- function(data, groups) {
   data %>%
     select(one_of(groups)) %>%
     { . / rowSums(.) } %>%
-    mutate_at(.cols = groups, .funs = funs( -. * log_0(.)))
+    mutate_at(groups, .funs = funs( -. * log_0(.)))
     rowSums()
 }
 
@@ -175,11 +175,11 @@ nicheness_bischof <- function(data,
   data %>%
     aggregate_pers(groups = groups,
                    keep = TRUE) %>%
-    mutate_at(.cols = names(groups), .funs = funs(log(. + 1))) %>%
+    mutate_at(names(groups), .funs = funs(log(. + 1))) %>%
     # smooth with lag
     group_by(party) %>%
     arrange(date) %>%
-    iff(is.function(smooth), mutate_at, .cols = names(groups), .funs = funs(smooth)) %>%
+    iff(is.function(smooth), mutate_at, names(groups), .funs = funs(smooth)) %>%
     ungroup() %>%
     { mutate(., diversification = diversification(., names(groups))) } %>%
     mutate(

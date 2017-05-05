@@ -134,7 +134,7 @@ test_that("Meyer Miller nicheness", {
   
   expect_equivalent(
     fake_data %>% 
-      mutate_at(.funs = funs({log(. + 1)}), .cols = vars(starts_with("issue"))) %>%
+      mutate_at(vars(starts_with("issue")), .funs = funs({log(. + 1)})) %>%
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")),
     fake_data %>%
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"),
@@ -143,7 +143,7 @@ test_that("Meyer Miller nicheness", {
   
   expect_equivalent(
     fake_data %>% 
-      mutate_at(.funs = funs({exp(- .^2)}), .cols = vars(starts_with("issue"))) %>%
+      mutate_at(vars(starts_with("issue")), .funs = funs({exp(- .^2)})) %>%
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")),
     fake_data %>%
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"),
