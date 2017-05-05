@@ -3,3 +3,6 @@ man
 man/*
 tests/manifesto_apikey.txt
 .Rproj.user
+.RData
+.Rhistory
+manifestor.Rproj
