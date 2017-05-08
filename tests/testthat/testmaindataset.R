@@ -48,7 +48,7 @@ interpolation_as_expected <- function(interpol, mpds, vars) {
 }
 test_that("interpolation works", {
   
-  mpds <- subset(mp_maindataset(), countryname %in% c("Sri Lanka", "Switzerland"))
+  mpds <- mp_maindataset()
   vars <- grep("(^rile$)|(^per\\d{3}$)", names(mpds), value = TRUE)
   
   ## constant interpolation
