@@ -20,13 +20,15 @@
 mp_interpolate <- function(df,
                            vars = "(^rile$)|(^per((\\d{3}(_\\d)?)|\\d{4})$)",
                            by = "year",
-                           approx = functional::Curry(zoo::na.approx, na.rm = FALSE),
+                           approx = zoo::na.approx,
                            ...)
   {
 
   the_approx <- function(x) {
     if (all(is.na(x))) {
       return(NA)
+    } else if (identical(approx, zoo::na.approx)) {
+      approx(x, na.rm=FALSE, ...)
     } else {
       approx(x, ...)
     }
