@@ -129,7 +129,7 @@ test_that("Meyer Miller nicheness", {
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")),
     by = c("party", "date")) %>%
     mutate(diff = abs(nicheness.x - nicheness.y)) %$%
-    expect_less_than(max(diff), 0.0001)
+    expect_lt(max(diff), 0.0001)
   )
   
   expect_equivalent(
