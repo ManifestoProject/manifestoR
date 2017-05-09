@@ -37,6 +37,7 @@ pack_manifestoR:
     - (export R_LIBS_SITE='~/.Rlib-dev';  R -e ".libPaths()"; R CMD check --as-cran manifestoR.tar.gz > check_results.txt)
     - cat check_results.txt
   artifacts:
+    when: always
     paths:
     - manifestoR.tar.gz
     - check_results.txt
