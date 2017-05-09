@@ -26,8 +26,6 @@ test_manifestoR:
     - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib-dev', { document(); library(testthat); results <- test(reporter = 'stop'); results; session_info(); })"
 
 pack_manifestoR:
-  only:
-    - master
   dependencies:
     - compile_vignette
   stage: pack
