@@ -73,6 +73,7 @@ test_that("interpolation works", {
   expect_equal(all_unique_sd(mpds), all_unique_sd(c_interpol))
   
   ## another zoo function
+  mpds <- dplyr::filter(mp_maindataset(), countryname %in% c("Sri Lanka", "Switzerland"))
   s_interpol <- mp_interpolate(mpds, approx = na.spline, maxgap = 3)
   interpolation_as_expected(s_interpol, mpds, vars)
   
