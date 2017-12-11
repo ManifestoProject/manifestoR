@@ -121,6 +121,8 @@ test_that("check_for_corpus_update works", {
 
 test_that("list dataset versions in cache works", {
   
+  mp_emptycache()
+  
   mp_maindataset("MPDS2016b") -> mpds2016b
   mp_maindataset("MPDS2014b") -> mpds2014b
   
