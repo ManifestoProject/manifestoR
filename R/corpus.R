@@ -265,8 +265,8 @@ readManifesto <- function(elem, language, id) {
     document <- rename(document, cmp_code = code)
   }
   ManifestoDocument(content = document %>%
-                      mutate_each(funs(as.character), contains("code")) %>%
-                      mutate_each(funs(ifelse(is.nacode(.), NA, .)), contains("code")),
+                      mutate_at(vars(contains("code")), funs(as.character)) %>%
+                      mutate_at(vars(contains("code")), funs(ifelse(is.nacode(.), NA, .))),
                     id = elem$id,
                     meta = elem$meta)
 }

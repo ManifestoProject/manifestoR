@@ -96,7 +96,7 @@ formatmpds <- function(mpds) {
 
   for (name in names(mpds)) {
 
-    if (!name %in% c("edate", "countryname", "partyname", "candidatename", "partyabbrev", "datasetversion")) {
+    if (!name %in% c("edate", "countryname", "partyname", "candidatename", "partyabbrev", "datasetversion", "corpusversion")) {
       mpds[,name] <- as.numeric(as.character(mpds[,name]))
     }
 

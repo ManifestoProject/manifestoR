@@ -68,12 +68,12 @@ mp_clarity <- function(data,
 
   data <- data %>%
     { if (auto_rescale_weight) 
-        mutate_each_(., funs(./sum(.)), weighting_source) 
+        mutate_at(., weighting_source, funs(./sum(.)))
       else 
         . } %>%
-    { if (auto_rescale_variables) { 
+    { if (auto_rescale_variables) {
         mutate(., tmp_mp_clarity_sum = rowSums(select_(., .dots = dimension_categories))) %>%
-        mutate_each_(funs(./tmp_mp_clarity_sum), dimension_categories) %>%
+        mutate_at(dimension_categories, funs(./tmp_mp_clarity_sum)) %>%
         select(-tmp_mp_clarity_sum)
       }
       else {
