@@ -121,7 +121,7 @@ diversification <- function(data, groups) {
   data %>%
     select(one_of(groups)) %>%
     { . / rowSums(.) } %>%
-    mutate_at(groups, .funs = funs( -. * log_0(.)))
+    mutate_at(groups, .funs = funs( -. * log_0(.))) %>%
     rowSums()
 }
 
@@ -171,7 +171,7 @@ nicheness_bischof <- function(data,
                               smooth = function(x) {
                                 (x + lag(x, default = first(first(x))))/2
                               }) {
-
+  
   data %>%
     aggregate_pers(groups = groups,
                    keep = TRUE) %>%

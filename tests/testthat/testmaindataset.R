@@ -54,18 +54,26 @@ test_that("interpolation works", {
   ## constant interpolation
   c_interpol <- mp_interpolate(mpds, by = "month", method = "constant")
   interpolation_as_expected(c_interpol, mpds, vars)
+  
+  partys_with_nas <- c(34213, 34720, 34730, 34340, 43901, 71710, 89320, 89430, 89940, 91712, 95952, 95955)
 
-  expect_true(all(!is.na(c_interpol[,vars])))
+  c_interpol %>%
+    filter(!party %in% partys_with_nas) %>%
+    select(one_of(vars)) %>%
+    is.na() %>%
+    any() %>%
+    expect_false()
   
   all_unique_sd <- function(df) {
     df  %>%
       select(one_of("party", vars)) %>%
       group_by(party) %>%
-      summarise_all(funs(sd(unique(.))))
+      summarise_all(funs(sd(unique(.), na.rm = TRUE)))
   }
   expect_equal(all_unique_sd(mpds), all_unique_sd(c_interpol))
   
   ## another zoo function
+  mpds <- dplyr::filter(mp_maindataset(), countryname %in% c("Sri Lanka", "Switzerland"))
   s_interpol <- mp_interpolate(mpds, approx = na.spline, maxgap = 3)
   interpolation_as_expected(s_interpol, mpds, vars)
   

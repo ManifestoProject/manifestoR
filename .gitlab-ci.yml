@@ -2,7 +2,7 @@ prepare_environment:
   stage: prepare
   script:
     - R -e "dir.create('~/.Rlib-dev')"
-    - (export R_LIBS_USER='~/.Rlib-dev'; export R_LIBS_SITE='~/.Rlib-dev'; R --vanilla -e "options(repos = 'http://r-cran.manifesto-project.wzb.eu'); install.packages('devtools', lib = '~/.Rlib-dev'); library(devtools); withr::with_libpaths('~/.Rlib-dev', {install_github('RcppCore/Rcpp', ref = '0.12.10'); install_github('krlmlr/bindr'); install.packages('pkgconfig', lib = '~/.Rlib-dev'); install_github('krlmlr/plogr'); install_github('krlmlr/bindrcpp'); install_github('hadley/dplyr')}); install_deps(dependencies = c('Depends', 'Imports','Suggests'), lib = '~/.Rlib-dev');")
+    - (export R_LIBS_USER='~/.Rlib-dev'; export R_LIBS_SITE='~/.Rlib-dev'; R --vanilla -e "options(repos = 'http://r-cran.manifesto-project.wzb.eu'); install.packages(c('miniCRAN', 'devtools'), lib = '~/.Rlib-dev'); library(devtools); withr::with_libpaths('~/.Rlib-dev', {install_github('RcppCore/Rcpp', ref = '0.12.10'); install_github('krlmlr/bindr'); install.packages('pkgconfig', lib = '~/.Rlib-dev'); install_github('krlmlr/plogr'); install_github('krlmlr/bindrcpp'); install_github('hadley/dplyr')}); install_deps(dependencies = c('Depends', 'Imports','Suggests'), lib = '~/.Rlib-dev');")
 
 compile_vignette:
   stage: vignette
@@ -26,8 +26,6 @@ test_manifestoR:
     - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib-dev', { document(); library(testthat); results <- test(reporter = 'stop'); results; session_info(); })"
 
 pack_manifestoR:
-  only:
-    - master
   dependencies:
     - compile_vignette
   stage: pack
@@ -39,6 +37,7 @@ pack_manifestoR:
     - (export R_LIBS_SITE='~/.Rlib-dev';  R -e ".libPaths()"; R CMD check --as-cran manifestoR.tar.gz > check_results.txt)
     - cat check_results.txt
   artifacts:
+    when: always
     paths:
     - manifestoR.tar.gz
     - check_results.txt
