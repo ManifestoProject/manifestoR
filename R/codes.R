@@ -230,7 +230,7 @@ aggregate_pers <- function(data,
   
   if (!keep) {
     data %>%
-      select(-one_of(setdiff(unlist(groups), names(groups))))
+      select(-one_of(setdiff(intersect(names(data), unlist(groups)), names(groups))))
   } else {
     data
   }

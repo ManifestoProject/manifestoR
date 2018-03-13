@@ -49,7 +49,8 @@ test_that("Bischof nicheness works and produces correct results", {
     transmute(spec_err = replication_spec - specialization,
               niche_err = replication_niche - nicheness,
               niche_two_err = replication_niche_two - nicheness_two) %>%
-    mutate_each(funs(abs(.) < 0.001), vars = one_of("spec_err", "niche_err")) %>%
+    #mutate_each(funs(abs(.) < 0.001), vars = one_of("spec_err", "niche_err")) %>%
+    #the line above mutates two columns that are dropped in the next line
     transmute(niche_two_err = abs(niche_two_err) < 0.5) %>%  ## some error is allows
                                                           ## since we are not using
                                                           ## Bischof's original bounds
@@ -128,12 +129,12 @@ test_that("Meyer Miller nicheness", {
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")),
     by = c("party", "date")) %>%
     mutate(diff = abs(nicheness.x - nicheness.y)) %$%
-    expect_less_than(max(diff), 0.0001)
+    expect_lt(max(diff), 0.0001)
   )
   
   expect_equivalent(
     fake_data %>% 
-      mutate_each(funs({log(. + 1)}), starts_with("issue")) %>%
+      mutate_at(vars(starts_with("issue")), .funs = funs({log(. + 1)})) %>%
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")),
     fake_data %>%
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"),
@@ -142,7 +143,7 @@ test_that("Meyer Miller nicheness", {
   
   expect_equivalent(
     fake_data %>% 
-      mutate_each(funs({exp(- .^2)}), starts_with("issue")) %>%
+      mutate_at(vars(starts_with("issue")), .funs = funs({exp(- .^2)})) %>%
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3")),
     fake_data %>%
       nicheness_meyer_miller(groups = list(issue1 = "issue1", issue2 = "issue2", issue3 = "issue3"),

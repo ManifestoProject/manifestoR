@@ -46,7 +46,7 @@ franzmann_kaiser <- function(data,
       data <- data %>%
          group_by(country, edate) %>%
          #select(one_of(vars)) %>%
-         mutate_each_(funs(.-min(., na.rm=TRUE)), vars) %>%
+        mutate_at(vars, .funs = funs(.-min(., na.rm=TRUE))) %>%
          ungroup()
    }
   
@@ -89,7 +89,7 @@ read_fk_issue_structure <- function(path = system.file("extdata", "fk_issue_stru
       mutate(edate = convert_date(edate),
              country = as.numeric(country)) %>%
              { set_names(., gsub("e(\\d+)_structure", "per\\1", names(.))) } %>%
-      mutate_each(funs(as.numeric), -edate, -country) %>%
+      mutate_at(vars(-edate, -country), .funs = funs(as.numeric)) %>%
       select(-countryname) %>%
       iff(mean_presplit, function(data) {
         data %>%

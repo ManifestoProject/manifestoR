@@ -1,3 +1,11 @@
+1.2.4 (2017-05-08)
+==================
+* Bugfix in mp_maindataset: variable "corpusversion" (exists from dataset version 2016b onwards) should not be set NA
+* Bugfix in mp_interpolate when country-timeseries starts with NAs
+* changes in the of dplyr functions to be compatible with dplyr 0.5 and dplyr 0.6
+* Dependency on readxl 1.0.0 for better column type guessing in downloading xls dataset file
+
+
 1.2.3 (2016-07-22)
 ==================
 * changes in the use of dplyr function to be compatible with dplyr 0.5 and tibble 1.1
