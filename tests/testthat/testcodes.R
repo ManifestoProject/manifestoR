@@ -108,8 +108,16 @@ code_table_as_expected <- function(code_table, partydate = TRUE, prefix = "per",
 }
 
 test_that("count_codes works for all intended types of objects", {
-  
-  corp <- mp_corpus(countryname == "Sweden")
+
+  headings_to_na <- function(doc) {
+    cod <- codes(doc)
+    cod[cod == "H"] <- NA
+    codes(doc) <- cod
+    doc
+  }
+
+  corp <- mp_corpus(countryname == "Sweden") %>%
+    tm_map(headings_to_na)
 
   corp %>%
     count_codes() %>%
