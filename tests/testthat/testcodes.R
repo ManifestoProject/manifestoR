@@ -18,6 +18,13 @@ check_cee_aggregation <- function(orig, mod) {
   
 }
 
+headings_to_na <- function(doc) {
+  cod <- codes(doc)
+  cod[cod == "H"] <- NA
+  codes(doc) <- cod
+  doc
+}
+
 test_that("general per aggregation function works", {
   
   test_data <- data.frame(per101 = c(1,2),
@@ -109,13 +116,6 @@ code_table_as_expected <- function(code_table, partydate = TRUE, prefix = "per",
 
 test_that("count_codes works for all intended types of objects", {
 
-  headings_to_na <- function(doc) {
-    cod <- codes(doc)
-    cod[cod == "H"] <- NA
-    codes(doc) <- cod
-    doc
-  }
-
   corp <- mp_corpus(countryname == "Sweden") %>%
     tm_map(headings_to_na)
 
@@ -135,8 +135,9 @@ test_that("count_codes works for all intended types of objects", {
 
 test_that("include_codes works", {
 
-  corp <- mp_corpus(countryname == "Sweden")
-  
+  corp <- mp_corpus(countryname == "Sweden") %>%
+    tm_map(headings_to_na)
+    
   corp %>%
     count_codes(include_codes = v5_categories()) %>%
     code_table_as_expected(include_codes = v5_categories())
@@ -160,7 +161,8 @@ test_that("include_codes works", {
 
 test_that("count_codes works for handbook version 5", {
   
-  corp <- mp_corpus(countryname == "Greece" & date == 200910)
+  corp <- mp_corpus(countryname == "Greece" & date == 200910) %>%
+    tm_map(headings_to_na)
   
   corp %>%
     count_codes() %>%
