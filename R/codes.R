@@ -147,9 +147,7 @@ bischof_issue_groups <- function() {
 }
 
 meyer_miller_2013_policy_dimensions <- function() {
-  within(baeck_policy_dimensions(), {
-    industry <- NULL
-  })
+  baeck_policy_dimensions() %>% { .$industry <- NULL; . }
 }
 
 #' Default programmatic clarity dimensions from 
