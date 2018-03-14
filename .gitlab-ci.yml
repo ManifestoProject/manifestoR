@@ -25,6 +25,14 @@ test_manifestoR:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
     - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib-dev', { document(); library(testthat); results <- test(reporter = 'stop'); results; session_info(); })"
 
+test_details_manifestoR:
+  stage: test_details
+  script:
+    - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
+    - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib-dev', { document(); library(testthat); results <- test(reporter = 'check'); results; session_info(); })"
+  when: manual
+  allow_failure: true
+
 pack_manifestoR:
   dependencies:
     - compile_vignette
@@ -44,6 +52,7 @@ pack_manifestoR:
 
 stages:
   - prepare
+  - test_details
   - test
   - vignette
   - pack
