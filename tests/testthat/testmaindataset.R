@@ -54,8 +54,8 @@ test_that("interpolation works", {
   ## constant interpolation
   c_interpol <- mp_interpolate(mpds, by = "month", method = "constant")
   interpolation_as_expected(c_interpol, mpds, vars)
-  
-  partys_with_nas <- c(34213, 34720, 34730, 34340, 43901, 71710, 89320, 89430, 89940, 91712, 95952, 95955)
+   
+  partys_with_nas <- mpds %>% filter(progtype == 99) %>% .$party %>% unique
 
   c_interpol %>%
     filter(!party %in% partys_with_nas) %>%
