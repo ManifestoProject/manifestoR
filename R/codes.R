@@ -30,6 +30,14 @@ aggregate_cee_codes.ManifestoDocument <- function(x) {
 aggregate_cee_codes.ManifestoCorpus <- function(x) {
   tm_map(x, aggregate_cee_codes)
 }
+#' @method aggregate_cee_codes dataframe
+#' @export
+aggregate_cee_codes.dataframe <- function(x) {
+  aggregate_pers(x, 
+                 groups = cee_aggregation_relations(),
+                 keep = TRUE,
+                 na.rm=TRUE)
+}
 
 #' @rdname cmp_codes
 #' 
@@ -115,6 +123,35 @@ v5_v4_aggregation_relations <- function() {
        per703 = c("per703", "per703_1")
   )
 }
+
+#' @rdname categories
+#' @export 
+cee_aggregation_relations <- function() {
+  list(
+    per101 = c("per101","per1011","per1012","per1013","per1014","per1015","per1016"),
+    per102 = c("per102","per1021","per1022","per1023","per1024", "per1025","per1026"),
+    per103 = c("per103","per1031","per1032","per1033"),
+    per201 = c("per201","per2021","per2022","per2023"),
+    per203 = c("per203","per2031","per2032", "per2033"),
+    per204 = c("per204","per2041"),
+    per301 = c("per301","per3011"),
+    per305 = c("per305","per3051","per3052","per3053","per3054","per3055"),
+    per401 = c("per401","per4011","per4012","per4013","per4014"),
+    per412 = c("per412","per4121","per4122","per4123","per4124"),
+    per413 = c("per413","per4131","per4132"),
+    per502 = c("per502","per5021"),
+    per503 = c("per503","per5031"),
+    per504 = c("per504","per5041"),
+    per506 = c("per506","per5061"),
+    per601 = c("per601","per6011", "per6012","per6013","per6014"),
+    per606 = c("per606","per6061"),
+    per607 = c("per607","per6071","per6072"),
+    per608 = c("per608","per6081"),
+    per705 = c("per705","per7051","per7052"),
+    per706 = c("per706","per7061","per7062")
+  )
+}
+
 
 baeck_policy_dimensions <- function() {
   list(foreign = c(101, 102, 103, 106, 107, 108, 109),
