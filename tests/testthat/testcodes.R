@@ -63,6 +63,13 @@ test_that("aggregating cee codes works", {
                         codes(aggregate_cee_codes(corp[[1]])))
   check_cee_aggregation(codes(corp),
                         codes(aggregate_cee_codes(corp)))
+  
+  ## on data frame
+  test_data <- data.frame(per6071 = c(1),
+                          per6072 = c(4),
+                          per607 = c(1))
+  expect_equal(aggregate_cee_codes(test_data)$per607,test_data$per607 + test_data$per6071 + test_data$per6072)
+  
 })
 
 test_that("aggregating handbook version 5 codes works", {
