@@ -32,7 +32,7 @@ aggregate_cee_codes.ManifestoCorpus <- function(x) {
 }
 #' @method aggregate_cee_codes dataframe
 #' @export
-aggregate_cee_codes.dataframe <- function(x) {
+aggregate_cee_codes.data.frame <- function(x) {
   aggregate_pers(x, 
                  groups = cee_aggregation_relations(),
                  keep = TRUE,
