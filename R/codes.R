@@ -17,8 +17,12 @@ aggregate_cee_codes <- function(x) {
 #' @method aggregate_cee_codes default
 #' @export
 aggregate_cee_codes.default <- function(x) {
-  gsub("^(\\d{3})\\d$", "\\1", x)
+  for (i in names(cee_aggregation_relations())) { 
+    x = gsub(paste0("^(", paste0(gsub("per", "", cee_aggregation_relations()[[i]]), collapse = "|"), ")$"), gsub("per", "", i), x)
+  }
+  x
 }
+
 #' @method aggregate_cee_codes ManifestoDocument
 aggregate_cee_codes.ManifestoDocument <- function(x) {
   doc <- x
