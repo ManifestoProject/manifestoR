@@ -5,43 +5,38 @@
 #' @param x Vector of codes, ManifestoDocument or ManifestoCorpus
 #' 
 #' @details
-#' \code{aggregate_cee_codes} Aggregates the sub-categories used
+#' \code{recode_cee_codes} recode the sub-categories used
 #' in coding several manifestos in Central and Eastern Europe (4 digits) to
 #' the main categories in the coding scheme (3 digits).
 #' 
 #' @rdname cmp_codes
 #' @export
-aggregate_cee_codes <- function(x) {
-  UseMethod("aggregate_cee_codes", x)
+recode_cee_codes <- function(x) {
+  UseMethod("recode_cee_codes", x)
 }
-#' @method aggregate_cee_codes default
+
+#' @method recode_cee_codes default
 #' @export
-aggregate_cee_codes.default <- function(x) {
+recode_cee_codes.default <- function(x) {
   for (i in names(cee_aggregation_relations())) { 
     x = gsub(paste0("^(", paste0(gsub("per", "", cee_aggregation_relations()[[i]]), collapse = "|"), ")$"), gsub("per", "", i), x)
   }
   x
 }
 
-#' @method aggregate_cee_codes ManifestoDocument
-aggregate_cee_codes.ManifestoDocument <- function(x) {
+#' @method recode_cee_codes ManifestoDocument
+recode_cee_codes.ManifestoDocument <- function(x) {
   doc <- x
-  codes(doc) <- aggregate_cee_codes(codes(doc))
+  codes(doc) <- recode_cee_codes(codes(doc))
   return(doc)
 }
-#' @method aggregate_cee_codes ManifestoCorpus
+
+#' @method recode_cee_codes ManifestoCorpus
 #' @export
-aggregate_cee_codes.ManifestoCorpus <- function(x) {
-  tm_map(x, aggregate_cee_codes)
+recode_cee_codes.ManifestoCorpus <- function(x) {
+  tm_map(x, recode_cee_codes)
 }
-#' @method aggregate_cee_codes dataframe
-#' @export
-aggregate_cee_codes.data.frame <- function(x) {
-  aggregate_pers(x, 
-                 groups = cee_aggregation_relations(),
-                 keep = TRUE,
-                 na.rm=TRUE)
-}
+
 
 #' @rdname cmp_codes
 #' 
@@ -73,6 +68,7 @@ recode_v5_to_v4.ManifestoDocument <- function(x) {
   codes(doc) <- recode_v5_to_v4(codes(doc))
   return(doc)
 }
+
 #' @method recode_v5_to_v4 ManifestoCorpus
 #' @export
 recode_v5_to_v4.ManifestoCorpus <- function(x) {
@@ -222,7 +218,7 @@ clarity_dimensions <- function() {
 
 #' Aggregate category percentages in groups
 #' 
-#' General function to aggregate percentage variables by creating a new
+#' \code{aggregate_pers} is a general function to aggregate percentage variables by creating a new
 #' variable holding the sum. If a variable with the name for the aggregate
 #' already exists, it is overwritten, giving a warning if it is changed, not NA,
 #' not zero and not named "peruncod".
@@ -235,7 +231,9 @@ clarity_dimensions <- function() {
 #' @param overwrite Names of the variables that are allowed to be overwritten by
 #' aggregate. Defaults to all aggregate variable names. If a variable is
 #' overwritten, a message is issued in any case.
+#' @seealso \code{\link{aggregate_pers_cee}}
 #' 
+#' @rdname aggregate_pers
 #' @export
 aggregate_pers <- function(data,
                            groups = v5_v4_aggregation_relations(),
@@ -276,6 +274,17 @@ aggregate_pers <- function(data,
     
 }
 
+#' Aggregate cee-categories to mainc ategories
+#' 
+#' Adds the code frequencies in a dataset from cee categories to the respective main categories. A wrapper of \code{\link{aggregate_pers}}. 
+#' @seealso \code{\link{aggregate_pers}}
+#' @export
+aggregate_pers_cee <- function(data) {
+  aggregate_pers(data, 
+                 groups = cee_aggregation_relations(),
+                 keep = TRUE,
+                 na.rm=TRUE)
+}
 
 #' Count the codings from a ManifestoDocument
 #'
@@ -293,7 +302,6 @@ aggregate_pers <- function(data,
 #' @param aggregate_v5_subcategories if TRUE, for handbook version 5 subcategories, the aggregate
 #' category's count/percentage is computed as well
 #' @return A data.frame with onw row and the counts/percentages as columns
-#'
 #' @export
 count_codes <- function(doc,
                         code_layers = c("cmp_code"),
