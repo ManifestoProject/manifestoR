@@ -255,7 +255,7 @@ aggregate_pers <- function(data,
                     na_replace(data[,aggregate] != aggregated), TRUE)) {
               if (aggregate %in% overwrite) {
                 message(paste0("Changing non-zero supercategory per value ", aggregate, 
-                               "when aggregating subcateogory percentages"))
+                               " when aggregating subcateogory percentages"))
                 data[,aggregate] <- aggregated
               }
             } else {
