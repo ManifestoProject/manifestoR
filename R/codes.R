@@ -87,6 +87,8 @@ v4_categories <- function() {
     704, 705, 706)
 }
 
+#' @rdname categories
+#' @export 
 v5_categories <- function() {
   v5_v4_aggregation_relations() %>%
     unlist() %>%
