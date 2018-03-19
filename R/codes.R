@@ -135,7 +135,7 @@ cee_aggregation_relations <- function() {
     per101 = c("per101","per1011","per1012","per1013","per1014","per1015","per1016"),
     per102 = c("per102","per1021","per1022","per1023","per1024", "per1025","per1026"),
     per103 = c("per103","per1031","per1032","per1033"),
-    per201 = c("per201","per2021","per2022","per2023"),
+    per202 = c("per202","per2021","per2022","per2023"),
     per203 = c("per203","per2031","per2032", "per2033"),
     per204 = c("per204","per2041"),
     per301 = c("per301","per3011"),
