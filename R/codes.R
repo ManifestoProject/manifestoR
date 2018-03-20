@@ -274,9 +274,11 @@ aggregate_pers <- function(data,
     
 }
 
-#' Aggregate cee-categories to mainc ategories
+#' Aggregate cee-categories to main categories
 #' 
-#' Adds the code frequencies in a dataset from cee categories to the respective main categories. A wrapper of \code{\link{aggregate_pers}}. 
+#' Adds the code frequencies in a dataset from cee categories to the respective main categories.
+#' 
+#' A wrapper of \code{\link{aggregate_pers}}. 
 #' @seealso \code{\link{aggregate_pers}}
 #' @export
 aggregate_pers_cee <- function(data) {
