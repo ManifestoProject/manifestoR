@@ -37,6 +37,17 @@ recode_cee_codes.ManifestoCorpus <- function(x) {
   tm_map(x, recode_cee_codes)
 }
 
+#' `aggregate_cee_codes` is deprecated and will be removed in a future version of
+#' manifestoR. Please use only `recode_cee_codes`, which provides the exact same 
+#' functionality, but is more consistent in its name.
+#' 
+#' @rdname cmp_codes
+#' @export
+aggregate_cee_codes <- function(x) {
+  .Deprecated("recode_cee_codes", package = "manifestoR")
+  recode_cee_codes(x)
+}
+
 
 #' @rdname cmp_codes
 #' 

@@ -70,6 +70,9 @@ test_that("aggregating cee codes works", {
                           per607 = c(1))
   expect_equal(aggregate_pers_cee(test_data)$per607,test_data$per607 + test_data$per6071 + test_data$per6072)
   
+  ## check that old function name produces deprecation warning
+  expect_warning(aggregate_cee_codes("1012"), "deprecat")
+  
 })
 
 test_that("aggregating handbook version 5 codes works", {
