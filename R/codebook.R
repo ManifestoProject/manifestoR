@@ -1,6 +1,7 @@
 #' @export
 mp_codebook <- function(version = NULL) {
-  ## TODO
+  data_frame(cmp_code = c("101", "102"),
+             label = paste("Foreign Special Relations:", c("Positive", "Negative")))
 }
 
 #' @export
@@ -14,52 +15,28 @@ mp_describe_code <- function(code, version = NULL) {
 #' 
 #' TODO
 #' 
-#' \if{html}{\out{
-#' 
-#' <p>Bla blubb</p>
-#' 
-#' <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
+#' \if{html}{ % Only applies to HTML help files
+#'   \Sexpr[echo=FALSE, results=rd, stage=build]{
+#'   #This doesn't work for pkgdown pages, so detect if the page is being built in pkgdown and skip the widget
+#'   in_pkgdown <- any(grepl("as_html.tag_Sexpr", sapply(sys.calls(), function(a) paste(deparse(a), collapse = "\n"))))
+#'     if(in_pkgdown) {
+#'       mytext <- c('In RStudio, this help file includes a searchable table of values.')
+#'     } else {
+#'     tmp <- tempfile(fileext=".html")
+#'      #Create a DT htmlwidget and save it to a tempfile
+#'       htmlwidgets::saveWidget(DT::datatable(manifestoR::mp_codebook(), rownames = FALSE, width=700), tmp)
+#'       #Read the widget file in, but remove some html tags
+#'       mytext <- paste('Below is a searchable version of the database codes.',
+#'       '\\\out{<div style="width:100\%">',
+#'          paste(stringi::stri_subset_regex(readLines(tmp), "^</?(!DOCTYPE|meta|body|html)",negate=TRUE), collapse="\n"),
+#'       '</div>}',
+#'       sep="\n")
+#'     }
+#'     mytext
+#'   }
+#' }
 #'
-#' <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-1.12.4.js"></script>
-#' <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
-#' 
-#' <table id="codebook" class="display"></table>
-#' 
-#' <script type="text/javascript">
-#' var data = [
-#' [
-#'   "Tiger Nixon",
-#'   "System Architect",
-#'   "Edinburgh",
-#'   "5421",
-#'   "2011/04/25",
-#'   "$3,120"
-#'   ],
-#' [
-#'   "Garrett Winters",
-#'   "Director",
-#'   "Edinburgh",
-#'   "8422",
-#'   "2011/07/25",
-#'   "$5,300"
-#'   ]
-#' ];
-#' 
-#' $(document).ready(function() {
-#'  $('#codebook').DataTable( {
-#'   data: data,
-#'   columns: [
-#'     { title: "Name" },
-#'     { title: "Position" },
-#'     { title: "Office" },
-#'     { title: "Extn." },
-#'     { title: "Start date" },
-#'     { title: "Salary" }
-#'   ]
-#'  } );
-#' } );
-#' </script>
-#' }}
+#' \if{text,latex}{The HTML version of this help file includes a searchable table of the database codes}
 #' 
 #' @name codebook
 #' @rdname codebook
