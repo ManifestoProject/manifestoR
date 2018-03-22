@@ -1,43 +1,34 @@
 #' @export
-mp_codebook <- function(version = NULL) {
+mp_codebook <- function(version = "current") {
+  
+  if (version == "current") {
+    version <- current_dataset_version(south_america = FALSE)
+  }
+  
   data_frame(cmp_code = c("101", "102"),
              label = paste("Foreign Special Relations:", c("Positive", "Negative")))
 }
 
 #' @export
 #' @rdname mp_codebook
-mp_describe_code <- function(code, version = NULL) {
+mp_describe_code <- function(code, version = "current") {
   data.frame(code = code) %>%
     left_join(mp_codebook(version), by = "code")
 }
 
-#' Codebook of Manifesto Dataset
+#' \code{mp_view_codebook} displays a searchable table of the codes
+#' used in the Manifesto Project Data in the Viewer pane.
 #' 
-#' TODO
-#' 
-#' \if{html}{ % Only applies to HTML help files
-#'   \Sexpr[echo=FALSE, results=rd, stage=build]{
-#'   #This doesn't work for pkgdown pages, so detect if the page is being built in pkgdown and skip the widget
-#'   in_pkgdown <- any(grepl("as_html.tag_Sexpr", sapply(sys.calls(), function(a) paste(deparse(a), collapse = "\n"))))
-#'     if(in_pkgdown) {
-#'       mytext <- c('In RStudio, this help file includes a searchable table of values.')
-#'     } else {
-#'     tmp <- tempfile(fileext=".html")
-#'      #Create a DT htmlwidget and save it to a tempfile
-#'       htmlwidgets::saveWidget(DT::datatable(manifestoR::mp_codebook(), rownames = FALSE, width=700), tmp)
-#'       #Read the widget file in, but remove some html tags
-#'       mytext <- paste('Below is a searchable version of the database codes.',
-#'       '\\\out{<div style="width:100\%">',
-#'          paste(stringi::stri_subset_regex(readLines(tmp), "^</?(!DOCTYPE|meta|body|html)",negate=TRUE), collapse="\n"),
-#'       '</div>}',
-#'       sep="\n")
-#'     }
-#'     mytext
-#'   }
-#' }
-#'
-#' \if{text,latex}{The HTML version of this help file includes a searchable table of the database codes}
-#' 
-#' @name codebook
-#' @rdname codebook
-NULL
+#' @export
+#' @rdname mp_codebook
+mp_view_codebook <- function(version = "current") {
+  
+  DT::datatable(mp_codebook(version)) %>% 
+    htmlwidgets::prependContent(htmltools::h1("Manifesto Project Codebook"),
+                                htmltools::p(paste0("This table shows the codes and descriptions as given in the Codebook of Dataset Version", version, ".")),
+                                htmltools::p("To see a different version of the codebook, please specify the parameter 'version'."),
+                                htmltools::p("Note that the codebook contains only condensed descriptions of the categories.
+                                             For detailed information on coding instructions, you can refer to the different ",
+                                             htmltools::a("handbook versions", href = "https://manifesto-project.wzb.eu/information/documents/handbooks"), "."))
+  
+}

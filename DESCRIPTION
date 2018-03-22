@@ -42,7 +42,6 @@ Imports:
     psych,
     base64enc,
     htmlwidgets,
-    stringi,
     DT
 Suggests:
     knitr,
