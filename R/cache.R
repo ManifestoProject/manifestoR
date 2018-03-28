@@ -388,6 +388,16 @@ get_viacache <- function(type, ids = c(), cache = TRUE, versionid = NULL, ...) {
     return(single_var_caching(paste0(kdatasetname, ids$key, ids$kind), call,
                               cache = cache))
     
+  } else if (type == kmtype.codebook) {
+    
+    call <- wrap_mpdb_call(get_mpdb(kmtype.codebook,
+                                    parameters=ids,
+                                    versionid = versionid,
+                                    ...),
+                           version = versionid)
+    return(single_var_caching(paste0(kcodebookname, ids$key, ids$kind), call,
+                              cache = cache))
+    
   } else if (type == kmtype.meta) {
     
     fun <- wrap_mpdb_call_with_ids(function(ids) {

@@ -194,6 +194,8 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     requestfile <- "api_get_core_citation"
   } else if (type == kmtype.corpuscitation) {
     requestfile <- "api_get_corpus_citation"
+  } else if (type == kmtype.codebook) {
+    requestfile <- "api_get_core_codebook"
   }
 
   # prepare version parameter if needed
@@ -252,6 +254,15 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     
     return(texts)
 
+  } else if (type == kmtype.codebook) {
+    
+    jsonstr %>%
+      fromJSON() %>%
+      as_data_frame() %>%
+      { set_names(., .[1,]) } %>%
+      dplyr::slice(2:n()) %>%
+      magrittr::set_rownames(NULL)
+        
   }
 }
 
