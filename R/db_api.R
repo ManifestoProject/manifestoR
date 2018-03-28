@@ -173,7 +173,7 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
   if (is.null(apikey)) {
     apikey <- get(kapikey, envir = mp_globalenv)
   }
-  if (is.na(apikey)) {
+  if (is.na(apikey) && !type %in% c(kmtype.versions, kmtype.codebook)) {
     stop(kmerror.keymissing)
   }
 
