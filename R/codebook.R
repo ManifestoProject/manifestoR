@@ -15,6 +15,7 @@
 #' codebook is requested. Note that only codebooks from version MPDS2017b on
 #' are available via the API/manifestoR. Defaults to "currrent", which fetches
 #' the most recent codebook version. Must be formatted as e.g. "MPDS2017b".
+#' @param cache Whether result of API call should be cached locally (defaults to TRUE)
 #' @param chapter Which part of the codebook should be returned. As of this manifestoR
 #' release, only the content-analytical variables (parameter value "categories") are accessible via the API.
 #' 
