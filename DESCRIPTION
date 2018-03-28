@@ -41,8 +41,9 @@ Imports:
     zoo (>= 1.7-11),
     psych,
     base64enc,
-    htmlwidgets,
-    DT
+    htmlwidgets (>= 0.6),
+    DT (>= 0.2),
+    htmltools
 Suggests:
     knitr,
     rmarkdown,

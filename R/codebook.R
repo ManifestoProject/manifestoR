@@ -19,6 +19,9 @@ mp_describe_code <- function(code, version = "current") {
 #' \code{mp_view_codebook} displays a searchable table of the codes
 #' used in the Manifesto Project Data in the Viewer pane.
 #' 
+#' @importFrom htmlwidgets prependContent
+#' @importFrom DT datatable
+#' @importFrom htmltools h1 p a
 #' @export
 #' @rdname mp_codebook
 mp_view_codebook <- function(version = "current") {
