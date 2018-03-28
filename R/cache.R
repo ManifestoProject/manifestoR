@@ -1,21 +1,21 @@
-wrap_mpdb_call <- function(call, version = NULL) {
+mpdb_connect_message <- function(version = NULL) {
   message <- "Connecting to Manifesto Project DB API..."
-  if (!is.null(version)) {
+  if (!is.null(version) && version != "CONST") {
     message <- paste(message, "corpus version:", version)
   }
+  message
+}
+
+wrap_mpdb_call <- function(call, version = NULL) {
   function() {
-    cat(message, "\n")
+    cat(mpdb_connect_message(version), "\n")
     return(call)
   }
 }
 
 wrap_mpdb_call_with_ids <- function(fun, version = NULL) {
-  message <- "Connecting to Manifesto Project DB API..."
-  if (!is.null(version)) {
-    message <- paste(message, "corpus version:", version)
-  }
   function(ids) {
-    cat(message, "\n")
+    cat(mpdb_connect_message(version), "\n")
     return(fun(ids))
   }
 }
