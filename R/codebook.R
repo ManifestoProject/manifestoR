@@ -1,21 +1,41 @@
 #' Access to the Codebook for the Manifesto Project Main Dataset
 #' 
-#' These functions provide access to machine- and human-readable versions
+#' @description These functions provide access to machine- and human-readable versions
 #' of the Codebook (variable descriptions) of the Manifesto Project
-#' Main Dataset. Currently only the content-analytical variables (categories)
+#' Main Dataset, as can be found in PDF form under https://manifesto-project.wzb.eu/datasets .
+#' As of this manifestoR release only the content-analytical variables (categories)
 #' are accessible. Note also that the codebook contains only condensed descriptions
 #' of the categories. For detailed information on coding instructions, you can refer
-#' to the different handbook versions under \URL{https://manifesto-project.wzb.eu/information/documents/handbooks}.
+#' to the different handbook versions under https://manifesto-project.wzb.eu/information/documents/handbooks .
+#' Only codebooks from version MPDS2017b on are accessible via the API.
 #' 
-#' \code{mp_codebook} returns the codebook as a \code{data_frame}, ideal for further automatic processing.
+#' @description \code{mp_codebook} returns the codebook as a \code{data_frame}, ideal for further automatic processing.
 #' 
 #' @param version version of the Manifesto Project Main Dataset for which the
 #' codebook is requested. Note that only codebooks from version MPDS2017b on
 #' are available via the API/manifestoR. Defaults to "currrent", which fetches
-#' the most recent codebook version. 
+#' the most recent codebook version. Must be formatted as e.g. "MPDS2017b".
+#' @param chapter Which part of the codebook should be returned. As of this manifestoR
+#' release, only the content-analytical variables (parameter value "categories") are accessible via the API.
 #' 
 #' @export
 mp_codebook <- function(version = "current", cache = TRUE, chapter = "categories") {
+  
+  if (chapter != "categories") {
+    warning(paste("As of this release of manifestoR the Manifesto Project API does not provide any other chapter",
+                  "of the codebook than the categories! You can find PDF versions of the other chapters of the",
+                  "codebook under https://manifesto-project.wzb.eu/datasets",
+                  "(If you see this warning a no subsequent HTTP Error 404 for your request,",
+                  "please update manifestoR!)"),
+            immediate. = TRUE)
+  }
+  
+  version_year <- suppressWarnings(as.integer(gsub("(MPDS)(\\d{4})(a|b)", "\\2", version)))
+  version_sub <- gsub("(MPDS)(\\d{4})(a|b)", "\\3", version)
+  if (!is.na(version_year) && (version_year < 2017 || (version_year == 2017 && version_sub == "a"))) {
+    stop("Only codebooks from version MPDS2017b on are accessible via the Manifesto Project API. ",
+         "For older versions please refer to the PDFs accessible under https://manifesto-project.wzb.eu/datasets?archived=yes")
+  }
   
   if (version == "current") {
     version <- current_dataset_version(south_america = FALSE)
@@ -29,7 +49,7 @@ mp_codebook <- function(version = "current", cache = TRUE, chapter = "categories
   
 }
 
-#' \code{mp_describe_codebook} returns a list with information about the requested code, ideal for quick interactive use.
+#' \code{mp_describe_code} returns a list with information about the requested code, ideal for quick interactive use.
 #' 
 #' @param code specific code (as character) to display information about.
 #' 
