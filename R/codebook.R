@@ -28,10 +28,11 @@ mp_view_codebook <- function(version = "current") {
   
   DT::datatable(mp_codebook(version)) %>% 
     htmlwidgets::prependContent(htmltools::h1("Manifesto Project Codebook"),
-                                htmltools::p(paste0("This table shows the codes and descriptions as given in the Codebook of Dataset Version", version, ".")),
-                                htmltools::p("To see a different version of the codebook, please specify the parameter 'version'."),
-                                htmltools::p("Note that the codebook contains only condensed descriptions of the categories.
-                                             For detailed information on coding instructions, you can refer to the different ",
+                                htmltools::p(paste0(
+        "This table shows the codes and descriptions as given in the Codebook of Dataset Version", version, ".",
+        "To see a different version of the codebook, please specify the parameter 'version'. ",
+        "Note that the codebook contains only condensed descriptions of the categories. ",
+        "For detailed information on coding instructions, you can refer to the different "),
                                              htmltools::a("handbook versions", href = "https://manifesto-project.wzb.eu/information/documents/handbooks"), "."))
   
 }
