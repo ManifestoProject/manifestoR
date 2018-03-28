@@ -19,6 +19,12 @@ test_that("Codebook has correct format", {
     unique() %>%
     expect_equal("character")
   
+  ## Some codes should be definitely be in there
+  codebook %>%
+    filter(code %in% c("101", "405")) %>%
+    nrow() %>%
+    expect_gt(0L)
+  
 })
 
 test_that("Codebook is correctly cached", {
@@ -57,8 +63,8 @@ test_that("Codebook is correctly cached", {
 test_that("Errors and warnings are output correctly", {
   
   ## only categories chapter is available
-  expect_warning(mp_codebook(chapter = "all"))
-  expect_error(mp_codebook(chapter = "all"))
+  tryCatch(expect_warning(mp_codebook(chapter = "all")), error = function(e){})
+  tryCatch(expect_error(mp_codebook(chapter = "all")), warning = function(w){})
   
   ## only codebooks after MPDS2017b are available
   expect_error(mp_codebook(version = "MPDS2017a"), "MPDS2017b.*refer")
@@ -67,5 +73,37 @@ test_that("Errors and warnings are output correctly", {
   ## other invalid versions throw a regular HTTP Error
   expect_error(mp_codebook(version = "MPDS2199z"), "HTTP.*404")
   
+  
+})
+
+test_that("Output format of mp_describe_code is correct", {
+  
+  cols <- c("title", "description_md")
+  description <- mp_describe_code("101")
+  
+  expect_true(is.list(description))
+  expect_named(description, cols)
+  
+  description %>%
+    lapply(length) %>%
+    lapply(expect_equal, 1L)
+
+})
+
+test_that("Output format of mp_view_codebook is correct", {
+  
+  wid <- mp_view_codebook(version = "MPDS2017b")
+  expect_equal(class(wid), c("datatables", "htmlwidget"))
+  
+  html_file <- tempfile(fileext = ".html")
+  htmlwidgets::saveWidget(wid, html_file)
+  html_code <- readLines(html_file)
+  
+  ## Check for keywords/key code in produced HTML
+  expect_true(grepl("Manifesto Project Codebook", html_code) %>% any())
+  expect_true(grepl("MPDS2017b", html_code) %>% any())
+  expect_true(grepl("different version", html_code) %>% any())
+  expect_true(grepl("condensed descriptions", html_code) %>% any())
+  expect_true(grepl("datatables html-widget", html_code) %>% any())
   
 })

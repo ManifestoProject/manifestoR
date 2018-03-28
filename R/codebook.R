@@ -76,12 +76,16 @@ mp_describe_code <- function(code, version = "current", columns = c("title", "de
 #' @rdname mp_codebook
 mp_view_codebook <- function(version = "current", columns = c("type", "code", "title")) {
   
+  if (version == "current") {
+    version <- current_dataset_version(south_america = FALSE)
+  }
+  
   mp_codebook(version) %>%
     select(one_of(columns)) %>%
     DT::datatable() %>% 
     htmlwidgets::prependContent(htmltools::h1("Manifesto Project Codebook"),
                                 htmltools::p(paste0(
-        "This table shows the codes and descriptions as given in the Codebook of Dataset Version", version, ".",
+        "This table shows the codes and descriptions as given in the codebook of dataset version ", version, ".",
         "To see a different version of the codebook, please specify the parameter 'version'. ",
         "Note that the codebook contains only condensed descriptions of the categories. ",
         "For detailed information on coding instructions, you can refer to the different "),
