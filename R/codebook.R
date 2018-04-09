@@ -50,7 +50,7 @@ mp_codebook <- function(version = "current", cache = TRUE, chapter = "categories
   
 }
 
-#' \code{mp_describe_code} returns a list with information about the requested code, ideal for quick interactive use.
+#' \code{mp_describe_code} pretty prints with information about the requested code(s), ideal for quick interactive use.
 #' 
 #' @param code specific code (as character) to display information about.
 #' 
@@ -59,8 +59,20 @@ mp_codebook <- function(version = "current", cache = TRUE, chapter = "categories
 mp_describe_code <- function(code, version = "current", columns = c("title", "description_md")) {
   data_frame(code = code) %>%
     left_join(mp_codebook(version), by = "code") %>%
-    select(one_of(columns)) %>%
-    as.list()
+    select(one_of("code"), one_of(columns)) %T>%
+    apply(1, pretty_print_code_info) %>%
+    invisible()
+}
+
+pretty_print_code_info <- function(code_info) {
+  mapply(function(field_name, value) {
+    cat(paste0(field_name, ": ", value), sep = "\n")
+  },
+  field_name = names(code_info),
+  value = code_info)
+  cat("\n")
+  
+  invisible(code_info)
 }
 
 #' \code{mp_view_codebook} displays a searchable table version of the codebook
