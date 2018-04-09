@@ -83,7 +83,7 @@ mp_view_codebook <- function(version = "current", columns = c("type", "code", "t
   
   mp_codebook(version) %>%
     select(one_of(columns)) %>%
-    DT::datatable() %>% 
+    DT::datatable(options = list(paging = F)) %>%
     htmlwidgets::prependContent(htmltools::h1("Manifesto Project Codebook"),
                                 htmltools::p(paste0(
         "This table shows the codes and descriptions as given in the codebook of dataset version ", version, ".",
