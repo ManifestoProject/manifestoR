@@ -102,6 +102,7 @@ mp_view_codebook <- function(version = "current", columns = c("type", "code", "t
         "To see a different version of the codebook, please specify the parameter 'version'. ",
         "Note that the codebook contains only condensed descriptions of the categories. ",
         "For detailed information on coding instructions, you can refer to the different "),
-                                             htmltools::a("handbook versions", href = "https://manifesto-project.wzb.eu/information/documents/handbooks"), "."))
-  
+                                             htmltools::a("handbook versions", href = "https://manifesto-project.wzb.eu/information/documents/handbooks"), "."))# %>%
+    { .$sizingPolicy = htmlwidgets::sizingPolicy(viewer.defaultWidth = "100%", viewer.defaultHeight = 440, viewer.fill = FALSE); . }
+
 }
