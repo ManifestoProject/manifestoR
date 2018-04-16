@@ -78,15 +78,13 @@ test_that("Errors and warnings are output correctly", {
 
 test_that("Output format of mp_describe_code is correct", {
   
-  cols <- c("title", "description_md")
+  cols <- c("code", "title", "description_md")
   description <- mp_describe_code("101")
   
   expect_true(is.list(description))
   expect_named(description, cols)
   
-  description %>%
-    lapply(length) %>%
-    lapply(expect_equal, 1L)
+  for (i in description) expect_length(i, 1L)
 
 })
 
