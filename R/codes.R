@@ -5,31 +5,49 @@
 #' @param x Vector of codes, ManifestoDocument or ManifestoCorpus
 #' 
 #' @details
-#' \code{aggregate_cee_codes} Aggregates the sub-categories used
+#' \code{recode_cee_codes} recode the sub-categories used
 #' in coding several manifestos in Central and Eastern Europe (4 digits) to
 #' the main categories in the coding scheme (3 digits).
 #' 
 #' @rdname cmp_codes
 #' @export
-aggregate_cee_codes <- function(x) {
-  UseMethod("aggregate_cee_codes", x)
+recode_cee_codes <- function(x) {
+  UseMethod("recode_cee_codes", x)
 }
-#' @method aggregate_cee_codes default
+
+#' @method recode_cee_codes default
 #' @export
-aggregate_cee_codes.default <- function(x) {
-  gsub("^(\\d{3})\\d$", "\\1", x)
+recode_cee_codes.default <- function(x) {
+  for (i in names(cee_aggregation_relations())) { 
+    x = gsub(paste0("^(", paste0(gsub("per", "", cee_aggregation_relations()[[i]]), collapse = "|"), ")$"), gsub("per", "", i), x)
+  }
+  x
 }
-#' @method aggregate_cee_codes ManifestoDocument
-aggregate_cee_codes.ManifestoDocument <- function(x) {
+
+#' @method recode_cee_codes ManifestoDocument
+recode_cee_codes.ManifestoDocument <- function(x) {
   doc <- x
-  codes(doc) <- aggregate_cee_codes(codes(doc))
+  codes(doc) <- recode_cee_codes(codes(doc))
   return(doc)
 }
-#' @method aggregate_cee_codes ManifestoCorpus
+
+#' @method recode_cee_codes ManifestoCorpus
 #' @export
-aggregate_cee_codes.ManifestoCorpus <- function(x) {
-  tm_map(x, aggregate_cee_codes)
+recode_cee_codes.ManifestoCorpus <- function(x) {
+  tm_map(x, recode_cee_codes)
 }
+
+#' `aggregate_cee_codes` is deprecated and will be removed in a future version of
+#' manifestoR. Please use only `recode_cee_codes`, which provides the exact same 
+#' functionality, but is more consistent in its name.
+#' 
+#' @rdname cmp_codes
+#' @export
+aggregate_cee_codes <- function(x) {
+  .Deprecated("recode_cee_codes", package = "manifestoR")
+  recode_cee_codes(x)
+}
+
 
 #' @rdname cmp_codes
 #' 
@@ -61,6 +79,7 @@ recode_v5_to_v4.ManifestoDocument <- function(x) {
   codes(doc) <- recode_v5_to_v4(codes(doc))
   return(doc)
 }
+
 #' @method recode_v5_to_v4 ManifestoCorpus
 #' @export
 recode_v5_to_v4.ManifestoCorpus <- function(x) {
@@ -117,6 +136,35 @@ v5_v4_aggregation_relations <- function() {
        per703 = c("per703", "per703_1")
   )
 }
+
+#' @rdname categories
+#' @export 
+cee_aggregation_relations <- function() {
+  list(
+    per101 = c("per101","per1011","per1012","per1013","per1014","per1015","per1016"),
+    per102 = c("per102","per1021","per1022","per1023","per1024", "per1025","per1026"),
+    per103 = c("per103","per1031","per1032","per1033"),
+    per202 = c("per202","per2021","per2022","per2023"),
+    per203 = c("per203","per2031","per2032", "per2033"),
+    per204 = c("per204","per2041"),
+    per301 = c("per301","per3011"),
+    per305 = c("per305","per3051","per3052","per3053","per3054","per3055"),
+    per401 = c("per401","per4011","per4012","per4013","per4014"),
+    per412 = c("per412","per4121","per4122","per4123","per4124"),
+    per413 = c("per413","per4131","per4132"),
+    per502 = c("per502","per5021"),
+    per503 = c("per503","per5031"),
+    per504 = c("per504","per5041"),
+    per506 = c("per506","per5061"),
+    per601 = c("per601","per6011", "per6012","per6013","per6014"),
+    per606 = c("per606","per6061"),
+    per607 = c("per607","per6071","per6072"),
+    per608 = c("per608","per6081"),
+    per705 = c("per705","per7051","per7052"),
+    per706 = c("per706","per7061","per7062")
+  )
+}
+
 
 baeck_policy_dimensions <- function() {
   list(foreign = c(101, 102, 103, 106, 107, 108, 109),
@@ -183,7 +231,7 @@ clarity_dimensions <- function() {
 
 #' Aggregate category percentages in groups
 #' 
-#' General function to aggregate percentage variables by creating a new
+#' \code{aggregate_pers} is a general function to aggregate percentage variables by creating a new
 #' variable holding the sum. If a variable with the name for the aggregate
 #' already exists, it is overwritten, giving a warning if it is changed, not NA,
 #' not zero and not named "peruncod".
@@ -196,7 +244,9 @@ clarity_dimensions <- function() {
 #' @param overwrite Names of the variables that are allowed to be overwritten by
 #' aggregate. Defaults to all aggregate variable names. If a variable is
 #' overwritten, a message is issued in any case.
+#' @seealso \code{\link{aggregate_pers_cee}}
 #' 
+#' @rdname aggregate_pers
 #' @export
 aggregate_pers <- function(data,
                            groups = v5_v4_aggregation_relations(),
@@ -216,7 +266,7 @@ aggregate_pers <- function(data,
                     na_replace(data[,aggregate] != aggregated), TRUE)) {
               if (aggregate %in% overwrite) {
                 message(paste0("Changing non-zero supercategory per value ", aggregate, 
-                               "when aggregating subcateogory percentages"))
+                               " when aggregating subcateogory percentages"))
                 data[,aggregate] <- aggregated
               }
             } else {
@@ -237,6 +287,19 @@ aggregate_pers <- function(data,
     
 }
 
+#' Aggregate cee-categories to main categories
+#' 
+#' Adds the code frequencies in a dataset from cee categories to the respective main categories.
+#' 
+#' A wrapper of \code{\link{aggregate_pers}}. 
+#' @seealso \code{\link{aggregate_pers}}
+#' @export
+aggregate_pers_cee <- function(data) {
+  aggregate_pers(data, 
+                 groups = cee_aggregation_relations(),
+                 keep = TRUE,
+                 na.rm=TRUE)
+}
 
 #' Count the codings from a ManifestoDocument
 #'
@@ -254,7 +317,6 @@ aggregate_pers <- function(data,
 #' @param aggregate_v5_subcategories if TRUE, for handbook version 5 subcategories, the aggregate
 #' category's count/percentage is computed as well
 #' @return A data.frame with onw row and the counts/percentages as columns
-#'
 #' @export
 count_codes <- function(doc,
                         code_layers = c("cmp_code"),
