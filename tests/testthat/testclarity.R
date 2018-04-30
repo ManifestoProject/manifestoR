@@ -10,7 +10,7 @@ test_that("Relative measure of party size works and produces correct results", {
     expect_equal(c(0.07, 0.23, 0.71), tolerance = 0.01)
 
   read.csv("../data/clarity_replication.csv") %>%
-    group_by(country, date) %>%
+    group_by(country, edate) %>%
       mutate(rmps2 = mp_rmps(pervote)) %>% 
     ungroup() %>%
     { expect_equal(.$rmps, .$rmps2, tolerance = 0.02) }
@@ -22,7 +22,7 @@ test_that("Programmatic clarity works and produces correct results", {
   fake_data <- data.frame(
     country = c(1,   1,   1),
     party   = c(11,  12,  13),
-    date    = c(1,   1,   1),
+    edate   = c(1,   1,   1),
     pervote = c(1,   2,   5),
     issue1  = c(10,  0,   0),
     issue2  = c(20,  20,  0.5),
@@ -40,33 +40,45 @@ test_that("Programmatic clarity works and produces correct results", {
     )
   
   fake_data %>%
-    mutate(rmps = mp_rmps(pervote)) %>%
-    mp_clarity(weighting_kind = "country", 
+    group_by(country, edate) %>%
+      mutate(rmps = mp_rmps(pervote)) %>%
+    ungroup() %>%
+    mp_clarity(weighting_kind = "election", 
                weighting_source = "rmps",
                dimensions = clarity_test_dimensions) %>%
     expect_equal(fake_data$pc1, tolerance = 0.005)
   
   fake_data %>%
-    mp_clarity(weighting_kind = "country", 
+    mp_clarity(weighting_kind = "election", 
                weighting_source = "pervote",
                dimensions = clarity_test_dimensions) %>%
     expect_equal(fake_data$pc2, tolerance = 0.005)
   
   fake_data %>%
-    mp_clarity(weighting_kind = "party", 
+    mp_clarity(weighting_kind = "manifesto", 
                dimensions = clarity_test_dimensions) %>%
     expect_equal(fake_data$pc3, tolerance = 0.005)
   
   read.csv("../data/clarity_replication.csv") %>%
     mutate(., pc2 = mp_clarity(., 
-                                weighting_kind = "country", 
+                                weighting_kind = "election", 
+                                weighting_source = "rmps",
+                                dimensions = clarity_dimensions())) %>%
+    { expect_equal(.$pc2, .$pc, tolerance = 0.01) }
+
+  read.csv("../data/clarity_replication.csv") %>%
+    group_by(country, edate) %>%
+      mutate(rmps = mp_rmps(pervote)) %>%
+    ungroup() %>%
+    mutate(., pc2 = mp_clarity(., 
+                                weighting_kind = "election", 
                                 weighting_source = "rmps",
                                 dimensions = clarity_dimensions())) %>%
     { expect_equal(.$pc2, .$pc, tolerance = 0.01) }
 
   expect_error(
     fake_data %>%
-    mp_clarity(weighting_kind = "party", 
+    mp_clarity(weighting_kind = "manifesto", 
                weighting_source = "rmps",
                dimensions = clarity_test_dimensions)
   )
@@ -80,7 +92,7 @@ test_that("Programmatic clarity works and produces correct results", {
 
   expect_error(
     fake_data %>%
-    mp_clarity(weighting_kind = "party", 
+    mp_clarity(weighting_kind = "manifesto", 
                weighting_source = "unknown",
                dimensions = clarity_test_dimensions)
   )
