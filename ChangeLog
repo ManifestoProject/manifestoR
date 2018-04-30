@@ -1,7 +1,13 @@
-1.2.5 (2018-03-XX)
+1.2.5 (2018-05-XX)
 ==================
+* added codebook interface: three functions mp_codebook, mp_view_codebook, and mp_describe_code to 
+investigate the codebook and the descriptions of individual categories
 * rename of aggregate_cee_codes to recode_cee_codes to be more consistent in function naming
-* new function aggregate_pers_cee_codes which is a wrapper of aggregate_pers using cee_aggregation_relations to aggregate cee categories to the main categories in the main dataset
+* new function aggregate_pers_cee_codes which is a wrapper of aggregate_pers using cee_aggregation_relations 
+to aggregate cee categories to the main categories in the main dataset
+* Important bugfix in mp_clarity: incorrect results when using election-level saliency weighting
+* v5_categories function is now also exported
+* Bugfix in mp_maindataset: id_perm variable should not be converted to numeric (and thus become NA)
 
 1.2.4 (2017-05-08)
 ==================
