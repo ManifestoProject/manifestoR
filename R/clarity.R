@@ -3,6 +3,9 @@
 #' Computes the relative measure of party size as suggested by 
 #' Giebler/Lacewell/Regel/Werner 2015.
 #' 
+#' Hint: In a dataset with multiple elections the usage of the function
+#' might require to calculate the measure per election (eg. using group_by)
+#' 
 #' @references Giebler, Heiko, Onawa Promise Lacewell, Sven Regel and Annika Werner. 2015. 
 #' Niedergang oder Wandel? Parteitypen und die Krise der repraesentativen Demokratie. 
 #' In Steckt die Demokratie in der Krise?, ed. Wolfgang Merkel, 181-219. Wiesbaden: Springer VS.
@@ -37,23 +40,32 @@ mp_rmps <- function(data) {
 #' Niedergang oder Wandel? Parteitypen und die Krise der repraesentativen Demokratie. 
 #' In Steckt die Demokratie in der Krise?, ed. Wolfgang Merkel, 181-219. Wiesbaden: Springer VS.
 #'
-#' @param data a dataframe or matrix in format of Manifesto Project Main Dataset
-#' @param weighting_kind party or country-specific weighting of the dimensions
-#' @param weighting_source name of variable with party importance weighting (can be rmps, pervote)
-#' @param auto_rescale_weight rescale weights to 0-1
+#' @param data a dataframe in format of Manifesto Project Main Dataset
+#' @param weighting_kind manifesto or election-specific weighting of the dimensions
+#' @param weighting_source name of variable with party importance (likely its importance within an election) weighting (can be rmps, pervote)
+#' @param auto_rescale_weight rescale party importance weighting within elections to 0-1
 #' @param auto_rescale_variables rescale dimension variables to 0-1
 #' @param dimensions dimensions to be used, must be in the format of the return value of \code{\link{clarity_dimensions}}
 #' @return a vector of clarity values
 #' @export
 mp_clarity <- function(data,
-                       weighting_kind = "party",
+                       weighting_kind = "manifesto",
                        weighting_source = NULL,
                        auto_rescale_weight = TRUE,
                        auto_rescale_variables = TRUE,
                        dimensions = clarity_dimensions()) {
   
   # check validity of weighting value or make weigthing to be true/false dummies
-  if (!(weighting_kind %in% c("party", "country"))) {
+  if (weighting_kind == "party") {
+    stop(paste("Weighting kind", weighting_kind, 
+               "not implemented! It used to refer to the implementation of the \"manifesto\"-based weighting"))
+  }
+  if (weighting_kind == "country") {
+    stop(paste("Weighting kind", weighting_kind, 
+               "not implemented! It used to refer to a wrong implementation of the election-based weighting 
+               (the correct implementation is now accessible via \"election\")"))
+  }
+  if (!(weighting_kind %in% c("manifesto", "election"))) {
     stop(paste("Weighting kind", weighting_kind, 
                "not implemented!"))
   }
@@ -65,10 +77,12 @@ mp_clarity <- function(data,
   if (is.null(weighting_source)) auto_rescale_weight = FALSE
   
   dimension_categories = dimensions %>% unlist() %>% unique()
-
+  
   data <- data %>%
-    { if (auto_rescale_weight) 
-        mutate_at(., weighting_source, funs(./sum(.)))
+    { if (auto_rescale_weight)
+        group_by(., country, edate) %>%
+          mutate_at(., weighting_source, funs(./sum(.))) %>%
+        ungroup()
       else 
         . } %>%
     { if (auto_rescale_variables) {
@@ -88,11 +102,18 @@ mp_clarity <- function(data,
                                      pos = dimension$pole_1,
                                      neg = dimension$pole_2))
       
-      if (weighting_kind == "country") {
+      sal_dim <- scale_weighted(data, unlist(dimension), weights = 1)
+      
+      if (weighting_kind == "election") {
         
-        sal_dim <- scale_weighted(data, unlist(dimension), weights = 1)
-        
-        return(score_dim/sal_dim * sum(data[,weighting_source] * sal_dim))
+        data$sal_dim <- sal_dim
+        weight <- data %>%
+          group_by(country, edate) %>%
+            mutate_(.dots = setNames(paste("sum(", weighting_source, " * sal_dim)"), "weight")) %>%
+          ungroup() %>%
+          .$weight
+
+        return(score_dim / sal_dim * weight)
         
       } else {
         

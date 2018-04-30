@@ -102,7 +102,7 @@ mp_southamerica_dataset <- functional::Curry(mp_maindataset, south_america = TRU
 #' @export
 mp_coreversions <- function(apikey=NULL, cache=TRUE, kind = "main") {
   
-  versions <- get_viacache(kmtype.versions, apikey=apikey, cache=cache, kind=kind)
+  versions <- get_viacache(kmtype.versions, apikey=apikey, cache=cache, kind=kind, versionid = "CONST")
   
   return(versions)
 }

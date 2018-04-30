@@ -40,7 +40,10 @@ Imports:
     functional (>= 0.6),
     zoo (>= 1.7-11),
     psych,
-    base64enc
+    base64enc,
+    htmlwidgets (>= 0.6),
+    DT (>= 0.2),
+    htmltools
 Suggests:
     knitr,
     rmarkdown,
@@ -69,10 +72,11 @@ Collate:
     clarity.R
     scaling_bootstrap.R
     dataset.R
+    codebook.R
 License: GPL (>= 3)
 URL:
   https://github.com/ManifestoProject/manifestoR,
   https://manifesto-project.wzb.eu/
 BugReports: https://github.com/ManifestoProject/manifestoR/issues
 LazyData: true
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
