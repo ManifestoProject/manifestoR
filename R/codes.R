@@ -289,9 +289,10 @@ aggregate_pers <- function(data,
 
 #' Aggregate cee-categories to main categories
 #' 
-#' Adds the code frequencies in a dataset from cee categories to the respective main categories.
+#' Adds the code frequencies in a dataset of the 4 digit per-variables (per1011 to per7062 - mostly used in codings
+#' of Central and Eastern European countries) to the main categories in the coding scheme (3 digits).
 #' 
-#' A wrapper of \code{\link{aggregate_pers}}. 
+#' A wrapper of \code{\link{aggregate_pers}} using \code{cee_aggregation_relations}. 
 #' @seealso \code{\link{aggregate_pers}}
 #' @export
 aggregate_pers_cee <- function(data) {
