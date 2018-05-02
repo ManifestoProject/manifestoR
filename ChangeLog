@@ -3,7 +3,7 @@
 * added codebook interface: three functions mp_codebook, mp_view_codebook, and mp_describe_code to 
 investigate the codebook and the descriptions of individual categories
 * rename of aggregate_cee_codes to recode_cee_codes to be more consistent in function naming
-* new function aggregate_pers_cee_codes which is a wrapper of aggregate_pers using cee_aggregation_relations 
+* new function aggregate_pers_cee which is a wrapper of aggregate_pers using cee_aggregation_relations 
 to aggregate cee categories to the main categories in the main dataset
 * Important bugfix in mp_clarity: incorrect results when using election-level saliency weighting
 * v5_categories function is now also exported
