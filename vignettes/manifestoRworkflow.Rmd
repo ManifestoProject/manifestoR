@@ -17,6 +17,11 @@ output:
 \usepackage[utf8]{inputenc}
 -->
 
+\vspace{3.0em}
+<br />
+<br />
+**Hint**: See https://manifesto-project.wzb.eu for additional **Tutorials** and **Documentation**.</p>
+
 \newpage
 
 # Downloading documents from the Manifesto Corpus
