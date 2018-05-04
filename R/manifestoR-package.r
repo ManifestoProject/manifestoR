@@ -11,8 +11,22 @@
 #' @name manifestoR
 #' @docType package
 #' @title  Access and process data and documents of the Manifesto Project
+#' @description Provides access to coded election programmes from the Manifesto
+#'  Corpus and to the Manifesto Project's Main Dataset and routines to analyse this
+#'  data. The Manifesto Project \url{https://manifesto-project.wzb.eu} collects and
+#'  analyses election programmes across time and space to measure the political
+#'  preferences of parties. The Manifesto Corpus contains the collected and
+#'  annotated election programmes in the Corpus format of the package 'tm' to enable
+#'  easy use of text processing and text mining functionality. Specific functions
+#'  for scaling of coded political texts are included.
 #' @author Jirka Lewandowski \email{jirka.lewandowski@@wzb.eu}
-#' @references \url{https://manifesto-project.wzb.eu/}
+#' @seealso 
+#'  Useful links:
+#'  \itemize{
+#'    \item \url{https://manifesto-project.wzb.eu}: additional tutorials, documentation, data, and election programmes
+#'    \item \url{https://github.com/ManifestoProject/manifestoR}: manifestoR on GitHub
+#'    \item Report bugs at \url{https://github.com/ManifestoProject/manifestoR/issues}
+#'  }
 #' 
 #' @importFrom utils head tail
 #' @import zoo
