@@ -11,23 +11,30 @@
 #' In Steckt die Demokratie in der Krise?, ed. Wolfgang Merkel, 181-219. Wiesbaden: Springer VS.
 #' 
 #' @param data a numerical vector with vote shares
+#' @param adapt_zeros a boolean to switch on the conversion of zero values to 0.01 
+#' to avoid issues concerning division by zero
+#' @param ignore_na a boolean to switch on ignoring NA entries, otherwise having NA entries
+#' will lead to only NA values in the result
+#' @param threshold_sum the threshold of the sum of all vote shares for allowing the calculation
 #' @return a vector of rmps values
 #' @export
-mp_rmps <- function(data) {
+mp_rmps <- function(data, adapt_zeros = TRUE, ignore_na = TRUE, threshold_sum = 75) {
+  if (sum(data, na.rm = TRUE) < threshold_sum) return(rep_len(NA, length(data)))
+  if (length(data) == 1) { if (is.na(data)) return(NA) else return(1) }
   data <- data %>%
     data_frame(data = .) %>% 
+    { if (adapt_zeros) mutate(., data = if_else(data == 0, 0.001, data)) else . } %>%
     mutate(id = row_number())
   data %>%
     select(-data) %>%
     mutate(id_2 = id) %>%
     expand.grid(.) %>%
     left_join(data %>% rename(data = data), by = "id") %>%
-    left_join(data %>% rename(data_2 = data) %>% rename(id_2 = id), 
-              by = "id_2") %>%
+    left_join(data %>% rename(data_2 = data) %>% rename(id_2 = id), by = "id_2") %>%
     group_by(id) %>%
-      summarise(score = sum(data/data_2) - 1) %>%
+      summarise(score = if (all(is.na(data))) { NA_real_ } else { sum(data/data_2, na.rm = ignore_na) - 1 }) %>%
     ungroup() %>%
-    mutate(score = score/sum(score)) %>%
+    mutate(score = score/sum(score, na.rm = ignore_na)) %>%
     .$score
 }
 
@@ -69,16 +76,22 @@ mp_clarity <- function(data,
     stop(paste("Weighting kind", weighting_kind, 
                "not implemented!"))
   }
-  if (weighting_kind == "party" && !(is.null(weighting_source))) {
+  if (weighting_kind == "manifesto" && !(is.null(weighting_source))) {
     stop(paste("Weighting source", weighting_source, 
-               "must not be set if weighting kind is party"))
+               "must not be set if weighting kind is manifesto"))
   }
+  if (nrow(data) == 0) return(c())
   
   if (is.null(weighting_source)) auto_rescale_weight = FALSE
   
   dimension_categories = dimensions %>% unlist() %>% unique()
   
   data <- data %>%
+    select_(.dots = c("country", "edate", weighting_source, dimension_categories))
+  case_complete = complete.cases(data)
+  
+  data <- data %>%
+    .[which(case_complete), ] %>%
     { if (auto_rescale_weight)
         group_by(., country, edate) %>%
           mutate_at(., weighting_source, funs(./sum(.))) %>%
@@ -95,7 +108,7 @@ mp_clarity <- function(data,
       }
     }
   
-  dimensions %>%
+  result = dimensions %>%
     lapply(function(dimension) {
       
       score_dim <- abs(scale_bipolar(data,
@@ -113,7 +126,7 @@ mp_clarity <- function(data,
           ungroup() %>%
           .$weight
 
-        return(score_dim / sal_dim * weight)
+        return(if_else(sal_dim == 0, 0, score_dim / sal_dim * weight))
         
       } else {
         
@@ -122,6 +135,9 @@ mp_clarity <- function(data,
       }
     }) %>%
     as.data.frame() %>%
-    rowSums(na.rm = TRUE)
+    rowSums()
+
+  rep_len(NA, length(case_complete)) %>%
+    { .[which(case_complete)] <- result; . } 
 
 }
