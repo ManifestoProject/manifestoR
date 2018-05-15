@@ -100,7 +100,7 @@ mp_clarity <- function(data,
         . } %>%
     { if (auto_rescale_variables) {
         mutate(., tmp_mp_clarity_sum = rowSums(select_(., .dots = dimension_categories))) %>%
-        mutate_at(dimension_categories, funs(./tmp_mp_clarity_sum)) %>%
+        mutate_at(dimension_categories, funs(if_else(tmp_mp_clarity_sum == 0, 0, ./tmp_mp_clarity_sum))) %>%
         select(-tmp_mp_clarity_sum)
       }
       else {

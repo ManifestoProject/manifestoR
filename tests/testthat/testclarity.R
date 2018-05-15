@@ -23,18 +23,18 @@ test_that("Relative measure of party size works and produces correct results", {
 test_that("Programmatic clarity works and produces correct results", {
   
   fake_data <- data.frame(
-    country = c(1,  1,  1,   1,  1,  1,  1),
-    party   = c(11, 12, 13,  14, 15, 16, 17),
-    edate   = c(1,  1,  1,   1,  1,  1,  1),
-    pervote = c(10, 20, 50,  NA, NA, NA, NA),
-    issue1  = c(10, 0,  0,   NA, 10, 20, NA),
-    issue2  = c(20, 20, 0.5, NA, 10, 20, 25),
-    issue3  = c(40, 10, 80,  NA, 0,  20, 25),
-    issue4  = c(5,  30, 9.5, NA, 40, 20, 25),
-    issue5  = c(25, 40, 10,  NA, 40, 20, 25),
-    pc1     = c(0.309, 0.272, 0.683, NA, NA,    NA,    NA),
-    pc2     = c(0.318, 0.268, 0.666, NA, NA,    NA,    NA),
-    pc3     = c(0.300, 0.200, 0.800, NA, 0.200, 0.200, NA)
+    country = c(1,  1,  1,   1,  1,  1,  1,  1),
+    party   = c(11, 12, 13,  14, 15, 16, 17, 18),
+    edate   = c(1,  1,  1,   1,  1,  1,  1,  1),
+    pervote = c(10, 20, 50,  NA, NA, NA, NA, NA),
+    issue1  = c(10, 0,  0,   NA, 10, 20, NA, 0),
+    issue2  = c(20, 20, 0.5, NA, 10, 20, 25, 0),
+    issue3  = c(40, 10, 80,  NA, 0,  20, 25, 0),
+    issue4  = c(5,  30, 9.5, NA, 40, 20, 25, 0),
+    issue5  = c(25, 40, 10,  NA, 40, 20, 25, 0),
+    pc1     = c(0.309, 0.272, 0.683, NA, NA,    NA,    NA, NA),
+    pc2     = c(0.318, 0.268, 0.666, NA, NA,    NA,    NA, NA),
+    pc3     = c(0.300, 0.200, 0.800, NA, 0.200, 0.200, NA, 0)
   )
   fake_data_2 = filter(fake_data, party == 17)
   
