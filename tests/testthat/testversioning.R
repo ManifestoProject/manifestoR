@@ -10,7 +10,7 @@ test_that("list metadata versions works", {
   expect_named(mdvs, c("name", "tag"))
   expect_is(mdvs$name, "character")
   expect_is(mdvs$tag, "character")
-  expect_more_than(nrow(mdvs), 0)
+  expect_gt(nrow(mdvs), 0)
   
 })
 
@@ -26,20 +26,20 @@ test_that("specifying and updating versions works", {
   oldversion <- "20150603140744"
   mp_use_corpus_version(oldversion)
   swecorp <- suppressWarnings(mp_corpus(subset(mp_maindataset(), countryname == "Sweden")))
-  expect_more_than(length(swecorp), 0)
+  expect_gt(length(swecorp), 0)
     
   expect_true(mp_check_for_corpus_update()$update_available)
   
   ## test corpus content: between this and the next version there should be a change in MD5 sums
   gercorp <- suppressWarnings(mp_corpus(subset(mp_maindataset(), countryname == "Germany")))
-  expect_more_than(length(gercorp), 0)
+  expect_gt(length(gercorp), 0)
   
   
   expect_message(mp_update_cache(), regexp = "\\d+.*updated") ## now we should get 1 updated document
   expect_equal(mp_which_corpus_version(), mp_check_for_corpus_update()$versionid)
   expect_false(mp_check_for_corpus_update()$update_available)
   germeta <- suppressWarnings(mp_metadata(subset(mp_maindataset(), countryname == "Germany")))
-  expect_more_than(nrow(germeta),0)  
+  expect_gt(nrow(germeta),0)  
   
 })
 
@@ -49,7 +49,7 @@ test_that("downgrading of corpus and metadata works", {
   gercorp <- suppressWarnings(mp_corpus(subset(mp_maindataset(), countryname == "Germany")))
   avl <- suppressWarnings(mp_availability(mp_maindataset()))
 
-  expect_more_than(length(gercorp), 0)
+  expect_gt(length(gercorp), 0)
 
   intermedversion <- "20150603140744"
   expect_message(mp_use_corpus_version(intermedversion), regexp = "\\d+.*updated")

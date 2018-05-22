@@ -15,6 +15,7 @@ ktextname <- "manifesto_doc"
 kmetadata <- "docmetadata"
 koriginals <- "originals"
 kdatasetname <- "MPDataset_"
+kcodebookname <- "MPCodebook_"
 
 kmtype.meta <- "meta"
 kmtype.text <- "text"
@@ -24,6 +25,7 @@ kmtype.versions <- "versions"
 kmtype.metaversions <- "metaversions"
 kmtype.corecitation <- "corecitation"
 kmtype.corpuscitation <- "corpuscitation"
+kmtype.codebook <- "codebook"
 
 kcitemessage <- paste0("When publishing work using the Manifesto Corpus, please ",
                        "make sure to cite it correctly and to give the identification ",

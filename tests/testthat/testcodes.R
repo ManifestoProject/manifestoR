@@ -18,6 +18,13 @@ check_cee_aggregation <- function(orig, mod) {
   
 }
 
+headings_to_na <- function(doc) {
+  cod <- codes(doc)
+  cod[cod == "H"] <- NA
+  codes(doc) <- cod
+  doc
+}
+
 test_that("general per aggregation function works", {
   
   test_data <- data.frame(per101 = c(1,2),
@@ -48,14 +55,24 @@ test_that("aggregating cee codes works", {
   
   ## on vector
   codes_orig <- codes(corp)
-  codes_mod <- aggregate_cee_codes(codes_orig)
+  codes_mod <- recode_cee_codes(codes_orig)
   check_cee_aggregation(codes_orig, codes_mod)
   
   ## on document & corpus
   check_cee_aggregation(codes(corp[[1]]),
-                        codes(aggregate_cee_codes(corp[[1]])))
+                        codes(recode_cee_codes(corp[[1]])))
   check_cee_aggregation(codes(corp),
-                        codes(aggregate_cee_codes(corp)))
+                        codes(recode_cee_codes(corp)))
+  
+  ## on data frame
+  test_data <- data.frame(per6071 = c(1),
+                          per6072 = c(4),
+                          per607 = c(1))
+  expect_equal(aggregate_pers_cee(test_data)$per607,test_data$per607 + test_data$per6071 + test_data$per6072)
+  
+  ## check that old function name produces deprecation warning
+  expect_warning(aggregate_cee_codes("1012"), "deprecat")
+  
 })
 
 test_that("aggregating handbook version 5 codes works", {
@@ -108,8 +125,9 @@ code_table_as_expected <- function(code_table, partydate = TRUE, prefix = "per",
 }
 
 test_that("count_codes works for all intended types of objects", {
-  
-  corp <- mp_corpus(countryname == "Sweden")
+
+  corp <- mp_corpus(countryname == "Sweden") %>%
+    tm_map(headings_to_na)
 
   corp %>%
     count_codes() %>%
@@ -127,8 +145,9 @@ test_that("count_codes works for all intended types of objects", {
 
 test_that("include_codes works", {
 
-  corp <- mp_corpus(countryname == "Sweden")
-  
+  corp <- mp_corpus(countryname == "Sweden") %>%
+    tm_map(headings_to_na)
+    
   corp %>%
     count_codes(include_codes = v5_categories()) %>%
     code_table_as_expected(include_codes = v5_categories())
@@ -152,7 +171,8 @@ test_that("include_codes works", {
 
 test_that("count_codes works for handbook version 5", {
   
-  corp <- mp_corpus(countryname == "Greece" & date == 200910)
+  corp <- mp_corpus(countryname == "Greece" & date == 200910) %>%
+    tm_map(headings_to_na)
   
   corp %>%
     count_codes() %>%

@@ -4,6 +4,17 @@ An R package for accessing and processing the
 [Manifesto Project](https://manifesto-project.wzb.eu)'s
 Data and Corpus of election programmes.
 
+## Description
+
+Provides access to coded election programmes from the Manifesto
+Corpus and to the Manifesto Project's Main Dataset and routines to analyse this
+data. The Manifesto Project <https://manifesto-project.wzb.eu> collects and
+analyses election programmes across time and space to measure the political
+preferences of parties. The Manifesto Corpus contains the collected and
+annotated election programmes in the Corpus format of the package 'tm' to enable
+easy use of text processing and text mining functionality. Specific functions
+for scaling of coded political texts are included. See https://manifesto-project.wzb.eu 
+for additional tutorials, documentation, data, and election programmes.
 
 ## Quick Start Guide
 
@@ -40,7 +51,6 @@ If you want to contribute to the development of `manifestoR` by reporting bugs,
 proposing features or writing program code, you are invited to do this on the
 package's github page: [https://github.com/ManifestoProject/manifestoR](https://github.com/ManifestoProject/manifestoR).
 Developers, please also note the information on packing and testing `manifestoR` below.
-
 
 ## Alternative versions and installation methods
 

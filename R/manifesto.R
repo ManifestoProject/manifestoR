@@ -38,8 +38,7 @@
 mp_maindataset <- function(version="current", south_america = FALSE, download_format = NULL, apikey=NULL, cache=TRUE) {
   
   if (version == "current") {
-    versions <- mp_coreversions(apikey=apikey, cache=cache, kind = ifelse(south_america, "south_america", "main"))
-    version <- as.character(versions[nrow(versions), "datasets.id"]) # TODO date in dataset
+    version <- current_dataset_version(south_america = south_america, apikey = apikey, cache = cache)
   } else if (!grepl("MPDS", version)) {
     version <- paste0(ifelse(south_america, "MPDSSA", "MPDS"), version)
   }
@@ -103,9 +102,14 @@ mp_southamerica_dataset <- functional::Curry(mp_maindataset, south_america = TRU
 #' @export
 mp_coreversions <- function(apikey=NULL, cache=TRUE, kind = "main") {
   
-  versions <- get_viacache(kmtype.versions, apikey=apikey, cache=cache, kind=kind)
+  versions <- get_viacache(kmtype.versions, apikey=apikey, cache=cache, kind=kind, versionid = "CONST")
   
   return(versions)
+}
+
+current_dataset_version <- function(south_america = FALSE, apikey = NULL, cache = TRUE) {
+  versions <- mp_coreversions(apikey=apikey, cache=cache, kind = ifelse(south_america, "south_america", "main"))
+  as.character(versions[nrow(versions), "datasets.id"]) # TODO date in dataset
 }
 
 

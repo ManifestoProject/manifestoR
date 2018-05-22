@@ -96,7 +96,7 @@ formatmpds <- function(mpds) {
 
   for (name in names(mpds)) {
 
-    if (!name %in% c("edate", "countryname", "partyname", "candidatename", "partyabbrev", "datasetversion")) {
+    if (!name %in% c("edate", "countryname", "partyname", "candidatename", "partyabbrev", "datasetversion", "id_perm", "corpusversion")) {
       mpds[,name] <- as.numeric(as.character(mpds[,name]))
     }
 
@@ -173,7 +173,7 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
   if (is.null(apikey)) {
     apikey <- get(kapikey, envir = mp_globalenv)
   }
-  if (is.na(apikey)) {
+  if (is.na(apikey) && !type %in% c(kmtype.versions, kmtype.codebook)) {
     stop(kmerror.keymissing)
   }
 
@@ -194,6 +194,8 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     requestfile <- "api_get_core_citation"
   } else if (type == kmtype.corpuscitation) {
     requestfile <- "api_get_corpus_citation"
+  } else if (type == kmtype.codebook) {
+    requestfile <- "api_get_core_codebook"
   }
 
   # prepare version parameter if needed
@@ -252,6 +254,15 @@ get_mpdb <- function(type, parameters=c(), versionid=NULL, apikey=NULL) {
     
     return(texts)
 
+  } else if (type == kmtype.codebook) {
+    
+    jsonstr %>%
+      fromJSON() %>%
+      as_data_frame() %>%
+      { set_names(., .[1,]) } %>%
+      dplyr::slice(2:n()) %>%
+      magrittr::set_rownames(NULL)
+        
   }
 }
 

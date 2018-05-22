@@ -1,8 +1,8 @@
 prepare_environment:
   stage: prepare
   script:
-    - R -e "dir.create('~/.Rlib')"
-    - (export R_LIBS_USER='~/.Rlib'; export R_LIBS_SITE='~/.Rlib'; R --vanilla -e "options(repos = 'http://r-cran.manifesto-project.wzb.eu'); install.packages('devtools', lib = '~/.Rlib'); library(devtools); install_deps(dependencies = c('Depends', 'Imports','Suggests'), lib = '~/.Rlib');")
+    - R -e "dir.create('~/.Rlib-dev')"
+    - (export R_LIBS_USER='~/.Rlib-dev'; export R_LIBS_SITE='~/.Rlib-dev'; R --vanilla -e "options(repos = 'http://r-cran.manifesto-project.wzb.eu'); install.packages(c('miniCRAN', 'devtools'), lib = '~/.Rlib-dev'); library(devtools); withr::with_libpaths('~/.Rlib-dev', install.packages('dplyr', repos = 'https://cran.rstudio.com')); install_deps(dependencies = c('Depends', 'Imports','Suggests'), lib = '~/.Rlib-dev');")
 
 compile_vignette:
   stage: vignette
@@ -11,7 +11,7 @@ compile_vignette:
     - mkdir -p inst/doc
     - R -e "library(magrittr); 'DESCRIPTION' %>% readLines() %>% { gsub('(VignetteBuilder.)\\\\sR.rsp', '\\\\1 knitr', .) } %>% writeLines('DESCRIPTION')"
     - cat DESCRIPTION
-    - R --vanilla -e "library(devtools); with_libpaths('~/.Rlib', build_vignettes());"
+    - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib-dev', build_vignettes());"
     - cp inst/doc/manifestoRworkflow.pdf vignettes/
     - R -e "library(magrittr); 'DESCRIPTION' %>% readLines() %>% { gsub('(VignetteBuilder.)\\\\sknitr', '\\\\1 R.rsp', .) } %>% writeLines('DESCRIPTION')"
   artifacts:
@@ -23,7 +23,15 @@ test_manifestoR:
   stage: test
   script:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
-    - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib', { document(); library(testthat); test(reporter = 'stop') })"
+    - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib-dev', { document(); library(testthat); results <- test(reporter = 'stop'); results; session_info(); })"
+
+test_details_manifestoR:
+  stage: test_details
+  script:
+    - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
+    - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib-dev', { document(); library(testthat); results <- test(reporter = 'check'); results; session_info(); })"
+  when: manual
+  allow_failure: true
 
 pack_manifestoR:
   dependencies:
@@ -33,16 +41,18 @@ pack_manifestoR:
     - echo $MANIFESTOAPIKEY > tests/manifesto_apikey.txt
     - cp inst/doc/manifestoRworkflow.pdf vignettes/
     - R -e "library(magrittr); 'DESCRIPTION' %>% readLines() %>% { gsub('(VignetteBuilder.)\\\\sknitr', '\\\\1 R.rsp', .) } %>% writeLines('DESCRIPTION')"
-    - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib', { document(); pkg_path <- build(path = './'); file.copy(pkg_path, 'manifestoR.tar.gz'); file.copy(pkg_path, '/srv/r-cran.manifesto-project.wzb.eu/src/contrib/');  library(miniCRAN); updateRepoIndex('/srv/r-cran.manifesto-project.wzb.eu/')})"
-    - (export R_LIBS_SITE='~/.Rlib';  R -e ".libPaths()"; R CMD check --as-cran manifestoR.tar.gz > check_results.txt)
+    - R --vanilla -e "library(devtools); library(withr); withr::with_libpaths('~/.Rlib-dev', { document(); pkg_path <- build(path = './'); file.copy(pkg_path, 'manifestoR.tar.gz'); file.copy(pkg_path, '/srv/r-cran.manifesto-project.wzb.eu/src/contrib/');  library(miniCRAN); updateRepoIndex('/srv/r-cran.manifesto-project.wzb.eu/')})"
+    - (export R_LIBS_SITE='~/.Rlib-dev';  R -e ".libPaths()"; R CMD check --as-cran manifestoR.tar.gz > check_results.txt)
     - cat check_results.txt
   artifacts:
+    when: always
     paths:
     - manifestoR.tar.gz
     - check_results.txt
 
 stages:
   - prepare
+  - test_details
   - test
   - vignette
   - pack

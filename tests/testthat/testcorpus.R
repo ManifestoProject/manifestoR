@@ -24,7 +24,7 @@ test_that("simple corpus download works", {
   corp <- mp_corpus(swe)
   
   expect_is(corp, c("ManifestoCorpus", "Corpus"))
-  expect_more_than(length(corp), 10)
+  expect_gt(length(corp), 10)
   
 })
 
@@ -52,7 +52,7 @@ test_that("South America Corpus Download works", {
   
   corp <- mp_corpus(countryname == "Brazil")
   expect_is(corp, c("ManifestoCorpus", "Corpus"))
-  expect_more_than(length(corp), 3)
+  expect_gt(length(corp), 3)
   
   mp_use_corpus_version(old_version)
   
@@ -187,7 +187,7 @@ test_that("corpus does tm stuff", {
   expect_true(tt["503"] > 0)
   
   ## check for subset functionality
-  expect_more_than(length(subset(corpus[[2]], codes(corpus[[2]]) == 305)), 0)
+  expect_gt(length(subset(corpus[[2]], codes(corpus[[2]]) == 305)), 0)
 })
 
 ## more checks with one specific test document ?
@@ -199,7 +199,7 @@ test_that("corpus to data.frame works", {
   
   corpdf <- as.data.frame(corpus)
   expect_is(corpdf, "data.frame")
-  expect_more_than(nrow(corpdf), 100)
+  expect_gt(nrow(corpdf), 100)
   expect_true(all(c("text", "cmp_code") %in% names(corpdf)))
   expect_false("party" %in% names(corpdf))
   

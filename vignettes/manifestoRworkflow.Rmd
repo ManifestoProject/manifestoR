@@ -10,12 +10,16 @@ output:
     keep_md: yes
     number_sections: yes
     toc: yes
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{The workflow with the manifestoR package}
+  \usepackage[utf8]{inputenc}
 ---
-<!--
-%\VignetteEngine{knitr::rmarkdown}
-%\VignetteIndexEntry{The workflow with the manifestoR package}
-\usepackage[utf8]{inputenc}
--->
+
+\vspace{3.0em}
+<br />
+<br />
+**Hint**: See https://manifesto-project.wzb.eu for additional **tutorials**, **documentation**, **data**, and **election programmes**.
 
 \newpage
 

@@ -8,7 +8,7 @@ test_that("rile computation from corpus equals dataset value", {
   mpds.blg <- subset(mpds, countryname=="Bulgaria" &
                            edate > as.Date("2000-01-01"))
 
-  corpus_riles <- mp_scale(mp_corpus(mpds.blg), scalingfun = rile)
+  corpus_riles <- mp_scale(mp_corpus(mpds.blg) %>% recode_v5_to_v4(), scalingfun = rile)
   joint_riles <- left_join(corpus_riles,
                            select(mpds.blg, one_of("party", "date", "rile")),
                            by = c("party", "date"))
@@ -209,7 +209,7 @@ check_fk_results <- function(test_scores,
     subset(edate < max_date & edate > min_date & !is.na(diff)) %>%
     summarise(m = max(diff)) %>%
     unlist() %>%
-    expect_less_than(tolerance)
+    expect_lt(tolerance)
   
 }
 
