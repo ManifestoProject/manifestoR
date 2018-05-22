@@ -1,19 +1,19 @@
 Package: manifestoR
 Title: Access and Process Data and Documents of the Manifesto Project
-Date: 2017-05-08
-Version: 1.2.4
+Date: 2018-05-22
+Version: 1.3.0
 Authors@R: c(person("Jirka", "Lewandowski",
-		    role = c("aut", "cre"),
-		    email = "jirka.lewandowski@wzb.eu"),
+                    role = c("aut", "cre"),
+                    email = "jirka.lewandowski@wzb.eu"),
              person("Nicolas", "Merz",
                     role = c("aut"),
                     email = "nicolas.merz@wzb.eu"),
-	     person("Sven", "Regel",
-		    role = c("ctb"),
-		    email = "sven.regel@wzb.eu"),
-	     person("Pola", "Lehmann",
-		    role = c("ctb"),
-		    email = "pola.lehmann@wzb.eu"),
+             person("Sven", "Regel",
+                    role = c("ctb"),
+                    email = "sven.regel@wzb.eu"),
+             person("Pola", "Lehmann",
+                    role = c("ctb"),
+                    email = "pola.lehmann@wzb.eu"),
              person("Paul", "Muscat",
                     role = c("ctb"),
                     email = "paul.muscat@wzb.eu"))
