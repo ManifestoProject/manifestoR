@@ -54,6 +54,7 @@ mp_rmps <- function(data, adapt_zeros = TRUE, ignore_na = TRUE, threshold_sum = 
 #' @param auto_rescale_variables rescale dimension variables to 0-1
 #' @param dimensions dimensions to be used, must be in the format of the return value of \code{\link{clarity_dimensions}}
 #' @return a vector of clarity values
+#' @importFrom stats complete.cases setNames
 #' @export
 mp_clarity <- function(data,
                        weighting_kind = "manifesto",
