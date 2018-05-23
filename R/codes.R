@@ -293,13 +293,15 @@ aggregate_pers <- function(data,
 #' of Central and Eastern European countries) to the main categories in the coding scheme (3 digits).
 #' 
 #' A wrapper of \code{\link{aggregate_pers}} using \code{cee_aggregation_relations}. 
+#' 
+#' @param data dataset to use in aggregation
 #' @seealso \code{\link{aggregate_pers}}
 #' @export
 aggregate_pers_cee <- function(data) {
   aggregate_pers(data, 
                  groups = cee_aggregation_relations(),
                  keep = TRUE,
-                 na.rm=TRUE)
+                 na.rm = TRUE)
 }
 
 #' Count the codings from a ManifestoDocument

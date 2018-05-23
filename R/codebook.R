@@ -55,6 +55,7 @@ mp_codebook <- function(version = "current", cache = TRUE, chapter = "categories
 #' @param code specific code (as character) to display information about.
 #' 
 #' @export
+#' @importFrom magrittr %T>%
 #' @rdname mp_codebook
 mp_describe_code <- function(code, version = "current", columns = c("title", "description_md")) {
   data_frame(code = code) %>%
